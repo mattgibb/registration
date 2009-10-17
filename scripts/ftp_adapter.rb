@@ -22,7 +22,19 @@ class FtpAdapter
     puts "done."
     print "Removing '.part' extension..."
     mv part_name, whole_name
+    puts "done.\n\n"
+  end
+  
+  def upload_file(basename)
+    check_connection
+    whole_name = File.join(@local_dir, "downsamples", basename)
+    part_name = basename + ".part"
+    print "Uploading #{basename}..."
+    @ftp.putbinaryfile(whole_name, part_name)
     puts "done."
+    print "Removing '.part' exension..."
+    @ftp.rename(part_name, basename)
+    puts "done.\n\n"
   end
   
   def check_connection
@@ -35,6 +47,10 @@ class FtpAdapter
       @ftp.chdir @remote_dir if @remote_dir
       puts "done"
     end
+  end
+  
+  def remote_files
+    @ftp.list.map {|f| f.split[-1]}
   end
   
 end

@@ -8,7 +8,7 @@ end
 
 def downsampled_files
   # this code is repeated in downsampler
-  downsampled_files = Dir[IMAGES_DIR + '/downsamples/*.raw'].map {|f| File.basename f, '.raw' }  
+  Dir[IMAGES_DIR + '/downsamples/*.raw'].map {|f| File.basename f, '.raw' }
 end
 
 def fully_downloaded_files

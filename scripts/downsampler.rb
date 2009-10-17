@@ -11,7 +11,7 @@ end
 
 def downsampled_files
   # this code is repeated in 
-  downsampled_files = Dir[IMAGES_DIR + '/downsamples/*.raw'].map {|f| File.basename f, '.raw' }  
+  Dir[IMAGES_DIR + '/downsamples/*.raw'].map {|f| File.basename f, '.raw' }  
 end
 
 def files_ready_to_be_downsampled
