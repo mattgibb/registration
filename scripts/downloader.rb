@@ -28,6 +28,8 @@ require 'ftp_adapter'
 
 ftp = FtpAdapter.new(IMAGES_DIR, 'nas-mef2.physiol.ox.ac.uk', 'mef', 'meflab',
                      'NAS-MEF2/Rabbit/001/Histology/HiRes/')
+                     
+ftp.passive = true
 
 ftp.download_file files_to_download[0] until files_to_download.empty?
 
