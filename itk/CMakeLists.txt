@@ -6,3 +6,7 @@ INCLUDE(${ITK_USE_FILE})
 
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
+
+ADD_EXECUTABLE(Register Register.cxx )
+TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO)
+
