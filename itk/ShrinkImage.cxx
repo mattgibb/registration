@@ -123,7 +123,7 @@ int main( int argc, char * argv[] )
   writer->SetInput( resampler->GetOutput() );
 
 
-  try 
+  try
     {
     writer->Update();
     }
