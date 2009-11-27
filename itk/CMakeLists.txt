@@ -10,3 +10,5 @@ TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
 ADD_EXECUTABLE(Register Register.cxx )
 TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO)
 
+ADD_EXECUTABLE(test test.cpp )
+TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
