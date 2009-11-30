@@ -73,7 +73,8 @@ int main (int argc, char const *argv[]) {
   // instantiate stack with list of file names
 	Stack stack( getFileNames(argv) );
 	
-	writeImage< VolumeType >( stack.GetVolume(), argv[4] );
+	writeImage< Stack::VolumeType >( stack.GetVolume(), argv[4] );
+	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), "testdir/testmask.mhd");
 	
   // write image to file
   //TEMPORARY
