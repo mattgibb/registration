@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>documents</key>
+	<array>
+		<dict>
+			<key>filename</key>
+			<string>CMakeLists.txt</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>CommandIterationUpdate.hpp</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ideas</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ImageRegistration12.cxx</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ImageRegistration3.cxx</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ImageRegistration5.cxx</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>plot_bounding_boxes.py</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>Register.cxx</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ShrinkImage.cxx</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>SingleViewRegistration.cxx</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>Stack.hpp</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>test.cpp</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>TransformReadWrite.cxx</string>
+			<key>selected</key>
+			<true/>
+		</dict>
+	</array>
+	<key>fileHierarchyDrawerWidth</key>
+	<integer>288</integer>
+	<key>metaData</key>
+	<dict/>
+	<key>showFileHierarchyDrawer</key>
+	<true/>
+	<key>windowFrame</key>
+	<string>{{482, 233}, {543, 897}}</string>
+</dict>
+</plist>
