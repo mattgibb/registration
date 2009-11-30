@@ -7,15 +7,15 @@
 #include "itkRecursiveGaussianImageFilter.h"
 #include "itkCastImageFilter.h"
 
+using namespace std;
 
 int main( int argc, char * argv[] )
 {
-  if( argc < 3 )
-    {
-    std::cerr << "Usage: " << std::endl;
-    std::cerr << argv[0] << "  inputImageFile  outputImageFile" << std::endl; 
+  if( argc < 3 ) {
+    cerr << "Usage: " << endl;
+    cerr << argv[0] << "  inputImageFile  outputImageFile" << endl;
     return EXIT_FAILURE;
-    }
+  }
   
   const     unsigned int   Dimension = 2;
   
@@ -38,15 +38,13 @@ int main( int argc, char * argv[] )
   
   const double factor = 128.0;
   
-  try 
-    {
+  try {
     reader->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception caught!" << std::endl;
-    std::cerr << excep << std::endl;
-    }
+  }
+  catch( itk::ExceptionObject & excep ) {
+    cerr << "Exception caught!" << endl;
+    cerr << excep << endl;
+  }
   
   InputImageType::ConstPointer inputImage = reader->GetOutput();
   
@@ -123,17 +121,13 @@ int main( int argc, char * argv[] )
   writer->SetInput( resampler->GetOutput() );
 
 
-  try
-    {
+  try {
     writer->Update();
-    }
-  catch( itk::ExceptionObject & excep )
-    {
-    std::cerr << "Exception caught!" << std::endl;
-    std::cerr << excep << std::endl;
-    }
-
-
+  }
+  catch( itk::ExceptionObject & excep ) {
+    cerr << "Exception caught!" << endl;
+    cerr << excep << endl;
+  }
+	
   return EXIT_SUCCESS;
 }
-
