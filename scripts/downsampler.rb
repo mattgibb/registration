@@ -11,7 +11,7 @@ end
 
 def downsampled_files
   # this code is repeated in 
-  Dir[IMAGES_DIR + '/downsamples/*.raw'].map {|f| File.basename f, '.raw' }  
+  Dir[IMAGES_DIR + '/downsamples/*.bmp'].map {|f| File.basename f, '.bmp' }  
 end
 
 def files_ready_to_be_downsampled
@@ -25,7 +25,7 @@ end
 
 def downsample_file(basename)
   print "Downsampling #{basename}.bmp..."
-  `../itk/ShrinkImage #{IMAGES_DIR}/originals/#{basename}.bmp #{IMAGES_DIR}/downsamples/#{basename}.mhd`
+  `../itk/ShrinkImage #{IMAGES_DIR}/originals/#{basename}.bmp #{IMAGES_DIR}/downsamples/#{basename}.bmp`
   puts "done."
   print "Removing hi-res copy of #{basename}.bmp..."
   rm "#{IMAGES_DIR}/originals/#{basename}.bmp"

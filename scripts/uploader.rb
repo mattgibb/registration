@@ -18,7 +18,7 @@ end
 require 'ftp_adapter'
 
 ftp = FtpAdapter.new(IMAGES_DIR, 'nas-mef2.physiol.ox.ac.uk', 'mef', 'meflab',
-                     '/NAS-MEF2/Rabbit/001/Histology/downsampled_32x128x128')
+                     '/NAS-MEF2/Rabbit/001/Histology/downsampled_16x64x64')
 
 ftp.upload_file files_to_upload(ftp)[0] until files_to_upload(ftp).empty?
 

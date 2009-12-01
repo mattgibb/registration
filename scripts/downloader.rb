@@ -8,7 +8,7 @@ end
 
 def downsampled_files
   # this code is repeated in downsampler
-  Dir[IMAGES_DIR + '/downsamples/*.raw'].map {|f| File.basename f, '.raw' }
+  Dir[IMAGES_DIR + '/downsamples/*.bmp'].map {|f| File.basename f, '.bmp' }
 end
 
 def fully_downloaded_files
@@ -29,7 +29,7 @@ require 'ftp_adapter'
 ftp = FtpAdapter.new(IMAGES_DIR, 'nas-mef2.physiol.ox.ac.uk', 'mef', 'meflab',
                      'NAS-MEF2/Rabbit/001/Histology/HiRes/')
                      
-ftp.passive = true
+# ftp.passive = true
 
 ftp.download_file files_to_download[0] until files_to_download.empty?
 
