@@ -1,0 +1,13 @@
+anomalous_slices = {}
+
+anomalous_slices[:Slack0001] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0033] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0065] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0097] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0129] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0161] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0193] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0225] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0385] = {:description => "Flipped", :flipped => true}
+anomalous_slices[:Slack0641] = {:description => "Completely rubbered"}
+anomalous_slices[:Slack1537] = {:description => "Slightly damaged on bottom end (right of image)"}
