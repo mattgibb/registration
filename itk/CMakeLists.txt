@@ -12,3 +12,6 @@ TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO)
 
 ADD_EXECUTABLE(test test.cpp )
 TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
+
+ADD_EXECUTABLE(FlipImage FlipImage.cxx )
+TARGET_LINK_LIBRARIES(FlipImage ITKCommon ITKBasicFilters ITKIO)
