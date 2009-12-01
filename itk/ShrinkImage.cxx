@@ -36,7 +36,7 @@ int main( int argc, char * argv[] )
   reader->SetFileName( argv[1] );
   writer->SetFileName( argv[2] );
   
-  const double factor = 128.0;
+  const double factor = 64.0;
   
   try {
     reader->Update();
@@ -49,22 +49,21 @@ int main( int argc, char * argv[] )
   InputImageType::ConstPointer inputImage = reader->GetOutput();
   
   typedef itk::CastImageFilter< InputImageType, InternalImageType > CastFilterType;
-
+	
   CastFilterType::Pointer caster = CastFilterType::New();
 
   caster->SetInput( inputImage );
-
-  typedef itk::RecursiveGaussianImageFilter< InternalImageType,
-                                             InternalImageType > GaussianFilterType;
-
+	
+  typedef itk::RecursiveGaussianImageFilter< InternalImageType, InternalImageType > GaussianFilterType;
+	
   GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
   GaussianFilterType::Pointer smootherY = GaussianFilterType::New();
-
+	
   smootherX->SetInput( caster->GetOutput() );
   smootherY->SetInput( smootherX->GetOutput() );
-
+	
   // The Sigma values to use in the smoothing filters is computed based on the
-  // pixel spacings of the input image and the factors provided as arguments. 
+  // pixel spacings of the input image and the factors provided as arguments.
   
   const InputImageType::SpacingType& inputSpacing = inputImage->GetSpacing();
 
