@@ -1,9 +1,12 @@
 #include "itkImage.h"
+#include "itkRGBPixel.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
-#include "itkResampleImageFilter.h"
+// #include "itkResampleImageFilter.h"
+#include "itkVectorResampleImageFilter.h"
 #include "itkIdentityTransform.h"
-#include "itkLinearInterpolateImageFunction.h"
+// #include "itkLinearInterpolateImageFunction.h"
+#include "itkVectorLinearInterpolateImageFunction.h"
 #include "itkRecursiveGaussianImageFilter.h"
 #include "itkCastImageFilter.h"
 
@@ -19,9 +22,13 @@ int main( int argc, char * argv[] )
   
   const     unsigned int   Dimension = 2;
   
-  typedef   unsigned char  InputPixelType;
-  typedef   float          InternalPixelType;
-  typedef   unsigned short OutputPixelType;
+  // typedef   unsigned char  InputPixelType;
+  // typedef   float          InternalPixelType;
+  // typedef   unsigned short OutputPixelType;
+	typedef itk::RGBPixel< unsigned char >	PixelType;
+  typedef PixelType InputPixelType;
+  typedef PixelType InternalPixelType;
+  typedef PixelType OutputPixelType;
   
   typedef itk::Image< InputPixelType,    Dimension > InputImageType;
   typedef itk::Image< InternalPixelType, Dimension > InternalImageType;
@@ -79,7 +86,7 @@ int main( int argc, char * argv[] )
   smootherX->SetNormalizeAcrossScale( false );
   smootherY->SetNormalizeAcrossScale( false );
   
-  typedef itk::ResampleImageFilter< InternalImageType, OutputImageType >  ResampleFilterType;
+  typedef itk::VectorResampleImageFilter< InternalImageType, OutputImageType >  ResampleFilterType;
 
   ResampleFilterType::Pointer resampler = ResampleFilterType::New();
 
@@ -89,11 +96,11 @@ int main( int argc, char * argv[] )
   transform->SetIdentity();
   resampler->SetTransform( transform );
 
-  typedef itk::LinearInterpolateImageFunction< InternalImageType, double >  InterpolatorType;
+  typedef itk::VectorLinearInterpolateImageFunction< InternalImageType, double >  InterpolatorType;
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
   resampler->SetInterpolator( interpolator );
   
-  resampler->SetDefaultPixelValue( 0 ); 
+  // resampler->SetDefaultPixelValue( 0 );
   
   OutputImageType::SpacingType spacing;
 
