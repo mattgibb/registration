@@ -11,9 +11,10 @@
 #include "itkResampleImageFilter.h"
 #include "itkCenteredRigid2DTransform.h"
 #include "itkLinearInterpolateImageFunction.h"
+#include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkChangeInformationImageFilter.h"
 #include "itkImageSpatialObject.h"
-#include "itkImageRegionIteratorWithIndex.h"
+#include "itkImageRegionIterator.h"
 
 class Stack {
 public:
@@ -25,14 +26,15 @@ public:
 	typedef vector< SliceType::Pointer > SliceVectorType;
 	typedef itk::CenteredRigid2DTransform< double > TransformType;
 	typedef TransformType::ParametersType ParametersType;
-  typedef itk::LinearInterpolateImageFunction< SliceType, double > InterpolatorType;
+  typedef itk::LinearInterpolateImageFunction< SliceType, double > LinearInterpolatorType;
+  typedef itk::NearestNeighborInterpolateImageFunction< MaskSliceType, double > NearestNeighborInterpolatorType;
 	typedef itk::ResampleImageFilter< SliceType, SliceType > ResamplerType;
+	typedef itk::ResampleImageFilter< MaskSliceType, MaskSliceType > MaskResamplerType;
   typedef itk::TileImageFilter< SliceType, VolumeType > TileFilterType;
   typedef itk::TileImageFilter< MaskSliceType, MaskVolumeType > MaskTileFilterType;
   typedef itk::ChangeInformationImageFilter< VolumeType > ZScaleType;
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
-	typedef itk::ImageSpatialObject< 2, PixelType > ImageSpatialObjectType;
-  typedef itk::ImageRegionIteratorWithIndex< MaskSliceType > Iterator;
+  typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
 
 	SliceVectorType originalImages;
 	SliceType::SizeType maxSize;
@@ -41,8 +43,10 @@ public:
 	MaskVolumeType::Pointer maskVolume;
 	vector< ParametersType > parameters;
 	TransformType::Pointer transform;
-	InterpolatorType::Pointer interpolator;
+	LinearInterpolatorType::Pointer linearInterpolator;
+	NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
 	ResamplerType::Pointer resampler;
+	MaskResamplerType::Pointer maskResampler;
 	TileFilterType::Pointer tileFilter;
 	MaskTileFilterType::Pointer maskTileFilter;
 	ZScaleType::Pointer zScaler;
@@ -103,15 +107,21 @@ public:
 	}
 	
 	void initialiseFilters() {
-		// resampler
+		// resamplers
 		transform = TransformType::New();
-		interpolator = InterpolatorType::New();
+		linearInterpolator = LinearInterpolatorType::New();
+		nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
 		resampler = ResamplerType::New();
-		resampler->SetInterpolator( interpolator );
+		resampler->SetInterpolator( linearInterpolator );
 		resampler->SetSize( maxSize );
 		resampler->SetOutputSpacing( originalImages[0]->GetSpacing() );
 		resampler->SetTransform( transform );
-		
+		maskResampler = MaskResamplerType::New();
+		maskResampler->SetInterpolator( nearestNeighborInterpolator );
+		maskResampler->SetSize( maxSize );
+		maskResampler->SetOutputSpacing( originalImages[0]->GetSpacing() );
+		maskResampler->SetTransform( transform );
+
 		// z scalers
 		zScaler     = ZScaleType::New();
 		maskZScaler = MaskZScaleType::New();
@@ -137,27 +147,27 @@ public:
 	
 	void calculateCenteredTransformParameters() {
 		SliceType::SizeType size;
-		
+				
     for(unsigned int i=0; i<originalImages.size(); i++)
 		{
 			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
+			parameters[i][0] = 0.15;
+			parameters[i][1] = spacings[0] * maxSize[0] / 2.0;
+			parameters[i][2] = spacings[1] * maxSize[1] / 2.0;
 			parameters[i][3] = - spacings[0] * ( maxSize[0] - size[0] ) / 2.0;
 			parameters[i][4] = - spacings[1] * ( maxSize[1] - size[1] ) / 2.0;
-			cout << "parameters[" << i << "] = " << parameters[i] << endl;
-		}		
+		}
 		
 	}
-		
-	void buildVolume() {
-		SliceType::Pointer transformedImage;
-		
+	
+	void buildVolume() {		
     for(unsigned int i=0; i<originalImages.size(); i++)
 		{	
 			// resample transformed image
 			resampler->SetInput( originalImages[i] );
 			transform->SetParameters( parameters[i] );
 			resampler->Update();
-			transformedImage = resampler->GetOutput();
+			SliceType::Pointer transformedImage = resampler->GetOutput();
 			
 			// necessary to force resampler to make new pointer when updated
 			transformedImage->DisconnectPipeline();
@@ -171,56 +181,38 @@ public:
 		volume = zScaler->GetOutput();
 	}
 	
-	void buildMask() {
-	  ImageSpatialObjectType::Pointer imageSO = ImageSpatialObjectType::New();
-	  ImageSpatialObjectType::TransformType::Pointer spatialObjectTransform = imageSO->GetObjectToParentTransform();
-		MaskSliceType::Pointer maskSlice;
-		MaskSliceType::RegionType region;
-		region.SetSize( maxSize );
-				
+	void buildMask() {				
 		// build mask slices and attach them to the tile filter
 		for(unsigned int i=0; i<originalImages.size(); i++)
 		{
-			// initialise new 2D mask slice
-		  maskSlice = MaskSliceType::New();
+			// make new maskSlice and make it all white
+			MaskSliceType::RegionType region;
+			region.SetSize( originalImages[i]->GetLargestPossibleRegion().GetSize() );
+			
+			MaskSliceType::Pointer maskSlice = MaskSliceType::New();
 			maskSlice->SetRegions( region );
 			maskSlice->CopyInformation( originalImages[i] );
 			maskSlice->GetMetaDataDictionary().Print( cout );
 		  maskSlice->Allocate();
 			
-			// set up spatial object
-			transform = TransformType::New();
-			transform->SetParameters( parameters[i] );
-			spatialObjectTransform->SetIdentity();
-			spatialObjectTransform->SetCenter( transform->GetCenter() );
-			//TEMP
-			TransformType::OutputVectorType dummy = transform->GetOffset();
-			dummy = -dummy;
-			//TEMP
-			spatialObjectTransform->SetOffset( dummy );
-			// spatialObjectTransform->SetTranslation( transform->GetTranslation() );
-			// spatialObjectTransform->SetMatrix( transform->GetInverseMatrix() );
-			imageSO->ComputeObjectToWorldTransform();
-		  imageSO->SetImage( originalImages[i] );
-			
-			//TEMP
-			ImageSpatialObjectType::BoundingBoxType::Pointer boundingBox = imageSO->GetBoundingBox();			
-			cout << "boundingBox = " << boundingBox->GetBounds() << ", ";
-			cout << "boundingBox center = " << boundingBox->GetCenter() << endl;			
-			//TEMP
-			
-			// fill in the mask slice with whether its points are inside imageSO
-		  Iterator it(maskSlice,region);
+		  IteratorType it(maskSlice,region);
 		  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
-				MaskSliceType::IndexType index = it.GetIndex();
-				SliceType::PointType position;
-				position[0] = index[0] * spacings[0];
-				position[1] = index[1] * spacings[1];
-		    it.Set( imageSO->IsInside( position ) ? 255 : 0 );
+		    it.Set( 255 );
 		  }
 			
+			// apply as in buildVolume
+			maskResampler->SetInput( maskSlice );
+			transform->SetParameters( parameters[i] );
+			maskResampler->Update();
+			
+			MaskSliceType::Pointer transformedMask = maskResampler->GetOutput();
+			
+			// necessary to force resampler to make new pointer when updated
+			transformedMask->DisconnectPipeline();
+			
 			// add new image to end of filter stack
-			maskTileFilter->PushBackInput( maskSlice );
+			maskTileFilter->PushBackInput( transformedMask );
+			
 		}
 		
 		maskZScaler->SetInput( maskTileFilter->GetOutput() );
