@@ -8,12 +8,11 @@ using namespace std;
 
 int main( int argc, char * argv[] )
 {
-  if( argc < 3 )
-    {
+  if( argc < 3 ) {
     cerr << "Usage: " << endl;
     cerr << argv[0] << "  inputImageFile   outputImageFile" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   typedef  itk::RGBPixel< unsigned char > PixelType;
   typedef itk::Image< PixelType,  2 >   ImageType;
