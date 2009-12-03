@@ -49,7 +49,7 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
   
   writer->SetFileName( fileName );
 	
-  try{
+  try {
   	writer->Update();
   }
 	catch( itk::ExceptionObject & err ) {
@@ -63,32 +63,15 @@ int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
 	
-  
-  // set up input and output types
-  typedef unsigned short PixelType;
-  typedef itk::Image< PixelType, 2 > SliceType;
-  typedef itk::Image< PixelType, 3 > VolumeType;
 	
-	
-  // instantiate stack with list of file names
+	// initialise stack object
 	Stack stack( getFileNames(argv) );
 	
+	
+	// write volume and mask to disk
 	writeImage< Stack::VolumeType >( stack.GetVolume(), argv[4] );
-	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), "testdir/testmask.mhd");
-	
-  // write image to file
-  //TEMPORARY
-	// typedef itk::ImageFileWriter< InputImageType > WriterType2;
-	// WriterType2::Pointer writer2 = WriterType2::New();
-	// 
-	// for(unsigned int i=0; i<transformedImages.size(); i++)
-	// {
-	// 	writer2->SetFileName( string("testdir/") + fileNames[i] );
-	// 	writer2->SetInput( transformedImages[i] );
-	// 	writer2->Update();
-	// }
-  //TEMPORARY
-	
+	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), "testdir/testmask.mhd");	
+		
 	
   return EXIT_SUCCESS;
 }

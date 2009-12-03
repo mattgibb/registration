@@ -13,7 +13,7 @@ int main( int argc, char * argv[] )
     cerr << argv[0] << "  inputImageFile   outputImageFile" << endl;
     return EXIT_FAILURE;
   }
-
+	
   typedef  itk::RGBPixel< unsigned char > PixelType;
   typedef itk::Image< PixelType,  2 >   ImageType;
   typedef itk::ImageFileReader< ImageType >  ReaderType;

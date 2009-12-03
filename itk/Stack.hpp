@@ -55,7 +55,7 @@ public:
 	Stack(vector< string > fileNames) {
 		typedef itk::ImageFileReader< SliceType > ReaderType;
 		ReaderType::Pointer reader;
-
+		
 		for(unsigned int i=0; i<fileNames.size(); i++)
 		{
 			reader = ReaderType::New();
@@ -64,8 +64,8 @@ public:
 			originalImages.push_back( reader->GetOutput() );
 			originalImages.back()->DisconnectPipeline();
 		}
-					
-		// initialise transform
+				
+		// initialise volume and mask
 		initialiseParametersVector();
 		calculateMaxSize();
 		initialiseFilters();
