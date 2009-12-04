@@ -3,9 +3,9 @@ require 'fileutils'
 include FileUtils
 
 class FtpAdapter
-  def initialize(local_dir, host, user = nil, password = nil, remote_dir = nil)
-    # place to put downloaded files
-    @local_dir = local_dir
+  def initialize(host, user, password, remote_dir, params = {})
+    # set up folders
+    @download_dir, @upload_dir = params[:download_dir], params[:upload_dir]
     
     # set up the ftp connection
     @host, @user, @password, @remote_dir = host, user, password, remote_dir
@@ -14,8 +14,9 @@ class FtpAdapter
   end
   
   def download_file(basename)
+    raise "no download directory specified in FTP adaptor" unless @download_dir
     check_connection
-    whole_name = File.join(@local_dir, "originals", "#{basename}.bmp")
+    whole_name = File.join(@download_dir, "#{basename}.bmp")
     part_name  = whole_name + ".part"
     print "Downloading #{basename}.bmp..."
     @ftp.getbinaryfile("#{basename}.bmp", part_name)
@@ -26,8 +27,9 @@ class FtpAdapter
   end
   
   def upload_file(basename)
+    raise "no upload directory specified in FTP adaptor" unless @upload_dir
     check_connection
-    whole_name = File.join(@local_dir, "downsamples", basename)
+    whole_name = File.join(@upload_dir, basename)
     part_name = basename + ".part"
     print "Uploading #{basename}..."
     @ftp.putbinaryfile(whole_name, part_name)
