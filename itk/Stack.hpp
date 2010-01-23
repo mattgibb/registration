@@ -151,7 +151,7 @@ public:
     for(unsigned int i=0; i<originalImages.size(); i++)
 		{
 			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
-			parameters[i][0] = 0.15;
+			parameters[i][0] = 0;
 			parameters[i][1] = spacings[0] * maxSize[0] / 2.0;
 			parameters[i][2] = spacings[1] * maxSize[1] / 2.0;
 			parameters[i][3] = - spacings[0] * ( maxSize[0] - size[0] ) / 2.0;

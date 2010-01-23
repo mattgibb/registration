@@ -1,8 +1,24 @@
 #include "itkImage.h"
-#include "itkImageFileWriter.h"
-#include "itkRegularExpressionSeriesFileNames.h"
 #include "itkRegularStepGradientDescentOptimizer.h"
 #include "itkImageRegistrationMethod.h"
+// #include "somesortofImageToImageMetric.h"
+#include "itkLinearInterpolateImageFunction.h"
+#include "itkImage.h"
+#include "itkResampleImageFilter.h"
+#include "itkCastImageFilter.h"
+
+// 3-D registration
+#include "itkVersorRigid3DTransform.h"
+#include "itkCenteredTransformInitializer.h"
+#include "itkVersorRigid3DTransformOptimizer.h"
+
+// 2-D registration
+#include "itkRegularStepGradientDescentOptimizer.h"
+
+// File IO
+#include "itkRegularExpressionSeriesFileNames.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 
 // my files
 #include "CommandIterationUpdate.hpp"
@@ -68,9 +84,21 @@ int main (int argc, char const *argv[]) {
 	Stack stack( getFileNames(argv) );
 	
 	
+	// perform 3-D registration
+	 CommandIterationUpdate::Pointer test = CommandIterationUpdate::New();
+	
+	// add observer to optimiser
+	
+	
+	// extract 2-D MRI slices
+	
+	
+	// perform 2-D registration
+	
+	
 	// write volume and mask to disk
 	writeImage< Stack::VolumeType >( stack.GetVolume(), argv[4] );
-	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), "testdir/testmask.mhd");	
+	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), "testdir/testmask.mhd");
 		
 	
   return EXIT_SUCCESS;

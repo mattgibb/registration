@@ -8,10 +8,13 @@ ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
 
 ADD_EXECUTABLE(Register Register.cxx )
-TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO)
+TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO ITKNumerics)
 
 ADD_EXECUTABLE(test test.cpp )
 TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
 
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
 TARGET_LINK_LIBRARIES(FlipImage ITKCommon ITKBasicFilters ITKIO)
+
+ADD_EXECUTABLE(PermuteAxes PermuteAxes.cxx )
+TARGET_LINK_LIBRARIES(PermuteAxes ITKCommon ITKBasicFilters ITKIO)

@@ -1,7 +1,6 @@
 #ifndef COMMANDITERATIONUPDATE_CPP_
 #define COMMANDITERATIONUPDATE_CPP_
 
-#include "itkRegularStepGradientDescentOptimizer.h"
 #include "itkCommand.h"
 
 // Class to handle blah blah blah
