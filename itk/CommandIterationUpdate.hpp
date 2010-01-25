@@ -7,6 +7,7 @@
 
 using namespace std;
 
+template<typename OptimizerType>
 class CommandIterationUpdate : public itk::Command
 {
 public:
@@ -20,8 +21,7 @@ protected:
   CommandIterationUpdate() {}
 
 public:
-  typedef itk::RegularStepGradientDescentOptimizer     OptimizerType;
-  typedef const OptimizerType *                        OptimizerPointer;
+  typedef const OptimizerType* OptimizerPointer;
 
   void Execute(itk::Object *caller, const itk::EventObject & event)
     {

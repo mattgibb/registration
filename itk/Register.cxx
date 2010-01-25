@@ -85,7 +85,8 @@ int main (int argc, char const *argv[]) {
 	
 	
 	// perform 3-D registration
-	 CommandIterationUpdate::Pointer test = CommandIterationUpdate::New();
+	typedef CommandIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
+	ObserverType2D::Pointer test = ObserverType2D::New();
 	
 	// add observer to optimiser
 	
