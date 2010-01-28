@@ -38,7 +38,7 @@ public:
 
 	SliceVectorType originalImages;
 	SliceType::SizeType maxSize;
-	SliceType::SpacingType spacings;
+	SliceType::SpacingType spacings2D;
 	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
 	vector< ParametersType > parameters;
@@ -102,8 +102,8 @@ public:
 			}
 		}
 		
-		// spacings
-		spacings = originalImages[0]->GetSpacing();
+		// spacings in 2D
+		spacings2D = originalImages[0]->GetSpacing();
 	}
 	
 	void initialiseFilters() {
@@ -121,18 +121,18 @@ public:
 		maskResampler->SetSize( maxSize );
 		maskResampler->SetOutputSpacing( originalImages[0]->GetSpacing() );
 		maskResampler->SetTransform( transform );
-
+		
 		// z scalers
 		zScaler     = ZScaleType::New();
 		maskZScaler = MaskZScaleType::New();
 		zScaler    ->ChangeSpacingOn();
 		maskZScaler->ChangeSpacingOn();
-		ZScaleType::SpacingType spacings;
-		spacings[0] = 128;
-		spacings[1] = 128;
-		spacings[2] = 128;
-		zScaler    ->SetOutputSpacing( spacings );
-		maskZScaler->SetOutputSpacing( spacings );
+		ZScaleType::SpacingType spacings3D;
+		spacings3D[0] = 70.4;
+		spacings3D[1] = 70.4;
+		spacings3D[2] = 160;
+		zScaler    ->SetOutputSpacing( spacings3D );
+		maskZScaler->SetOutputSpacing( spacings3D );
 		
 		// tile filters
 		tileFilter = TileFilterType::New();
@@ -152,17 +152,17 @@ public:
 		{
 			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
 			parameters[i][0] = 0;
-			parameters[i][1] = spacings[0] * maxSize[0] / 2.0;
-			parameters[i][2] = spacings[1] * maxSize[1] / 2.0;
-			parameters[i][3] = - spacings[0] * ( maxSize[0] - size[0] ) / 2.0;
-			parameters[i][4] = - spacings[1] * ( maxSize[1] - size[1] ) / 2.0;
+			parameters[i][1] = spacings2D[0] * maxSize[0] / 2.0;
+			parameters[i][2] = spacings2D[1] * maxSize[1] / 2.0;
+			parameters[i][3] = - spacings2D[0] * ( maxSize[0] - size[0] ) / 2.0;
+			parameters[i][4] = - spacings2D[1] * ( maxSize[1] - size[1] ) / 2.0;
 		}
 		
 	}
 	
-	void buildVolume() {		
+	void buildVolume() {
     for(unsigned int i=0; i<originalImages.size(); i++)
-		{	
+		{
 			// resample transformed image
 			resampler->SetInput( originalImages[i] );
 			transform->SetParameters( parameters[i] );

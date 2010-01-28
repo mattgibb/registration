@@ -1,7 +1,3 @@
-Metric uses grayscale intensity of image automatically, so no need to remove colour from downsampled images (see ITK Software Guide, p415)
-
 Investigate region-based metric evaluation with SetFixedImageMask() and SetMovingImageMask() (also see p415)
 
-In the writeup, plot various metric's/interpolator's cost functions in parameter space (p417)
-
-Copy loads of references from the ITK Software Guide, e.g. form p333
+Check `8.5.3 Plotting Joint Histograms' in ITK Software Guide.
