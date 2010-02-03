@@ -1,11 +1,11 @@
 #include "itkImage.h"
-#include "itkRegularStepGradientDescentOptimizer.h"
 #include "itkImageRegistrationMethod.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkImage.h"
 #include "itkResampleImageFilter.h"
 #include "itkCastImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
 #include "itkImageMaskSpatialObject.h"
 
 // 3-D registration
@@ -128,8 +128,13 @@ int main (int argc, char const *argv[]) {
   typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
   MRIVolumeReaderType::Pointer mriVolumeReader = MRIVolumeReaderType::New();
 	mriVolumeReader->SetFileName( argv[4] );
-	MRIVolumeType::Pointer mriVolume = mriVolumeReader->GetOutput();
 	
+	typedef itk::RescaleIntensityImageFilter< MRIVolumeType, MRIVolumeType > RescaleFilterType;
+	RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
+	rescaleFilter->SetInput( mriVolumeReader->GetOutput() );
+	rescaleFilter->SetOutputMinimum( 0 );
+	rescaleFilter->SetOutputMaximum( 255 );
+	MRIVolumeType::Pointer mriVolume = rescaleFilter->GetOutput();
 	
   registration3D->SetFixedImage( stack.GetVolume() );
   registration3D->SetMovingImage( mriVolume );
@@ -296,7 +301,7 @@ int main (int argc, char const *argv[]) {
   resampler3D->SetOutputOrigin( fixedImage3D->GetOrigin() );
   resampler3D->SetOutputSpacing( fixedImage3D->GetSpacing() );
   resampler3D->SetOutputDirection( fixedImage3D->GetDirection() );
-  resampler3D->SetDefaultPixelValue( 0.5 );
+  resampler3D->SetDefaultPixelValue( 100 );
   
   // resampler3D->SetTransform( finalTransform );
   resampler3D->SetTransform( transform3D );
