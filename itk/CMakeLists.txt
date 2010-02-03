@@ -15,6 +15,3 @@ TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
 
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
 TARGET_LINK_LIBRARIES(FlipImage ITKCommon ITKBasicFilters ITKIO)
-
-ADD_EXECUTABLE(PermuteAxes PermuteAxes.cxx )
-TARGET_LINK_LIBRARIES(PermuteAxes ITKCommon ITKBasicFilters ITKIO)
