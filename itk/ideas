@@ -1,3 +1,2 @@
-Investigate region-based metric evaluation with SetFixedImageMask() and SetMovingImageMask() (also see p415)
-
 Check `8.5.3 Plotting Joint Histograms' in ITK Software Guide.
+

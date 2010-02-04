@@ -190,7 +190,7 @@ int main (int argc, char const *argv[]) {
 	// Construct and configure the optimiser
   typedef OptimizerType3D::ScalesType OptimizerScalesType3D;
   OptimizerScalesType3D optimizerScales3D( transform3D->GetNumberOfParameters() );
-  const double translationScale = 1.0 / 40000.0;
+  const double translationScale = 1.0 / 15000.0;
   
   optimizerScales3D[0] = 1.0;
   optimizerScales3D[1] = 1.0;
@@ -201,10 +201,10 @@ int main (int argc, char const *argv[]) {
   
   optimizer3D->SetScales( optimizerScales3D );
   
-  optimizer3D->SetMaximumStepLength( 0.10  ); 
+  optimizer3D->SetMaximumStepLength( 1.0  ); 
   optimizer3D->SetMinimumStepLength( 0.00001 );
   
-  optimizer3D->SetNumberOfIterations( 5 );
+  optimizer3D->SetNumberOfIterations( 500 );
   
   
   // Create the Command observer and register it with the optimizer.
