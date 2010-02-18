@@ -11,5 +11,5 @@ end
 
 desc "Generate graph movies of registration iteration data"
 task :movies do
-  sh "scripts/registration_graphs.py #{testdir}/cropped_output_500_iterations #{testdir}"
+  sh "scripts/graphing/registration_graphs.py #{testdir}/cropped_output_500_iterations #{testdir}"
 end

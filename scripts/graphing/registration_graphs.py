@@ -1,38 +1,26 @@
 #!/usr/bin/env python
+
+# external packages
 import os, sys
 import matplotlib.pyplot as plt
 from numpy import * 
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.axes import subplot_class_factory
-
 from IPython.Shell import IPShellEmbed
 ipshell = IPShellEmbed()
+
+# my packages
+from input.stdout_read import read_stdout_file
 
 # extract command line arguments
 params_file, output_dir = sys.argv[1:3]
 
-# read registration output
-f = open(params_file)
-lines = f.readlines()
-
-# clean up registration output
-for line_index, line in enumerate(lines):
-	line = line.rsplit()
-	cleaned_line = []
-	# 'line[:]' instead of 'line' to make a temporary copy
-	for word_index, word in enumerate(line[:]):
-		word = word.lstrip('[:=')
-		word = word.rstrip(':=,]')
-		if not len(word) == 0:
-			cleaned_line.append(float(word))
-	lines[line_index] = cleaned_line
-
-# extract data from lines
-lines = asarray(lines)
-iteration = lines[:,0]
-metric_value = lines[:,1]
-versor_params = lines[:,2:5]
-translation_params = lines[:,5:8]
+# parse input file
+params = read_stdout_file(params_file)
+iteration          = params['iteration']          
+metric_value       = params['metric_value']       
+versor_params      = params['versor_params']      
+translation_params = params['translation_params']
 
 # generate movie of parameters
 fig = plt.figure(figsize=(15,5))
