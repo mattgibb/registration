@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.6)
 FIND_PACKAGE(ITK REQUIRED)
 INCLUDE(${ITK_USE_FILE})
 
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/Observers)
+
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
 
