@@ -9,6 +9,8 @@
 #include "itkImageMaskSpatialObject.h"
 
 // 3-D registration
+#include "itkMultiResolutionImageRegistrationMethod.h"
+#include "itkMultiResolutionPyramidImageFilter.h"
 #include "itkVersorRigid3DTransform.h"
 #include "itkCenteredTransformInitializer.h"
 #include "itkVersorRigid3DTransformOptimizer.h"
@@ -23,20 +25,20 @@
 #include "itkTransformFileWriter.h"
 #include "itkTransformFactory.h"
 
-
 // my files
-#include "CommandIterationUpdate.hpp"
+#include "StdOutIterationUpdate.hpp"
+#include "FileIterationUpdate.hpp"
 #include "Stack.hpp"
 
 using namespace std;
 
 void checkUsage(int argc, char const *argv[]) {
-  if( argc < 9 )
+  if( argc < 10 )
   {
     cerr << "\nUsage: " << std::endl;
     cerr << argv[0] << " histoDir regularExpression ";
-		cerr << "sortingExpression mriFile transformFile3D";
-		cerr << "outputMRI outputStack outputMask\n\n";
+		cerr << "sortingExpression mriFile transformFile3D ";
+		cerr << "outputMRI outputStack outputMask outputParameters\n\n";
 		cerr << "histoDir should have no trailing slash\n";
 		cerr << "regularExpression should be enclosed in single quotes\n";
 		cerr << "sortingExpression should be an integer ";
@@ -140,18 +142,18 @@ int main (int argc, char const *argv[]) {
   registration3D->SetMovingImage( mriVolume );
 	
   registration3D->SetFixedImageRegion( stack.GetVolume()->GetBufferedRegion() );
-
-
+	
+	
 	// Set up transform initializer
   typedef itk::CenteredTransformInitializer< TransformType3D,
 																						 Stack::VolumeType,
 																						 MRIVolumeType > TransformInitializerType;
   TransformInitializerType::Pointer initializer = TransformInitializerType::New();
-
+	
   initializer->SetTransform( transform3D );
   initializer->SetFixedImage(  stack.GetVolume() );
   initializer->SetMovingImage( mriVolume );
-
+	
   //  The use of the geometrical centers is selected by calling
   //  GeometryOn() while the use of center of mass is selected by
   //  calling MomentsOn(). Below we select the center of mass mode.
@@ -186,7 +188,7 @@ int main (int argc, char const *argv[]) {
   //  parameters to be used when the registration process starts.
   registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
   
-
+	
 	// Construct and configure the optimiser
   typedef OptimizerType3D::ScalesType OptimizerScalesType3D;
   OptimizerScalesType3D optimizerScales3D( transform3D->GetNumberOfParameters() );
@@ -204,14 +206,21 @@ int main (int argc, char const *argv[]) {
   optimizer3D->SetMaximumStepLength( 1.0  ); 
   optimizer3D->SetMinimumStepLength( 0.00001 );
   
-  optimizer3D->SetNumberOfIterations( 500 );
+  optimizer3D->SetNumberOfIterations( 10 );
   
   
-  // Create the Command observer and register it with the optimizer.
-	typedef CommandIterationUpdate< itk::VersorRigid3DTransformOptimizer > ObserverType3D;
-	ObserverType3D::Pointer observer3D = ObserverType3D::New();
-  optimizer3D->AddObserver( itk::IterationEvent(), observer3D );
+  // Create the command observers and register them with the optimiser.
+	typedef StdOutIterationUpdate< itk::VersorRigid3DTransformOptimizer > StdOutObserverType3D;
+	typedef FileIterationUpdate  < itk::VersorRigid3DTransformOptimizer > FileObserverType3D;
+	StdOutObserverType3D::Pointer stdOutObserver3D = StdOutObserverType3D::New();
+	FileObserverType3D::Pointer   fileObserver3D   = FileObserverType3D::New();
+  optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
+  optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D   );
   
+	ofstream output;
+	output.open( argv[9] );
+	fileObserver3D->SetOfstream( &output );
+	
   // Begin registration
   try
     {
@@ -225,8 +234,10 @@ int main (int argc, char const *argv[]) {
     std::cerr << "ExceptionObject caught !" << std::endl; 
     std::cerr << err << std::endl; 
     return EXIT_FAILURE;
-    } 
+    }
   
+  output.close();
+	
 	// Get final parameters
   OptimizerType3D::ParametersType finalParameters3D = registration3D->GetLastTransformParameters();
   
@@ -318,7 +329,7 @@ int main (int argc, char const *argv[]) {
 	
 	
 	// perform 2-D registration
-	typedef CommandIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
+	typedef StdOutIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
 	ObserverType2D::Pointer observer2D = ObserverType2D::New();
 	
 	

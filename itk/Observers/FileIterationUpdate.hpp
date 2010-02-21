@@ -1,5 +1,5 @@
-#ifndef COMMANDITERATIONUPDATE_CPP_
-#define COMMANDITERATIONUPDATE_CPP_
+#ifndef FILEITERATIONUPDATE_HPP_
+#define FILEITERATIONUPDATE_HPP_
 
 #include "itkCommand.h"
 
@@ -8,17 +8,18 @@
 using namespace std;
 
 template<typename OptimizerType>
-class CommandIterationUpdate : public itk::Command
+class FileIterationUpdate : public itk::Command
 {
 public:
-  typedef CommandIterationUpdate   Self;
+  typedef FileIterationUpdate      Self;
   typedef itk::Command             Superclass;
   typedef itk::SmartPointer<Self>  Pointer;
 
   itkNewMacro( Self );
 
 protected:
-  CommandIterationUpdate() {}
+  FileIterationUpdate() {}
+	ofstream *output;
 
 public:
   typedef const OptimizerType* OptimizerPointer;
@@ -28,19 +29,36 @@ public:
 	  // in this case, just calls the const version of Execute
     Execute( (const itk::Object *)caller, event);
   }
-
+	
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
     OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
-
+		
     if( ! itk::IterationEvent().CheckEvent( &event ) )
-      {
+    {
       return;
-      }
+    }
+		
+		typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
+		
+    (*output) << optimizer->GetCurrentIteration() << " ";
+    (*output) << optimizer->GetValue();
+		for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
+		{
+			(*output) << " " << params[i];
+		}
+    (*output) << endl;
+  }
 
-    cout << optimizer->GetCurrentIteration() << " = ";
-    cout << optimizer->GetValue() << " : ";
-    cout << optimizer->GetCurrentPosition() << endl;
-  }   
+	void SetOfstream(ofstream *stream)
+	{
+		output = stream;
+	}
+	
+	ofstream * GetOfstream()
+	{
+		return output;
+	}
+	
 };
 #endif
