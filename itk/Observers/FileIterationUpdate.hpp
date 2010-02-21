@@ -3,8 +3,6 @@
 
 #include "itkCommand.h"
 
-// Class to handle blah blah blah
-
 using namespace std;
 
 template<typename OptimizerType>

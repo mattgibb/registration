@@ -1,34 +1,21 @@
 #ifndef STDOUTITERATIONUPDATE_HPP_
 #define STDOUTITERATIONUPDATE_HPP_
 
-#include "itkCommand.h"
-
-// Class to handle blah blah blah
+#include "CommandObserverBase.hpp"
 
 using namespace std;
 
 template<typename OptimizerType>
-class StdOutIterationUpdate : public itk::Command
+class StdOutIterationUpdate : public CommandObserverBase< OptimizerType >
 {
 public:
-  typedef StdOutIterationUpdate    Self;
-  typedef itk::Command             Superclass;
-  typedef itk::SmartPointer<Self>  Pointer;
+  typedef StdOutIterationUpdate                Self;
+  typedef CommandObserverBase< OptimizerType > Superclass;
+  typedef itk::SmartPointer<Self>              Pointer;
 
   itkNewMacro( Self );
 
-protected:
-  StdOutIterationUpdate() {}
-
-public:
   typedef const OptimizerType* OptimizerPointer;
-
-  void Execute(itk::Object *caller, const itk::EventObject & event)
-  {
-	  // in this case, just calls the const version of Execute
-		cout << "Inside the non-const Execute()..." << endl;
-    Execute( (const itk::Object *)caller, event);
-  }
 
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
