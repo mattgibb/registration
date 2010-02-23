@@ -1,33 +1,21 @@
 #ifndef FILEITERATIONUPDATE_HPP_
 #define FILEITERATIONUPDATE_HPP_
 
-#include "itkCommand.h"
+#include "CommandObserverBase.hpp"
 
 using namespace std;
 
 template<typename OptimizerType>
-class FileIterationUpdate : public itk::Command
+class FileIterationUpdate : public CommandObserverBase< OptimizerType >
 {
 public:
-  typedef FileIterationUpdate      Self;
-  typedef itk::Command             Superclass;
-  typedef itk::SmartPointer<Self>  Pointer;
+  typedef FileIterationUpdate                  Self;
+  typedef CommandObserverBase< OptimizerType > Superclass;
+  typedef itk::SmartPointer<Self>              Pointer;
+  typedef const OptimizerType*                 OptimizerPointer;
 
   itkNewMacro( Self );
 
-protected:
-  FileIterationUpdate() {}
-	ofstream *output;
-
-public:
-  typedef const OptimizerType* OptimizerPointer;
-
-  void Execute(itk::Object *caller, const itk::EventObject & event)
-  {
-	  // in this case, just calls the const version of Execute
-    Execute( (const itk::Object *)caller, event);
-  }
-	
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
     OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
@@ -39,6 +27,7 @@ public:
 		
 		typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
 		
+		(*output) << registration->GetCurrentLevel() << " ";
     (*output) << optimizer->GetCurrentIteration() << " ";
     (*output) << optimizer->GetValue();
 		for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
@@ -58,5 +47,8 @@ public:
 		return output;
 	}
 	
+protected:
+	ofstream *output;
+
 };
 #endif

@@ -18,7 +18,7 @@
 
 class Stack {
 public:
-  typedef unsigned short PixelType;
+  typedef short PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
 	typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 2 > MaskSliceType;

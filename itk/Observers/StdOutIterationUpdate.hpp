@@ -12,10 +12,9 @@ public:
   typedef StdOutIterationUpdate                Self;
   typedef CommandObserverBase< OptimizerType > Superclass;
   typedef itk::SmartPointer<Self>              Pointer;
+  typedef const OptimizerType*                 OptimizerPointer;
 
   itkNewMacro( Self );
-
-  typedef const OptimizerType* OptimizerPointer;
 
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {

@@ -28,6 +28,7 @@
 // my files
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
+#include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 
 using namespace std;
@@ -92,7 +93,9 @@ int main (int argc, char const *argv[]) {
 	
 	
 	// perform 3-D registration
-  typedef unsigned char MRIPixelType;
+	 // unsigned char is native type, but multires can't handle unsigned types
+  // typedef unsigned char MRIPixelType;
+  typedef short MRIPixelType;
   typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
 	typedef itk::VersorRigid3DTransform< double > TransformType3D;
   typedef itk::VersorRigid3DTransformOptimizer OptimizerType3D;
@@ -101,14 +104,20 @@ int main (int argc, char const *argv[]) {
   typedef itk::LinearInterpolateImageFunction< MRIVolumeType, double > LinearInterpolatorType3D;
   // used for final resampling
 	typedef itk::NearestNeighborInterpolateImageFunction< MRIVolumeType, double > NearestNeighborInterpolatorType3D;
-  typedef itk::ImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
-	
+  // typedef itk::ImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
+	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
+	typedef itk::MultiResolutionPyramidImageFilter< Stack::VolumeType, Stack::VolumeType > FixedImagePyramidType;
+  typedef itk::MultiResolutionPyramidImageFilter< MRIVolumeType, MRIVolumeType > MovingImagePyramidType;
+  
 	
 	MetricType3D::Pointer metric3D = MetricType3D::New();
   OptimizerType3D::Pointer optimizer3D = OptimizerType3D::New();
   LinearInterpolatorType3D::Pointer interpolator3D = LinearInterpolatorType3D::New();
   RegistrationType3D::Pointer registration3D = RegistrationType3D::New();
-  TransformType3D::Pointer  transform3D = TransformType3D::New();
+  TransformType3D::Pointer transform3D = TransformType3D::New();
+  FixedImagePyramidType::Pointer fixedImagePyramid = FixedImagePyramidType::New();
+  MovingImagePyramidType::Pointer movingImagePyramid = MovingImagePyramidType::New();
+	
 
 	// Number of spatial samples should be ~20% of pixels for detailed images, see ITK Software Guide p341
 	// Total pixels in MRI: 128329344
@@ -125,6 +134,8 @@ int main (int argc, char const *argv[]) {
   registration3D->SetOptimizer( optimizer3D );
   registration3D->SetInterpolator( interpolator3D );
   registration3D->SetTransform( transform3D );
+  registration3D->SetFixedImagePyramid( fixedImagePyramid );
+  registration3D->SetMovingImagePyramid( movingImagePyramid );
 	
 	
   typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
@@ -210,25 +221,31 @@ int main (int argc, char const *argv[]) {
   
   
   // Create the command observers and register them with the optimiser.
-	typedef StdOutIterationUpdate< itk::VersorRigid3DTransformOptimizer > StdOutObserverType3D;
-	typedef FileIterationUpdate  < itk::VersorRigid3DTransformOptimizer > FileObserverType3D;
+	typedef StdOutIterationUpdate< OptimizerType3D > StdOutObserverType3D;
+	typedef FileIterationUpdate< OptimizerType3D > FileObserverType3D;
+	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D > MultiResCommandType;
 	StdOutObserverType3D::Pointer stdOutObserver3D = StdOutObserverType3D::New();
 	FileObserverType3D::Pointer   fileObserver3D   = FileObserverType3D::New();
+	MultiResCommandType::Pointer  multiResCommand  = MultiResCommandType::New();
   optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
   optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D   );
-  
+  registration3D->AddObserver( itk::IterationEvent(), multiResCommand  );
+
 	ofstream output;
 	output.open( argv[9] );
 	fileObserver3D->SetOfstream( &output );
 	
+	registration3D->SetNumberOfLevels( 4 );
+	
+	
   // Begin registration
   try
     {
-    registration3D->StartRegistration(); 
+    registration3D->StartRegistration();
     std::cout << "Optimizer stop condition: "
               << registration3D->GetOptimizer()->GetStopConditionDescription()
               << std::endl;
-    } 
+    }
   catch( itk::ExceptionObject & err ) 
     { 
     std::cerr << "ExceptionObject caught !" << std::endl; 
