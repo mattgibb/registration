@@ -10,9 +10,10 @@ task :test_Register do
      "../images/mri/heart_bin.mhd #{testdir}/finalParameters3D.transform " +
      "#{testdir}/registered_mri.mhd #{testdir}/stack.mhd #{testdir}/mask.mhd " +
      "#{testdir}/output.txt"
+  sh "say done"
 end
 
 desc "Generate graph movies of registration iteration data"
 task :movies do
-  sh "scripts/graphing/registration_graphs.py #{testdir}/cropped_output_500_iterations #{testdir}"
+  sh "scripts/graphing/registration_graphs.py #{testdir}/output.txt #{testdir}"
 end

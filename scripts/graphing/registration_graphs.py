@@ -10,24 +10,34 @@ from IPython.Shell import IPShellEmbed
 ipshell = IPShellEmbed()
 
 # my packages
-from input.stdout_read import read_stdout_file
+import input.stdout_read as stdout_read
+import input.ssv_read as ssv_read
 
 # extract command line arguments
 params_file, output_dir = sys.argv[1:3]
 
 # parse input file
-params = read_stdout_file(params_file)
-iteration          = params['iteration']          
-metric_value       = params['metric_value']       
-versor_params      = params['versor_params']      
-translation_params = params['translation_params']
+multires_params = ssv_read.read_file(params_file)
+level              = multires_params['level']
+iteration          = multires_params['iteration']
+metric_value       = multires_params['metric_value']
+versor_params      = multires_params['versor_params']
+translation_params = multires_params['translation_params']
+
+# parse single resolution file
+singleres_params = stdout_read.read_file('../images/test_results/cropped_output_500_iterations')
+level              = singleres_params['level']
+iteration          = singleres_params['iteration']
+metric_value       = singleres_params['metric_value']
+versor_params      = singleres_params['versor_params']
+translation_params = singleres_params['translation_params']
 
 # generate movie of parameters
 fig = plt.figure(figsize=(15,5))
 Subplot3D = subplot_class_factory(Axes3D)
 
-versor_ax      = Subplot3D(fig, 131)
-translation_ax = Subplot3D(fig, 132)
+versor_ax      = Subplot3D(fig, 131, aspect='equal')
+translation_ax = Subplot3D(fig, 132, aspect='equal')
 metric_ax      = plt.subplot(133)
 
 versor_ax.plot(versor_params[:,0],versor_params[:,1],versor_params[:,2])
@@ -38,8 +48,7 @@ versor_lims = versor_ax.get_w_lims()
 translation_lims = translation_ax.get_w_lims()
 metric_lims = metric_ax.get_xlim() + metric_ax.get_ylim()
 
-# metric_lims = metric_ax
-
+# for i in range(1,30):
 for i in range(1,len(iteration)):
 	versor_ax.cla()
 	translation_ax.cla()
@@ -48,6 +57,9 @@ for i in range(1,len(iteration)):
 	versor_ax.plot(versor_params[:i,0],versor_params[:i,1],versor_params[:i,2])
 	translation_ax.plot(translation_params[:i,0],translation_params[:i,1],translation_params[:i,2])
 	metric_ax.plot(metric_value[:i])
+	
+	versor_ax.set_aspect('equal')
+	translation_ax.set_aspect('equal')
 	
 	versor_ax.set_title('Versor Parameters')
 	translation_ax.set_title('Translation Parameters')
