@@ -10,27 +10,22 @@ from IPython.Shell import IPShellEmbed
 ipshell = IPShellEmbed()
 
 # my packages
-import input.stdout_read as stdout_read
-import input.ssv_read as ssv_read
+from sources.stdout_reader import StdoutReader
+from sources.ssv_reader import SsvReader
 
 # extract command line arguments
 params_file, output_dir = sys.argv[1:3]
 
 # parse input file
-multires_params = ssv_read.read_file(params_file)
-level              = multires_params['level']
-iteration          = multires_params['iteration']
-metric_value       = multires_params['metric_value']
-versor_params      = multires_params['versor_params']
-translation_params = multires_params['translation_params']
+multires = SsvReader(params_file)
 
 # parse single resolution file
-singleres_params = stdout_read.read_file('../images/test_results/cropped_output_500_iterations')
-level              = singleres_params['level']
-iteration          = singleres_params['iteration']
-metric_value       = singleres_params['metric_value']
-versor_params      = singleres_params['versor_params']
-translation_params = singleres_params['translation_params']
+singleres = StdoutReader('../images/test_results/cropped_output_500_iterations')
+level              = singleres.level()
+iteration          = singleres.iteration()
+metric_value       = singleres.metric_value()
+versor_params      = singleres.versor_params()
+translation_params = singleres.translation_params()
 
 # generate movie of parameters
 fig = plt.figure(figsize=(15,5))
@@ -48,8 +43,8 @@ versor_lims = versor_ax.get_w_lims()
 translation_lims = translation_ax.get_w_lims()
 metric_lims = metric_ax.get_xlim() + metric_ax.get_ylim()
 
-# for i in range(1,30):
-for i in range(1,len(iteration)):
+for i in range(1,30):
+# for i in range(1,len(iteration)):
 	versor_ax.cla()
 	translation_ax.cla()
 	metric_ax.cla()
