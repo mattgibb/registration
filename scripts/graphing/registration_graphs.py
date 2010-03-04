@@ -9,6 +9,7 @@ ipshell = IPShellEmbed()
 from sources.stdout_reader import StdoutReader
 from sources.ssv_reader import SsvReader
 from sequences.matplotlib_plotter import MatplotlibPlotter
+from sequences.mayavi_plotter import MayaviPlotter
 
 # extract command line arguments
 params_file, output_dir = sys.argv[1:3]
@@ -24,4 +25,6 @@ metric_value       = singleres.metric_value()
 versor_params      = singleres.versor_params()
 translation_params = singleres.translation_params()
 
-plotter = MatplotlibPlotter(output_dir, singleres)
+# plotter = MatplotlibPlotter(output_dir, singleres)
+plotter = MayaviPlotter(output_dir, singleres)
+plotter.plot()

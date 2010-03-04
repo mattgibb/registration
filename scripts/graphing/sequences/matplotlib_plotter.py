@@ -3,12 +3,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.axes import subplot_class_factory
 import os
 
-class MatplotlibPlotter:
-    def __init__(self, output_dir, *sources):
-        self.sources = sources
-        self.output_dir = output_dir
-        
-        # generate movie
+from sequences.plotter_base import PlotterBase
+
+class MatplotlibPlotter(PlotterBase):
+    def plot(self):
         self.setup_figure()
         self.calculate_lims()
         self.plot_sequence()
