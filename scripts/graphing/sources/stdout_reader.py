@@ -3,9 +3,6 @@ from numpy import *
 # my files
 from sources.iteration_data import IterationData
 
-from IPython.Shell import IPShellEmbed
-ipshell = IPShellEmbed()
-
 class StdoutReader(IterationData):
     def construct_array(self, lines):
         # parse lines
