@@ -89,11 +89,13 @@ int main (int argc, char const *argv[]) {
 	
 	
 	// initialise stack object
+	cout << "About to begin stack construction..." << endl;
 	Stack stack( getFileNames(argv) );
+	cout << "Just finished stack construction..." << endl;
 	
 	
 	// perform 3-D registration
-	 // unsigned char is native type, but multires can't handle unsigned types
+  // unsigned char is native type, but multires can't handle unsigned types
   // typedef unsigned char MRIPixelType;
   typedef short MRIPixelType;
   typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
@@ -109,7 +111,7 @@ int main (int argc, char const *argv[]) {
 	typedef itk::MultiResolutionPyramidImageFilter< Stack::VolumeType, Stack::VolumeType > FixedImagePyramidType;
   typedef itk::MultiResolutionPyramidImageFilter< MRIVolumeType, MRIVolumeType > MovingImagePyramidType;
   
-	
+	cout << "About to construct framework..." << endl;
 	MetricType3D::Pointer metric3D = MetricType3D::New();
   OptimizerType3D::Pointer optimizer3D = OptimizerType3D::New();
   LinearInterpolatorType3D::Pointer interpolator3D = LinearInterpolatorType3D::New();
@@ -117,12 +119,13 @@ int main (int argc, char const *argv[]) {
   TransformType3D::Pointer transform3D = TransformType3D::New();
   FixedImagePyramidType::Pointer fixedImagePyramid = FixedImagePyramidType::New();
   MovingImagePyramidType::Pointer movingImagePyramid = MovingImagePyramidType::New();
-	
+	cout << "Finished constructing framework..." << endl;	
 
+	cout << "About to begin registration setup..." << endl;
 	// Number of spatial samples should be ~20% of pixels for detailed images, see ITK Software Guide p341
 	// Total pixels in MRI: 128329344
 	// metric3D.UseAllPixelsOn() // Uses all the pixels in the fixed image, rather than just a sample
-	metric3D->SetNumberOfSpatialSamples( 12800000 );
+	// metric3D->SetNumberOfSpatialSamples( 12800000 );
 	// Number of bins recommended to be about 50, see ITK Software Guide p341
 	metric3D->SetNumberOfHistogramBins( 50 );
 	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
@@ -153,8 +156,9 @@ int main (int argc, char const *argv[]) {
   registration3D->SetMovingImage( mriVolume );
 	
   registration3D->SetFixedImageRegion( stack.GetVolume()->GetBufferedRegion() );
+	cout << "Finished registration setup..." << endl;
 	
-	
+	cout << "About to initialise transform..." << endl;
 	// Set up transform initializer
   typedef itk::CenteredTransformInitializer< TransformType3D,
 																						 Stack::VolumeType,
@@ -168,9 +172,10 @@ int main (int argc, char const *argv[]) {
   //  The use of the geometrical centers is selected by calling
   //  GeometryOn() while the use of center of mass is selected by
   //  calling MomentsOn(). Below we select the center of mass mode.
-  // initializer->GeometryOn();
-  initializer->MomentsOn();
+  initializer->GeometryOn();
+  // initializer->MomentsOn();
   initializer->InitializeTransform();
+	cout << "Finished initialising transform..." << endl;
 
   //  The rotation part of the transform is initialized using a
   //  Versor which is simply a unit quaternion. The
@@ -204,6 +209,7 @@ int main (int argc, char const *argv[]) {
   typedef OptimizerType3D::ScalesType OptimizerScalesType3D;
   OptimizerScalesType3D optimizerScales3D( transform3D->GetNumberOfParameters() );
   const double translationScale = 1.0 / 15000.0;
+  // const double translationScale = 1.0 / 5000.0;
   
   optimizerScales3D[0] = 1.0;
   optimizerScales3D[1] = 1.0;
@@ -213,17 +219,11 @@ int main (int argc, char const *argv[]) {
   optimizerScales3D[5] = translationScale;
   
   optimizer3D->SetScales( optimizerScales3D );
-  
-  optimizer3D->SetMaximumStepLength( 1.0  ); 
-  optimizer3D->SetMinimumStepLength( 0.00001 );
-  
-  optimizer3D->SetNumberOfIterations( 10 );
-  
-  
+    
   // Create the command observers and register them with the optimiser.
 	typedef StdOutIterationUpdate< OptimizerType3D > StdOutObserverType3D;
 	typedef FileIterationUpdate< OptimizerType3D > FileObserverType3D;
-	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D > MultiResCommandType;
+	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D, MetricType3D > MultiResCommandType;
 	StdOutObserverType3D::Pointer stdOutObserver3D = StdOutObserverType3D::New();
 	FileObserverType3D::Pointer   fileObserver3D   = FileObserverType3D::New();
 	MultiResCommandType::Pointer  multiResCommand  = MultiResCommandType::New();
@@ -237,14 +237,15 @@ int main (int argc, char const *argv[]) {
 	
 	registration3D->SetNumberOfLevels( 4 );
 	
+	cout << "About to begin registration..." << endl;
 	
   // Begin registration
   try
     {
     registration3D->StartRegistration();
-    std::cout << "Optimizer stop condition: "
-              << registration3D->GetOptimizer()->GetStopConditionDescription()
-              << std::endl;
+    cout << "Optimizer stop condition: "
+         << registration3D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+
     }
   catch( itk::ExceptionObject & err ) 
     { 
@@ -254,6 +255,8 @@ int main (int argc, char const *argv[]) {
     }
   
   output.close();
+	
+	
 	
 	// Get final parameters
   OptimizerType3D::ParametersType finalParameters3D = registration3D->GetLastTransformParameters();

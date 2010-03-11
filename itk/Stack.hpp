@@ -35,7 +35,7 @@ public:
   typedef itk::ChangeInformationImageFilter< VolumeType > ZScaleType;
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
   typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
-
+	
 	SliceVectorType originalImages;
 	SliceType::SizeType maxSize;
 	SliceType::SpacingType spacings2D;

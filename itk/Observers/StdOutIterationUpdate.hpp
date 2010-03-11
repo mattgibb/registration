@@ -28,6 +28,6 @@ public:
     cout << optimizer->GetCurrentIteration() << " = ";
     cout << optimizer->GetValue() << " : ";
     cout << optimizer->GetCurrentPosition() << endl;
-  }   
+  }
 };
 #endif

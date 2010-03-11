@@ -5,7 +5,7 @@
 
 using namespace std;
 
-template <typename RegistrationType, typename OptimizerType>
+template <typename RegistrationType, typename OptimizerType, typename MetricType>
 class MultiResRegistrationCommand : public itk::Command
 {
 protected:
@@ -17,6 +17,7 @@ public:
   typedef  itk::SmartPointer<Self>          Pointer;
   typedef  RegistrationType *               RegistrationPointer;
   typedef  OptimizerType *                  OptimizerPointer;
+	typedef  MetricType *                     MetricPointer;
 
   itkNewMacro( Self );
 
@@ -29,26 +30,34 @@ public:
       { return; }
 
     RegistrationPointer registration = dynamic_cast<RegistrationPointer>( object );
-
     OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( registration->GetOptimizer() );
+		MetricPointer metric = dynamic_cast< MetricPointer >( registration->GetMetric() );
 
-    std::cout << "-------------------------------------" << std::endl;
-    std::cout << "MultiResolution Level : "
-              << registration->GetCurrentLevel()  << std::endl;
-    std::cout << std::endl;
 
     if ( registration->GetCurrentLevel() == 0 )
       {
-      optimizer->SetMaximumStepLength( 16.00 );
-      optimizer->SetMinimumStepLength( 0.01 ); // from example in source code
-      // optimizer->SetMinimumStepLength( 2.5 ); // from ItkSoftwareGuide
+	      optimizer->SetMaximumStepLength( 0.25 );
+	      optimizer->SetMinimumStepLength( 0.00125 ); // from example in source code
+			  optimizer->SetNumberOfIterations( 100 );
+				metric->SetNumberOfSpatialSamples( 24000 );
       }
     else
       {
-      // optimizer->SetMaximumStepLength( optimizer->GetMaximumStepLength() / 4.0 ); // from example in source code
-			optimizer->SetMaximumStepLength( optimizer->GetCurrentStepLength() ); // from ItkSoftwareGuide
-      optimizer->SetMinimumStepLength( optimizer->GetMinimumStepLength() / 10.0 );
+		    cout << "Optimizer stop condition: "
+				   	 << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+	      optimizer->SetMaximumStepLength( optimizer->GetMaximumStepLength() / 2.0 ); // from example in source code
+				// optimizer->SetMaximumStepLength( optimizer->GetCurrentStepLength() ); // from ItkSoftwareGuide
+	      optimizer->SetMinimumStepLength( optimizer->GetMinimumStepLength() / 2.0 );
+				// optimizer->SetNumberOfIterations( 1 );
+				// metric->SetNumberOfSpatialSamples( metric->GetNumberOfSpatialSamples() * 4 );
+				// metric->SetNumberOfSpatialSamples( metric->GetNumberOfSpatialSamples() * 8 );
       }
+
+    cout << "-------------------------------------" << endl;
+    cout << "MultiResolution Level : " << registration->GetCurrentLevel()  << endl;
+		cout << "Max step length : " << optimizer->GetMaximumStepLength() << endl;
+		cout << "Min step length : " << optimizer->GetMinimumStepLength() << endl;
+		cout << "Spatial samples : " << metric->GetNumberOfSpatialSamples() << endl << endl;
   }
 
   // Another version of the \code{Execute()} method accepting a \code{const}

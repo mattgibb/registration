@@ -27,7 +27,7 @@ public:
 		
 		typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
 		
-		(*output) << registration->GetCurrentLevel() << " ";
+		// (*output) << registration->GetCurrentLevel() << " ";
     (*output) << optimizer->GetCurrentIteration() << " ";
     (*output) << optimizer->GetValue();
 		for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
