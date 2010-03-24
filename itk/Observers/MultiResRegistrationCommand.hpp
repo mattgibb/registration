@@ -38,8 +38,10 @@ public:
       {
 	      optimizer->SetMaximumStepLength( 0.25 );
 	      optimizer->SetMinimumStepLength( 0.00125 ); // from example in source code
-			  optimizer->SetNumberOfIterations( 100 );
-				metric->SetNumberOfSpatialSamples( 24000 );
+			  optimizer->SetNumberOfIterations( 1 );
+			  // optimizer->SetNumberOfIterations( 100 );
+				// metric->SetNumberOfSpatialSamples( 24000 );
+				metric->SetNumberOfSpatialSamples( 1000 );
       }
     else
       {
