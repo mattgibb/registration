@@ -21,6 +21,8 @@
 			<string>PermuteAxes.cxx</string>
 			<key>lastUsed</key>
 			<date>2009-12-08T12:00:49Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -31,24 +33,6 @@
 		<dict>
 			<key>filename</key>
 			<string>ideas</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>ImageRegistration12.cxx</string>
-			<key>lastUsed</key>
-			<date>2009-12-06T20:33:01Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>ImageRegistration3.cxx</string>
-			<key>lastUsed</key>
-			<date>2009-12-06T20:33:13Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>ImageRegistration5.cxx</string>
-			<key>lastUsed</key>
-			<date>2009-12-06T20:33:29Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -67,8 +51,6 @@
 			<string>SingleViewRegistration.cxx</string>
 			<key>lastUsed</key>
 			<date>2009-12-08T12:00:50Z</date>
-			<key>selected</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -96,6 +78,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{1091, 432}, {829, 746}}</string>
+	<string>{{909, 432}, {829, 746}}</string>
 </dict>
 </plist>

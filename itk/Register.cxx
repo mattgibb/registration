@@ -30,6 +30,7 @@
 #include "FileIterationUpdate.hpp"
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
+#include "Framework3D.hpp"
 
 using namespace std;
 
@@ -83,6 +84,8 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
 	}
 }
 
+
+
 int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
@@ -112,6 +115,8 @@ int main (int argc, char const *argv[]) {
   typedef itk::MultiResolutionPyramidImageFilter< MRIVolumeType, MRIVolumeType > MovingImagePyramidType;
   
 	cout << "About to construct framework..." << endl;
+	Framework3D framework3D();
+	
 	MetricType3D::Pointer metric3D = MetricType3D::New();
   OptimizerType3D::Pointer optimizer3D = OptimizerType3D::New();
   LinearInterpolatorType3D::Pointer interpolator3D = LinearInterpolatorType3D::New();
@@ -119,7 +124,7 @@ int main (int argc, char const *argv[]) {
   TransformType3D::Pointer transform3D = TransformType3D::New();
   FixedImagePyramidType::Pointer fixedImagePyramid = FixedImagePyramidType::New();
   MovingImagePyramidType::Pointer movingImagePyramid = MovingImagePyramidType::New();
-	cout << "Finished constructing framework..." << endl;	
+	cout << "Finished constructing framework..." << endl;
 
 	cout << "About to begin registration setup..." << endl;
 	// Number of spatial samples should be ~20% of pixels for detailed images, see ITK Software Guide p341
