@@ -100,31 +100,18 @@ int main (int argc, char const *argv[]) {
 	typedef Framework3D::MRIVolumeType MRIVolumeType;
 	
 	// perform 3-D registration
-  typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
-  MRIVolumeReaderType::Pointer mriVolumeReader = MRIVolumeReaderType::New();
-	mriVolumeReader->SetFileName( argv[4] );
-	
-	typedef itk::RescaleIntensityImageFilter< MRIVolumeType, MRIVolumeType > RescaleFilterType;
-	RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
-	rescaleFilter->SetInput( mriVolumeReader->GetOutput() );
-	rescaleFilter->SetOutputMinimum( 0 );
-	rescaleFilter->SetOutputMaximum( 255 );
-	MRIVolumeType::Pointer mriVolume = rescaleFilter->GetOutput();
-	
+	MRI mriVolume( argv[4] );
 	Framework3D framework3D(stack, mriVolume);
 
-	cout << "Finished registration setup..." << endl;
-	
-	cout << "About to initialise transform..." << endl;
 	// Set up transform initializer
   typedef itk::CenteredTransformInitializer< Framework3D::TransformType3D,
 																						 Stack::VolumeType,
-																						 MRIVolumeType > TransformInitializerType;
+																						 MRI::MRIVolumeType > TransformInitializerType;
   TransformInitializerType::Pointer initializer = TransformInitializerType::New();
 	
   initializer->SetTransform( framework3D.transform3D );
   initializer->SetFixedImage(  stack.GetVolume() );
-  initializer->SetMovingImage( mriVolume );
+  initializer->SetMovingImage( mriVolume.GetVolume() );
 	
   //  The use of the geometrical centers is selected by calling
   //  GeometryOn() while the use of center of mass is selected by
@@ -245,7 +232,7 @@ int main (int argc, char const *argv[]) {
   std::cout << "Matrix = " << std::endl << matrix3D << std::endl;
   std::cout << "Offset = " << std::endl << offset3D << std::endl;  
 	
-  typedef itk::ResampleImageFilter< MRIVolumeType, MRIVolumeType > ResampleFilterType;
+  typedef itk::ResampleImageFilter< MRI::MRIVolumeType, MRI::MRIVolumeType > ResampleFilterType;
   Framework3D::TransformType3D::Pointer finalTransform = Framework3D::TransformType3D::New();
   
   // TODO Check to see if using transform3D directly instead of finalTransform makes a difference
@@ -266,10 +253,12 @@ int main (int argc, char const *argv[]) {
   // resampler3D->SetTransform( finalTransform );
   resampler3D->SetTransform( framework3D.transform3D );
 	resampler3D->SetInterpolator( framework3D.interpolator3D );
-  resampler3D->SetInput( mriVolume );
+  resampler3D->SetInput( mriVolume.GetVolume() );
 
-	writeImage< MRIVolumeType >(resampler3D->GetOutput(), argv[6] );
+	writeImage< MRI::MRIVolumeType >(resampler3D->GetOutput(), argv[6] );
     
+  // used for final resampling
+	typedef itk::NearestNeighborInterpolateImageFunction< MRI::MRIVolumeType, double > NearestNeighborInterpolatorType3D;
   
 	// extract 2-D MRI slices
 	// typedef itk::ExtractImageFilter< OutputImageType, OutputSliceType > ExtractFilterType;

@@ -2,8 +2,8 @@
 // Its job is to take transform parameters,
 // then build a volume and an associated mask.
 
-#ifndef VOLUME_HPP_
-#define VOLUME_HPP_
+#ifndef STACK_HPP_
+#define STACK_HPP_
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
@@ -181,7 +181,7 @@ public:
 		volume = zScaler->GetOutput();
 	}
 	
-	void buildMask() {				
+	void buildMask() {
 		// build mask slices and attach them to the tile filter
 		for(unsigned int i=0; i<originalImages.size(); i++)
 		{

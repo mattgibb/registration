@@ -4,21 +4,15 @@
 #define FRAMEWORK3D_HPP_
 
 #include "Stack.hpp"
+#include "MRI.hpp"
 
 class Framework3D {
 public:
-	// unsigned char is native type, but multires can't handle unsigned types
-  // typedef unsigned char MRIPixelType;
-  typedef short MRIPixelType;
-  typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
+  typedef MRI::MRIVolumeType MRIVolumeType;
 	typedef itk::VersorRigid3DTransform< double > TransformType3D;
   typedef itk::VersorRigid3DTransformOptimizer OptimizerType3D;
 	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRIVolumeType > MetricType3D;
-  // used for registration
   typedef itk::LinearInterpolateImageFunction< MRIVolumeType, double > LinearInterpolatorType3D;
-  // used for final resampling
-	typedef itk::NearestNeighborInterpolateImageFunction< MRIVolumeType, double > NearestNeighborInterpolatorType3D;
-  // typedef itk::ImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
 	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
 	typedef itk::MultiResolutionPyramidImageFilter< Stack::VolumeType, Stack::VolumeType > FixedImagePyramidType;
   typedef itk::MultiResolutionPyramidImageFilter< MRIVolumeType, MRIVolumeType > MovingImagePyramidType;
@@ -34,8 +28,8 @@ public:
 	MovingImagePyramidType::Pointer movingImagePyramid;
 	MaskType3D::Pointer stackMask;
 	
-	Framework3D(Stack stack, MRIVolumeType::Pointer mriVolume) {	
-		cout << "About to construct framework..." << endl;
+	
+	Framework3D(Stack stack, MRI mriVolume) {	
 		metric3D = MetricType3D::New();
 		// Number of spatial samples should be ~20% of pixels for detailed images, see ITK Software Guide p341
 		// Total pixels in MRI: 128329344
@@ -56,15 +50,13 @@ public:
 	  registration3D->SetTransform( transform3D );
 	  registration3D->SetFixedImagePyramid( fixedImagePyramid );
 	  registration3D->SetMovingImagePyramid( movingImagePyramid );  
-		cout << "Finished constructing framework..." << endl;
 
-		cout << "About to begin registration setup..." << endl;
 		stackMask = MaskType3D::New();
 		stackMask->SetImage( stack.GetMaskVolume() );
 		metric3D->SetFixedImageMask( stackMask );
 		
 		registration3D->SetFixedImage( stack.GetVolume() );
-	  registration3D->SetMovingImage( mriVolume );
+	  registration3D->SetMovingImage( mriVolume.GetVolume() );
 
 	  registration3D->SetFixedImageRegion( stack.GetVolume()->GetBufferedRegion() );
 	  
