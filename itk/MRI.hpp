@@ -29,20 +29,22 @@ public:
 	RescaleFilterType::Pointer rescaleFilter;
 	
 	MRI(char const *inputFileName) {
-	  mriVolumeReader = MRIVolumeReaderType::New();
+		readFile(inputFileName);
+		rescaleIntensity();
+	}
+	
+	void readFile(char const *inputFileName) {
+		mriVolumeReader = MRIVolumeReaderType::New();
 		mriVolumeReader->SetFileName( inputFileName );
 		volume = mriVolumeReader->GetOutput();
-    
+	}
+	
+	void rescaleIntensity() {
 		rescaleFilter = RescaleFilterType::New();
 		rescaleFilter->SetOutputMinimum( 0 );
 		rescaleFilter->SetOutputMaximum( 255 );
 		rescaleFilter->SetInput( volume );
 		volume = rescaleFilter->GetOutput();
-		
-	}
-	
-	void rescaleData() {
-		
 	}
 	
 	MRIVolumeType::Pointer GetVolume() {
