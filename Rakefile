@@ -25,6 +25,7 @@ task :test_refactor do
   diff_output = `diff -r #{test_dir} #{refactor_dir}`
   if $?.success?
     `echo The refactoring worked\! | growlnotify Success\!`
+    puts "\nrefactoring successful!"
     `say refactoring successful!`
   else
     `echo '#{diff_output}' | growlnotify The refactoring fucked something\.`
