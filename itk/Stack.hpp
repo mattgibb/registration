@@ -64,7 +64,7 @@ public:
 			originalImages.push_back( reader->GetOutput() );
 			originalImages.back()->DisconnectPipeline();
 		}
-				
+		
 		// initialise volume and mask
 		initialiseParametersVector();
 		calculateMaxSize();

@@ -96,56 +96,10 @@ int main (int argc, char const *argv[]) {
 	Stack stack( getFileNames(argv) );
 	cout << "Just finished stack construction..." << endl;
 	
+	// TODO Make Framework::MRIVolumeType reference new MRI class instead, e.g. MRI::VolumeType
+	typedef Framework3D::MRIVolumeType MRIVolumeType;
 	
 	// perform 3-D registration
-  // unsigned char is native type, but multires can't handle unsigned types
-  // typedef unsigned char MRIPixelType;
-  typedef short MRIPixelType;
-  typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
-	typedef itk::VersorRigid3DTransform< double > TransformType3D;
-  typedef itk::VersorRigid3DTransformOptimizer OptimizerType3D;
-	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRIVolumeType > MetricType3D;
-  // used for registration
-  typedef itk::LinearInterpolateImageFunction< MRIVolumeType, double > LinearInterpolatorType3D;
-  // used for final resampling
-	typedef itk::NearestNeighborInterpolateImageFunction< MRIVolumeType, double > NearestNeighborInterpolatorType3D;
-  // typedef itk::ImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
-	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
-	typedef itk::MultiResolutionPyramidImageFilter< Stack::VolumeType, Stack::VolumeType > FixedImagePyramidType;
-  typedef itk::MultiResolutionPyramidImageFilter< MRIVolumeType, MRIVolumeType > MovingImagePyramidType;
-  
-	cout << "About to construct framework..." << endl;
-	Framework3D framework3D();
-	
-	MetricType3D::Pointer metric3D = MetricType3D::New();
-  OptimizerType3D::Pointer optimizer3D = OptimizerType3D::New();
-  LinearInterpolatorType3D::Pointer interpolator3D = LinearInterpolatorType3D::New();
-  RegistrationType3D::Pointer registration3D = RegistrationType3D::New();
-  TransformType3D::Pointer transform3D = TransformType3D::New();
-  FixedImagePyramidType::Pointer fixedImagePyramid = FixedImagePyramidType::New();
-  MovingImagePyramidType::Pointer movingImagePyramid = MovingImagePyramidType::New();
-	cout << "Finished constructing framework..." << endl;
-
-	cout << "About to begin registration setup..." << endl;
-	// Number of spatial samples should be ~20% of pixels for detailed images, see ITK Software Guide p341
-	// Total pixels in MRI: 128329344
-	// metric3D.UseAllPixelsOn() // Uses all the pixels in the fixed image, rather than just a sample
-	// metric3D->SetNumberOfSpatialSamples( 12800000 );
-	// Number of bins recommended to be about 50, see ITK Software Guide p341
-	metric3D->SetNumberOfHistogramBins( 50 );
-	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
-	MaskType3D::Pointer stackMask = MaskType3D::New();
-	stackMask->SetImage( stack.GetMaskVolume() );
-	metric3D->SetFixedImageMask( stackMask );
-	
-  registration3D->SetMetric( metric3D );
-  registration3D->SetOptimizer( optimizer3D );
-  registration3D->SetInterpolator( interpolator3D );
-  registration3D->SetTransform( transform3D );
-  registration3D->SetFixedImagePyramid( fixedImagePyramid );
-  registration3D->SetMovingImagePyramid( movingImagePyramid );
-	
-	
   typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
   MRIVolumeReaderType::Pointer mriVolumeReader = MRIVolumeReaderType::New();
 	mriVolumeReader->SetFileName( argv[4] );
@@ -157,20 +111,18 @@ int main (int argc, char const *argv[]) {
 	rescaleFilter->SetOutputMaximum( 255 );
 	MRIVolumeType::Pointer mriVolume = rescaleFilter->GetOutput();
 	
-  registration3D->SetFixedImage( stack.GetVolume() );
-  registration3D->SetMovingImage( mriVolume );
-	
-  registration3D->SetFixedImageRegion( stack.GetVolume()->GetBufferedRegion() );
+	Framework3D framework3D(stack, mriVolume);
+
 	cout << "Finished registration setup..." << endl;
 	
 	cout << "About to initialise transform..." << endl;
 	// Set up transform initializer
-  typedef itk::CenteredTransformInitializer< TransformType3D,
+  typedef itk::CenteredTransformInitializer< Framework3D::TransformType3D,
 																						 Stack::VolumeType,
 																						 MRIVolumeType > TransformInitializerType;
   TransformInitializerType::Pointer initializer = TransformInitializerType::New();
 	
-  initializer->SetTransform( transform3D );
+  initializer->SetTransform( framework3D.transform3D );
   initializer->SetFixedImage(  stack.GetVolume() );
   initializer->SetMovingImage( mriVolume );
 	
@@ -189,7 +141,7 @@ int main (int argc, char const *argv[]) {
   //  This trait can be extracted as VectorType. The following lines
   //  create a versor object and initialize its parameters by passing a
   //  rotation axis and an angle.
-  typedef TransformType3D::VersorType VersorType;
+  typedef Framework3D::TransformType3D::VersorType VersorType;
   typedef VersorType::VectorType VectorType;
   
   VersorType rotation;
@@ -203,16 +155,16 @@ int main (int argc, char const *argv[]) {
   
   rotation.Set(  axis, angle );
   
-  transform3D->SetRotation( rotation );
+  framework3D.transform3D->SetRotation( rotation );
 	
   //  We now pass the parameters of the current transform as the initial
   //  parameters to be used when the registration process starts.
-  registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
+  framework3D.registration3D->SetInitialTransformParameters( framework3D.transform3D->GetParameters() );
   
 	
 	// Construct and configure the optimiser
-  typedef OptimizerType3D::ScalesType OptimizerScalesType3D;
-  OptimizerScalesType3D optimizerScales3D( transform3D->GetNumberOfParameters() );
+  typedef Framework3D::OptimizerType3D::ScalesType OptimizerScalesType3D;
+  OptimizerScalesType3D optimizerScales3D( framework3D.transform3D->GetNumberOfParameters() );
   const double translationScale = 1.0 / 15000.0;
   // const double translationScale = 1.0 / 5000.0;
   
@@ -223,39 +175,41 @@ int main (int argc, char const *argv[]) {
   optimizerScales3D[4] = translationScale;
   optimizerScales3D[5] = translationScale;
   
-  optimizer3D->SetScales( optimizerScales3D );
+  framework3D.optimizer3D->SetScales( optimizerScales3D );
     
   // Create the command observers and register them with the optimiser.
-	typedef StdOutIterationUpdate< OptimizerType3D > StdOutObserverType3D;
-	typedef FileIterationUpdate< OptimizerType3D > FileObserverType3D;
-	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D, MetricType3D > MultiResCommandType;
+	typedef StdOutIterationUpdate< Framework3D::OptimizerType3D > StdOutObserverType3D;
+	typedef FileIterationUpdate< Framework3D::OptimizerType3D > FileObserverType3D;
+	typedef MultiResRegistrationCommand< Framework3D::RegistrationType3D,
+	                                     Framework3D::OptimizerType3D,
+	                                     Framework3D::MetricType3D > MultiResCommandType;
 	StdOutObserverType3D::Pointer stdOutObserver3D = StdOutObserverType3D::New();
 	FileObserverType3D::Pointer   fileObserver3D   = FileObserverType3D::New();
 	MultiResCommandType::Pointer  multiResCommand  = MultiResCommandType::New();
-  optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
-  optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D   );
-  registration3D->AddObserver( itk::IterationEvent(), multiResCommand  );
+  framework3D.optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
+  framework3D.optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D   );
+  framework3D.registration3D->AddObserver( itk::IterationEvent(), multiResCommand  );
 
 	ofstream output;
 	output.open( argv[9] );
 	fileObserver3D->SetOfstream( &output );
 	
-	registration3D->SetNumberOfLevels( 4 );
+	framework3D.registration3D->SetNumberOfLevels( 4 );
 	
 	cout << "About to begin registration..." << endl;
 	
   // Begin registration
   try
     {
-    registration3D->StartRegistration();
+    framework3D.registration3D->StartRegistration();
     cout << "Optimizer stop condition: "
-         << registration3D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+         << framework3D.registration3D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
 
     }
   catch( itk::ExceptionObject & err ) 
     { 
-    std::cerr << "ExceptionObject caught !" << std::endl; 
-    std::cerr << err << std::endl; 
+    std::cerr << "ExceptionObject caught !" << std::endl;
+    std::cerr << err << std::endl;
     return EXIT_FAILURE;
     }
   
@@ -264,23 +218,12 @@ int main (int argc, char const *argv[]) {
 	
 	
 	// Get final parameters
-  OptimizerType3D::ParametersType finalParameters3D = registration3D->GetLastTransformParameters();
-  
-  const double versorX              = finalParameters3D[0];
-  const double versorY              = finalParameters3D[1];
-  const double versorZ              = finalParameters3D[2];
-  const double finalTranslationX    = finalParameters3D[3];
-  const double finalTranslationY    = finalParameters3D[4];
-  const double finalTranslationZ    = finalParameters3D[5];
-  
-  const unsigned int numberOfIterations = optimizer3D->GetCurrentIteration();
-  
-  const double bestValue = optimizer3D->GetValue();
+  Framework3D::OptimizerType3D::ParametersType finalParameters3D = framework3D.registration3D->GetLastTransformParameters();
   
 	// Write final transform to file
 	itk::TransformFileWriter::Pointer writer = itk::TransformFileWriter::New();
 
-  writer->SetInput( transform3D );
+  writer->SetInput( framework3D.transform3D );
   // writer->AddTransform( anotherTransform );
 
   writer->SetFileName( argv[5] );
@@ -296,38 +239,19 @@ int main (int argc, char const *argv[]) {
     return 0;
     }
 	
-  
-  // Print out results
-  std::cout << std::endl << std::endl;
-  std::cout << "Result = " << std::endl;
-  std::cout << " versor X      = " << versorX  << std::endl;
-  std::cout << " versor Y      = " << versorY  << std::endl;
-  std::cout << " versor Z      = " << versorZ  << std::endl;
-  std::cout << " Translation X = " << finalTranslationX  << std::endl;
-  std::cout << " Translation Y = " << finalTranslationY  << std::endl;
-  std::cout << " Translation Z = " << finalTranslationZ  << std::endl;
-  std::cout << " Iterations    = " << numberOfIterations << std::endl;
-  std::cout << " Metric value  = " << bestValue          << std::endl;
-  
-	// TESTING
-	cout << "transform3D->GetParameters(): " << transform3D->GetParameters() << endl << endl;
-	cout << "finalParameters3D: " << finalParameters3D << endl << endl;
-  // END TESTING
-  transform3D->SetParameters( finalParameters3D );
-	
-  TransformType3D::MatrixType matrix3D = transform3D->GetRotationMatrix();
-  TransformType3D::OffsetType offset3D = transform3D->GetOffset();
+  Framework3D::TransformType3D::MatrixType matrix3D = framework3D.transform3D->GetRotationMatrix();
+  Framework3D::TransformType3D::OffsetType offset3D = framework3D.transform3D->GetOffset();
   
   std::cout << "Matrix = " << std::endl << matrix3D << std::endl;
   std::cout << "Offset = " << std::endl << offset3D << std::endl;  
-
-
+	
   typedef itk::ResampleImageFilter< MRIVolumeType, MRIVolumeType > ResampleFilterType;
-  TransformType3D::Pointer finalTransform = TransformType3D::New();
+  Framework3D::TransformType3D::Pointer finalTransform = Framework3D::TransformType3D::New();
   
-  finalTransform->SetCenter( transform3D->GetCenter() );
+  // TODO Check to see if using transform3D directly instead of finalTransform makes a difference
+  finalTransform->SetCenter( framework3D.transform3D->GetCenter() );
   finalTransform->SetParameters( finalParameters3D );
-  finalTransform->SetFixedParameters( transform3D->GetFixedParameters() );
+  finalTransform->SetFixedParameters( framework3D.transform3D->GetFixedParameters() );
   
   ResampleFilterType::Pointer resampler3D = ResampleFilterType::New();
   
@@ -340,8 +264,8 @@ int main (int argc, char const *argv[]) {
   resampler3D->SetDefaultPixelValue( 100 );
   
   // resampler3D->SetTransform( finalTransform );
-  resampler3D->SetTransform( transform3D );
-	resampler3D->SetInterpolator( interpolator3D );
+  resampler3D->SetTransform( framework3D.transform3D );
+	resampler3D->SetInterpolator( framework3D.interpolator3D );
   resampler3D->SetInput( mriVolume );
 
 	writeImage< MRIVolumeType >(resampler3D->GetOutput(), argv[6] );
