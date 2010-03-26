@@ -120,9 +120,7 @@ int main (int argc, char const *argv[]) {
 	fileObserver3D->SetOfstream( &output );
 	
 	framework3D.registration3D->SetNumberOfLevels( 4 );
-	
-	cout << "About to begin registration..." << endl;
-	
+		
   // Begin registration
   try
     {
