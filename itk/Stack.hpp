@@ -36,6 +36,7 @@ public:
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
   typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
 	
+	
 	SliceVectorType originalImages;
 	SliceType::SizeType maxSize;
 	SliceType::SpacingType spacings2D;
@@ -51,6 +52,7 @@ public:
 	MaskTileFilterType::Pointer maskTileFilter;
 	ZScaleType::Pointer zScaler;
 	MaskZScaleType::Pointer maskZScaler;
+	
 	
 	Stack(vector< string > fileNames) {
 		typedef itk::ImageFileReader< SliceType > ReaderType;

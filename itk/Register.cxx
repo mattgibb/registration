@@ -5,7 +5,6 @@
 #include "itkImage.h"
 #include "itkResampleImageFilter.h"
 #include "itkCastImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"
 #include "itkImageMaskSpatialObject.h"
 
 // 3-D registration
@@ -85,7 +84,6 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
 }
 
 
-
 int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
@@ -102,68 +100,8 @@ int main (int argc, char const *argv[]) {
 	// perform 3-D registration
 	MRI mriVolume( argv[4] );
 	Framework3D framework3D(stack, mriVolume);
-
-	// Set up transform initializer
-  typedef itk::CenteredTransformInitializer< Framework3D::TransformType3D,
-																						 Stack::VolumeType,
-																						 MRI::MRIVolumeType > TransformInitializerType;
-  TransformInitializerType::Pointer initializer = TransformInitializerType::New();
-	
-  initializer->SetTransform( framework3D.transform3D );
-  initializer->SetFixedImage(  stack.GetVolume() );
-  initializer->SetMovingImage( mriVolume.GetVolume() );
-	
-  //  The use of the geometrical centers is selected by calling
-  //  GeometryOn() while the use of center of mass is selected by
-  //  calling MomentsOn(). Below we select the center of mass mode.
-  initializer->GeometryOn();
-  // initializer->MomentsOn();
-  initializer->InitializeTransform();
-	cout << "Finished initialising transform..." << endl;
-
-  //  The rotation part of the transform is initialized using a
-  //  Versor which is simply a unit quaternion. The
-  //  VersorType can be obtained from the transform traits. The versor
-  //  itself defines the type of the vector used to indicate the rotation axis.
-  //  This trait can be extracted as VectorType. The following lines
-  //  create a versor object and initialize its parameters by passing a
-  //  rotation axis and an angle.
-  typedef Framework3D::TransformType3D::VersorType VersorType;
-  typedef VersorType::VectorType VectorType;
   
-  VersorType rotation;
-  VectorType axis;
   
-  axis[0] = 1.0;
-  axis[1] = 0.0;
-  axis[2] = -1.0;
-  
-  const double angle = M_PI;
-  
-  rotation.Set(  axis, angle );
-  
-  framework3D.transform3D->SetRotation( rotation );
-	
-  //  We now pass the parameters of the current transform as the initial
-  //  parameters to be used when the registration process starts.
-  framework3D.registration3D->SetInitialTransformParameters( framework3D.transform3D->GetParameters() );
-  
-	
-	// Construct and configure the optimiser
-  typedef Framework3D::OptimizerType3D::ScalesType OptimizerScalesType3D;
-  OptimizerScalesType3D optimizerScales3D( framework3D.transform3D->GetNumberOfParameters() );
-  const double translationScale = 1.0 / 15000.0;
-  // const double translationScale = 1.0 / 5000.0;
-  
-  optimizerScales3D[0] = 1.0;
-  optimizerScales3D[1] = 1.0;
-  optimizerScales3D[2] = 1.0;
-  optimizerScales3D[3] = translationScale;
-  optimizerScales3D[4] = translationScale;
-  optimizerScales3D[5] = translationScale;
-  
-  framework3D.optimizer3D->SetScales( optimizerScales3D );
-    
   // Create the command observers and register them with the optimiser.
 	typedef StdOutIterationUpdate< Framework3D::OptimizerType3D > StdOutObserverType3D;
 	typedef FileIterationUpdate< Framework3D::OptimizerType3D > FileObserverType3D;

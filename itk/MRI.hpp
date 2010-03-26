@@ -12,6 +12,7 @@
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkChangeInformationImageFilter.h"
+#include "itkRescaleIntensityImageFilter.h"
 #include "itkImageSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
