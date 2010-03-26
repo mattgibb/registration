@@ -11,8 +11,8 @@
 #include "itkResampleImageFilter.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
-#include "itkChangeInformationImageFilter.h"
 #include "itkRescaleIntensityImageFilter.h"
+#include "itkChangeInformationImageFilter.h"
 #include "itkImageSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
@@ -24,14 +24,18 @@ public:
   typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
   typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
 	typedef itk::RescaleIntensityImageFilter< MRIVolumeType, MRIVolumeType > RescaleFilterType;
+	typedef itk::ChangeInformationImageFilter< MRIVolumeType > ShrinkerType;
+  
 	
 	MRIVolumeType::Pointer volume;
 	MRIVolumeReaderType::Pointer mriVolumeReader;
 	RescaleFilterType::Pointer rescaleFilter;
+	ShrinkerType::Pointer resizer;
 	
 	MRI(char const *inputFileName) {
 		readFile(inputFileName);
 		rescaleIntensity();
+		resizeImage(0.8);
 	}
 	
 	void readFile(char const *inputFileName) {
@@ -46,6 +50,19 @@ public:
 		rescaleFilter->SetOutputMaximum( 255 );
 		rescaleFilter->SetInput( volume );
 		volume = rescaleFilter->GetOutput();
+	}
+	
+	void resizeImage(float factor) {
+		resizer = ShrinkerType::New();
+		resizer->ChangeSpacingOn();
+		resizer->SetInput( volume );
+		resizer->Update();
+		ShrinkerType::SpacingType spacings3D = volume->GetSpacing();
+		for(int i=0; i<3; i++) {
+			spacings3D[i] = spacings3D[i]*factor;
+		}
+		resizer->SetOutputSpacing( spacings3D );
+		volume = resizer->GetOutput();
 	}
 	
 	MRIVolumeType::Pointer GetVolume() {
