@@ -83,6 +83,9 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
 	}
 }
 
+void setUpObservers() {
+	
+}
 
 int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
@@ -95,46 +98,9 @@ int main (int argc, char const *argv[]) {
 		
 	// perform 3-D registration
 	Framework3D framework3D(stack, mriVolume);
-  
-  
-  // Create the command observers and register them with the optimiser.
-	typedef StdOutIterationUpdate< Framework3D::OptimizerType3D > StdOutObserverType3D;
-	typedef FileIterationUpdate< Framework3D::OptimizerType3D > FileObserverType3D;
-	typedef MultiResRegistrationCommand< Framework3D::RegistrationType3D,
-	                                     Framework3D::OptimizerType3D,
-	                                     Framework3D::MetricType3D > MultiResCommandType;
-	StdOutObserverType3D::Pointer stdOutObserver3D = StdOutObserverType3D::New();
-	FileObserverType3D::Pointer   fileObserver3D   = FileObserverType3D::New();
-	MultiResCommandType::Pointer  multiResCommand  = MultiResCommandType::New();
-  framework3D.optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
-  framework3D.optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D   );
-  framework3D.registration3D->AddObserver( itk::IterationEvent(), multiResCommand  );
-
-	ofstream output;
-	output.open( argv[9] );
-	fileObserver3D->SetOfstream( &output );
-	
-	framework3D.registration3D->SetNumberOfLevels( 4 );
-		
-  // Begin registration
-  try
-    {
-    framework3D.registration3D->StartRegistration();
-    cout << "Optimizer stop condition: "
-         << framework3D.registration3D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
-
-    }
-  catch( itk::ExceptionObject & err ) 
-    { 
-    std::cerr << "ExceptionObject caught !" << std::endl;
-    std::cerr << err << std::endl;
-    return EXIT_FAILURE;
-    }
-  
-  output.close();
-	
-	
-	
+  	
+	framework3D.beginRegistration( argv[9] );
+			
 	// Get final parameters
   Framework3D::OptimizerType3D::ParametersType finalParameters3D = framework3D.registration3D->GetLastTransformParameters();
   

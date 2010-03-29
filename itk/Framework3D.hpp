@@ -3,20 +3,25 @@
 #ifndef FRAMEWORK3D_HPP_
 #define FRAMEWORK3D_HPP_
 
+#include "StdOutIterationUpdate.hpp"
+#include "FileIterationUpdate.hpp"
+#include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 #include "MRI.hpp"
 
 class Framework3D {
 public:
-  typedef MRI::VolumeType MRIVolumeType;
 	typedef itk::VersorRigid3DTransform< double > TransformType3D;
   typedef itk::VersorRigid3DTransformOptimizer OptimizerType3D;
-	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRIVolumeType > MetricType3D;
-  typedef itk::LinearInterpolateImageFunction< MRIVolumeType, double > LinearInterpolatorType3D;
-	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRIVolumeType > RegistrationType3D;
+	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRI::VolumeType > MetricType3D;
+  typedef itk::LinearInterpolateImageFunction< MRI::VolumeType, double > LinearInterpolatorType3D;
+	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRI::VolumeType > RegistrationType3D;
 	typedef itk::MultiResolutionPyramidImageFilter< Stack::VolumeType, Stack::VolumeType > FixedImagePyramidType;
-  typedef itk::MultiResolutionPyramidImageFilter< MRIVolumeType, MRIVolumeType > MovingImagePyramidType;
+  typedef itk::MultiResolutionPyramidImageFilter< MRI::VolumeType, MRI::VolumeType > MovingImagePyramidType;
 	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
+	typedef StdOutIterationUpdate< OptimizerType3D > StdOutObserverType3D;
+	typedef FileIterationUpdate< OptimizerType3D > FileObserverType3D;
+	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D, MetricType3D > MultiResCommandType;
  
 	
 	MetricType3D::Pointer metric3D;
@@ -27,6 +32,10 @@ public:
 	FixedImagePyramidType::Pointer fixedImagePyramid;
 	MovingImagePyramidType::Pointer movingImagePyramid;
 	MaskType3D::Pointer stackMask;
+	StdOutObserverType3D::Pointer stdOutObserver3D;
+	FileObserverType3D::Pointer fileObserver3D;
+	MultiResCommandType::Pointer multiResCommand;
+	ofstream observerOutput;
 	
 	
 	Framework3D(Stack stack, MRI mriVolume) {
@@ -34,16 +43,15 @@ public:
 		wireUpRegistrationComponents();
 		setOptimizerTranslationScale(1.0 / 15000.0);
 
-		stackMask = MaskType3D::New();
-		stackMask->SetImage( stack.GetMaskVolume() );
-		metric3D->SetFixedImageMask( stackMask );
+		metric3D->SetFixedImageMask( stack.GetMask3D() );
 		
 		registration3D->SetFixedImage( stack.GetVolume() );
 	  registration3D->SetMovingImage( mriVolume.GetVolume() );
     
 	  registration3D->SetFixedImageRegion( stack.GetVolume()->GetBufferedRegion() );
 	  
-	  
+	  registration3D->SetNumberOfLevels( 4 );
+		
 	  
 		// Set up transform initializer
 	  typedef itk::CenteredTransformInitializer< TransformType3D,
@@ -88,6 +96,8 @@ public:
 	  //  We now pass the parameters of the current transform as the initial
 	  //  parameters to be used when the registration process starts.
 	  registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
+	
+		setUpObservers();
 		
 	}
 	
@@ -122,6 +132,40 @@ public:
 	  optimizerScales3D[5] = translationScale;
     
 	  optimizer3D->SetScales( optimizerScales3D );
+	}
+	
+	void setUpObservers() {
+		// Create the command observers
+		stdOutObserver3D = StdOutObserverType3D::New();
+		fileObserver3D   = FileObserverType3D::New();
+		multiResCommand  = MultiResCommandType::New();
+		
+		// register the observers
+	  optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
+	  optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D );
+	  registration3D->AddObserver( itk::IterationEvent(), multiResCommand );
+	
+	  // add output to fileObserver3D
+		fileObserver3D->SetOfstream( &observerOutput );
+	}
+	
+	void beginRegistration(char const *outputFileName) {
+		observerOutput.open( outputFileName );
+    
+	  try
+	    {
+	    registration3D->StartRegistration();
+	    cout << "Optimizer stop condition: "
+	         << registration3D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+	    }
+	  catch( itk::ExceptionObject & err ) 
+	    { 
+	    std::cerr << "ExceptionObject caught !" << std::endl;
+	    std::cerr << err << std::endl;
+	    exit(EXIT_FAILURE);
+	    }
+    
+	  observerOutput.close();
 	}
 	
 protected:

@@ -13,7 +13,7 @@
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkChangeInformationImageFilter.h"
-#include "itkImageSpatialObject.h"
+#include "itkImageMaskSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
 class Stack {
@@ -35,6 +35,7 @@ public:
   typedef itk::ChangeInformationImageFilter< VolumeType > ZScaleType;
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
   typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
+	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
 	
 	
 	SliceVectorType originalImages;
@@ -42,6 +43,7 @@ public:
 	SliceType::SpacingType spacings2D;
 	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
+	MaskType3D::Pointer mask3D;
 	vector< ParametersType > parameters;
 	TransformType::Pointer transform;
 	LinearInterpolatorType::Pointer linearInterpolator;
@@ -220,6 +222,10 @@ public:
 		maskZScaler->SetInput( maskTileFilter->GetOutput() );
 		maskZScaler->Update();
 		maskVolume = maskZScaler->GetOutput();
+		
+		mask3D = MaskType3D::New();
+		mask3D->SetImage( maskVolume );
+		
 	}
 	
 	VolumeType::Pointer GetVolume() {
@@ -228,6 +234,10 @@ public:
 	
 	MaskVolumeType::Pointer GetMaskVolume() {
 		return maskVolume;
+	}
+	
+	MaskType3D::Pointer GetMask3D() {
+		return mask3D;
 	}
 	
 	// void SetTransformParams() {}

@@ -13,7 +13,7 @@
 #include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkRescaleIntensityImageFilter.h"
 #include "itkChangeInformationImageFilter.h"
-#include "itkImageSpatialObject.h"
+#include "itkImageMaskSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
 class MRI {
@@ -27,7 +27,8 @@ public:
 	typedef itk::RescaleIntensityImageFilter< VolumeType, VolumeType > RescaleFilterType;
 	typedef itk::ChangeInformationImageFilter< VolumeType > ShrinkerType;
   typedef itk::ImageRegionIterator< MaskVolumeType > IteratorType;
-  
+  typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
+	
 	
 	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
