@@ -19,19 +19,19 @@
 class MRI {
 public:
 	// unsigned char is native type, but multires can't handle unsigned types
-  // typedef unsigned char MRIPixelType;
-  typedef short MRIPixelType;
-  typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
+  // typedef unsigned char PixelType;
+  typedef short PixelType;
+  typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
-  typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
-	typedef itk::RescaleIntensityImageFilter< MRIVolumeType, MRIVolumeType > RescaleFilterType;
-	typedef itk::ChangeInformationImageFilter< MRIVolumeType > ShrinkerType;
+  typedef itk::ImageFileReader< VolumeType > VolumeReaderType;
+	typedef itk::RescaleIntensityImageFilter< VolumeType, VolumeType > RescaleFilterType;
+	typedef itk::ChangeInformationImageFilter< VolumeType > ShrinkerType;
   typedef itk::ImageRegionIterator< MaskVolumeType > IteratorType;
   
 	
-	MRIVolumeType::Pointer volume;
+	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
-	MRIVolumeReaderType::Pointer mriVolumeReader;
+	VolumeReaderType::Pointer volumeReader;
 	RescaleFilterType::Pointer rescaleFilter;
 	ShrinkerType::Pointer resizer;
 	
@@ -43,9 +43,9 @@ public:
 	}
 	
 	void readFile(char const *inputFileName) {
-		mriVolumeReader = MRIVolumeReaderType::New();
-		mriVolumeReader->SetFileName( inputFileName );
-		volume = mriVolumeReader->GetOutput();
+		volumeReader = VolumeReaderType::New();
+		volumeReader->SetFileName( inputFileName );
+		volume = volumeReader->GetOutput();
 	}
 	
 	void rescaleIntensity() {
@@ -87,7 +87,7 @@ public:
 	
 	}
 	
-	MRIVolumeType::Pointer GetVolume() {
+	VolumeType::Pointer GetVolume() {
 		return volume;
 	}
 	

@@ -8,7 +8,7 @@
 
 class Framework3D {
 public:
-  typedef MRI::MRIVolumeType MRIVolumeType;
+  typedef MRI::VolumeType MRIVolumeType;
 	typedef itk::VersorRigid3DTransform< double > TransformType3D;
   typedef itk::VersorRigid3DTransformOptimizer OptimizerType3D;
 	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRIVolumeType > MetricType3D;
@@ -48,7 +48,7 @@ public:
 		// Set up transform initializer
 	  typedef itk::CenteredTransformInitializer< TransformType3D,
 																							 Stack::VolumeType,
-																							 MRI::MRIVolumeType > TransformInitializerType;
+																							 MRI::VolumeType > TransformInitializerType;
 	  TransformInitializerType::Pointer initializer = TransformInitializerType::New();
     
 	  initializer->SetTransform( transform3D );

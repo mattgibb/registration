@@ -89,16 +89,11 @@ int main (int argc, char const *argv[]) {
 	checkUsage(argc, argv);
 	
 	
-	// initialise stack object
-	cout << "About to begin stack construction..." << endl;
+	// initialise stack and MRI objects
 	Stack stack( getFileNames(argv) );
-	cout << "Just finished stack construction..." << endl;
-	
-	// TODO Make Framework::MRIVolumeType reference new MRI class instead, e.g. MRI::VolumeType
-	typedef Framework3D::MRIVolumeType MRIVolumeType;
-	
-	// perform 3-D registration
 	MRI mriVolume( argv[4] );
+		
+	// perform 3-D registration
 	Framework3D framework3D(stack, mriVolume);
   
   
@@ -168,7 +163,7 @@ int main (int argc, char const *argv[]) {
   std::cout << "Matrix = " << std::endl << matrix3D << std::endl;
   std::cout << "Offset = " << std::endl << offset3D << std::endl;  
 	
-  typedef itk::ResampleImageFilter< MRI::MRIVolumeType, MRI::MRIVolumeType > ResampleFilterType;
+  typedef itk::ResampleImageFilter< MRI::VolumeType, MRI::VolumeType > ResampleFilterType;
   Framework3D::TransformType3D::Pointer finalTransform = Framework3D::TransformType3D::New();
   
   // TODO Check to see if using transform3D directly instead of finalTransform makes a difference
@@ -191,10 +186,10 @@ int main (int argc, char const *argv[]) {
 	resampler3D->SetInterpolator( framework3D.interpolator3D );
   resampler3D->SetInput( mriVolume.GetVolume() );
 
-	writeImage< MRI::MRIVolumeType >(resampler3D->GetOutput(), argv[6] );
+	writeImage< MRI::VolumeType >(resampler3D->GetOutput(), argv[6] );
     
   // used for final resampling
-	typedef itk::NearestNeighborInterpolateImageFunction< MRI::MRIVolumeType, double > NearestNeighborInterpolatorType3D;
+	typedef itk::NearestNeighborInterpolateImageFunction< MRI::VolumeType, double > NearestNeighborInterpolatorType3D;
   
 	// extract 2-D MRI slices
 	// typedef itk::ExtractImageFilter< OutputImageType, OutputSliceType > ExtractFilterType;
