@@ -24,6 +24,8 @@ public:
 	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D, MetricType3D > MultiResCommandType;
  
 	
+	Stack *stack;
+	MRI *mriVolume;
 	MetricType3D::Pointer metric3D;
 	OptimizerType3D::Pointer optimizer3D;
 	LinearInterpolatorType3D::Pointer interpolator3D;
@@ -38,70 +40,30 @@ public:
 	ofstream observerOutput;
 	
 	
-	Framework3D(Stack stack, MRI mriVolume) {
-		initialiseRegistrationComponents();
+	Framework3D(Stack *inputStack, MRI *inputMriVolume) {
+		this->stack = inputStack;
+		this->mriVolume = inputMriVolume;
+		
+		initializeRegistrationComponents();
 		wireUpRegistrationComponents();
 		setOptimizerTranslationScale(1.0 / 15000.0);
 
-		metric3D->SetFixedImageMask( stack.GetMask3D() );
+		metric3D->SetFixedImageMask( stack->GetMask3D() );
 		
-		registration3D->SetFixedImage( stack.GetVolume() );
-	  registration3D->SetMovingImage( mriVolume.GetVolume() );
+		registration3D->SetFixedImage( stack->GetVolume() );
+	  registration3D->SetMovingImage( mriVolume->GetVolume() );
     
-	  registration3D->SetFixedImageRegion( stack.GetVolume()->GetBufferedRegion() );
+	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetBufferedRegion() );
 	  
 	  registration3D->SetNumberOfLevels( 4 );
 		
-	  
-		// Set up transform initializer
-	  typedef itk::CenteredTransformInitializer< TransformType3D,
-																							 Stack::VolumeType,
-																							 MRI::VolumeType > TransformInitializerType;
-	  TransformInitializerType::Pointer initializer = TransformInitializerType::New();
-    
-	  initializer->SetTransform( transform3D );
-	  initializer->SetFixedImage(  stack.GetVolume() );
-	  initializer->SetMovingImage( mriVolume.GetVolume() );
-    
-	  //  The use of the geometrical centers is selected by calling
-	  //  GeometryOn() while the use of center of mass is selected by
-	  //  calling MomentsOn(). Below we select the center of mass mode.
-	  initializer->GeometryOn();
-	  // initializer->MomentsOn();
-	  initializer->InitializeTransform();
-    
-	  //  The rotation part of the transform is initialized using a
-	  //  Versor which is simply a unit quaternion. The
-	  //  VersorType can be obtained from the transform traits. The versor
-	  //  itself defines the type of the vector used to indicate the rotation axis.
-	  //  This trait can be extracted as VectorType. The following lines
-	  //  create a versor object and initialize its parameters by passing a
-	  //  rotation axis and an angle.
-	  typedef TransformType3D::VersorType VersorType;
-	  typedef VersorType::VectorType VectorType;
-    
-	  VersorType rotation;
-	  VectorType axis;
-    
-	  axis[0] = 1.0;
-	  axis[1] = 0.0;
-	  axis[2] = -1.0;
-    
-	  const double angle = M_PI;
-    
-	  rotation.Set(  axis, angle );
-    
-	  transform3D->SetRotation( rotation );
-    
-	  //  We now pass the parameters of the current transform as the initial
-	  //  parameters to be used when the registration process starts.
-	  registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
-	
+		initializeTransformParameters();
+		
 		setUpObservers();
 		
 	}
 	
-	void initialiseRegistrationComponents() {
+	void initializeRegistrationComponents() {
 		registration3D = RegistrationType3D::New();
 		metric3D = MetricType3D::New();
 	  optimizer3D = OptimizerType3D::New();
@@ -132,6 +94,50 @@ public:
 	  optimizerScales3D[5] = translationScale;
     
 	  optimizer3D->SetScales( optimizerScales3D );
+	}
+	
+	void initializeTransformParameters() {
+		initializeTranslationParameters();
+		initializeRotationParameters();
+		
+ 	  //  We now pass the parameters of the current transform as the initial
+	  //  parameters to be used when the registration process starts.
+	  registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
+		
+	}
+	
+	void initializeTranslationParameters() {
+		typedef itk::CenteredTransformInitializer< TransformType3D,
+																							 Stack::VolumeType,
+																							 MRI::VolumeType > TransformInitializerType;
+	  TransformInitializerType::Pointer initializer = TransformInitializerType::New();
+    
+	  initializer->SetTransform( transform3D );
+	  initializer->SetFixedImage( stack->GetVolume() );
+	  initializer->SetMovingImage( mriVolume->GetVolume() );
+    
+	  // initializer->MomentsOn();
+	  initializer->GeometryOn();
+	
+	  initializer->InitializeTransform();
+	}
+	
+	void initializeRotationParameters() {
+	  typedef TransformType3D::VersorType VersorType;
+	  typedef VersorType::VectorType VectorType;
+    
+	  VersorType rotation;
+	  VectorType axis;
+    
+	  axis[0] = 1.0;
+	  axis[1] = 0.0;
+	  axis[2] = -1.0;
+    
+	  const double angle = M_PI;
+    
+	  rotation.Set( axis, angle );
+    
+	  transform3D->SetRotation( rotation );
 	}
 	
 	void setUpObservers() {

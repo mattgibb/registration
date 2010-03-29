@@ -97,7 +97,7 @@ int main (int argc, char const *argv[]) {
 	MRI mriVolume( argv[4] );
 		
 	// perform 3-D registration
-	Framework3D framework3D(stack, mriVolume);
+	Framework3D framework3D(&stack, &mriVolume);
   	
 	framework3D.beginRegistration( argv[9] );
 			
