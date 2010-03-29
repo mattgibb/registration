@@ -22,12 +22,15 @@ public:
   // typedef unsigned char MRIPixelType;
   typedef short MRIPixelType;
   typedef itk::Image< MRIPixelType, 3 > MRIVolumeType;
+	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
   typedef itk::ImageFileReader< MRIVolumeType > MRIVolumeReaderType;
 	typedef itk::RescaleIntensityImageFilter< MRIVolumeType, MRIVolumeType > RescaleFilterType;
 	typedef itk::ChangeInformationImageFilter< MRIVolumeType > ShrinkerType;
+  typedef itk::ImageRegionIterator< MaskVolumeType > IteratorType;
   
 	
 	MRIVolumeType::Pointer volume;
+	MaskVolumeType::Pointer maskVolume;
 	MRIVolumeReaderType::Pointer mriVolumeReader;
 	RescaleFilterType::Pointer rescaleFilter;
 	ShrinkerType::Pointer resizer;
@@ -36,6 +39,7 @@ public:
 		readFile(inputFileName);
 		rescaleIntensity();
 		resizeImage(0.8);
+		buildMask();
 	}
 	
 	void readFile(char const *inputFileName) {
@@ -65,8 +69,30 @@ public:
 		volume = resizer->GetOutput();
 	}
 	
+	void buildMask() {
+		// make new mask volume and make it all white
+		MaskVolumeType::RegionType region;
+		region.SetSize( volume->GetLargestPossibleRegion().GetSize() );
+		
+		maskVolume = MaskVolumeType::New();
+		maskVolume->SetRegions( region );
+		maskVolume->CopyInformation( volume );
+		maskVolume->GetMetaDataDictionary().Print( cout );
+	  maskVolume->Allocate();
+		
+	  IteratorType it(maskVolume,region);
+	  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
+	    it.Set( 255 );
+	  }
+	
+	}
+	
 	MRIVolumeType::Pointer GetVolume() {
 		return volume;
+	}
+	
+	MaskVolumeType::Pointer GetMaskVolume() {
+		return maskVolume;
 	}
 	
 protected:

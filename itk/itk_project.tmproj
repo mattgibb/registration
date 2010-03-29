@@ -2,27 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>currentDocument</key>
+	<string>Observers/MultiResRegistrationCommand.hpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>CMakeLists.txt</string>
 			<key>lastUsed</key>
-			<date>2009-12-07T20:56:35Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>CommandIterationUpdate.hpp</string>
-			<key>lastUsed</key>
-			<date>2009-12-01T23:25:38Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>PermuteAxes.cxx</string>
-			<key>lastUsed</key>
-			<date>2009-12-08T12:00:49Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2010-03-24T20:35:07Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -35,10 +23,26 @@
 			<string>ideas</string>
 		</dict>
 		<dict>
+			<key>expanded</key>
+			<true/>
+			<key>name</key>
+			<string>Observers</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>sourceDirectory</key>
+			<string>Observers</string>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>MRI.hpp</string>
+			<key>lastUsed</key>
+			<date>2010-03-26T17:07:04Z</date>
+		</dict>
+		<dict>
 			<key>filename</key>
 			<string>Register.cxx</string>
 			<key>lastUsed</key>
-			<date>2009-12-06T17:29:50Z</date>
+			<date>2010-03-26T17:07:13Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -56,13 +60,13 @@
 			<key>filename</key>
 			<string>Stack.hpp</string>
 			<key>lastUsed</key>
-			<date>2009-12-06T17:29:49Z</date>
+			<date>2010-03-26T17:07:03Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test.cpp</string>
 			<key>lastUsed</key>
-			<date>2009-12-07T20:55:54Z</date>
+			<date>2010-03-24T20:34:49Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -70,14 +74,115 @@
 			<key>lastUsed</key>
 			<date>2009-11-30T08:57:53Z</date>
 		</dict>
+		<dict>
+			<key>filename</key>
+			<string>Framework3D.hpp</string>
+			<key>lastUsed</key>
+			<date>2010-03-26T17:08:02Z</date>
+		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>288</integer>
 	<key>metaData</key>
-	<dict/>
+	<dict>
+		<key>Framework3D.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>124</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>MRI.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>39</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>11</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>34</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>39</integer>
+			</dict>
+		</dict>
+		<key>Observers/MultiResRegistrationCommand.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>40</integer>
+				<key>line</key>
+				<integer>41</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>10</integer>
+		</dict>
+		<key>Register.cxx</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>120</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>16</integer>
+		</dict>
+		<key>Stack.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>179</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>135</integer>
+		</dict>
+	</dict>
+	<key>openDocuments</key>
+	<array>
+		<string>Register.cxx</string>
+		<string>MRI.hpp</string>
+		<string>Stack.hpp</string>
+		<string>Framework3D.hpp</string>
+		<string>Observers/MultiResRegistrationCommand.hpp</string>
+	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{909, 432}, {829, 746}}</string>
+	<string>{{986, 4}, {933, 1174}}</string>
 </dict>
 </plist>
