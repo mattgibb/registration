@@ -39,7 +39,8 @@ public:
 	      optimizer->SetMaximumStepLength( 0.25 );
 	      optimizer->SetMinimumStepLength( 0.00125 );
 			  optimizer->SetNumberOfIterations( 100 );
-				metric->SetNumberOfSpatialSamples( 24000 );
+				// metric->SetNumberOfSpatialSamples( 24000 );
+				metric->SetNumberOfSpatialSamples( 200000 );
 				// Number of bins recommended to be about 50, see ITK Software Guide p341
 				metric->SetNumberOfHistogramBins( 50 );
       }
