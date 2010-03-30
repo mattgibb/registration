@@ -45,14 +45,17 @@ public:
 		this->mriVolume = inputMriVolume;
 		
 		initializeRegistrationComponents();
+		
 		wireUpRegistrationComponents();
+		
 		setOptimizerTranslationScale(1.0 / 15000.0);
 
 		metric3D->SetFixedImageMask( stack->GetMask3D() );
 		
 		registration3D->SetFixedImage( stack->GetVolume() );
+		
 	  registration3D->SetMovingImage( mriVolume->GetVolume() );
-    
+        
 	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetBufferedRegion() );
 	  
 	  registration3D->SetNumberOfLevels( 4 );
@@ -60,7 +63,6 @@ public:
 		initializeTransformParameters();
 		
 		setUpObservers();
-		
 	}
 	
 	void initializeRegistrationComponents() {
@@ -100,10 +102,7 @@ public:
 		initializeTranslationParameters();
 		initializeRotationParameters();
 		
- 	  //  We now pass the parameters of the current transform as the initial
-	  //  parameters to be used when the registration process starts.
 	  registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
-		
 	}
 	
 	void initializeTranslationParameters() {
@@ -118,7 +117,7 @@ public:
     
 	  // initializer->MomentsOn();
 	  initializer->GeometryOn();
-	
+	  
 	  initializer->InitializeTransform();
 	}
 	

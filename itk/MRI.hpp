@@ -32,6 +32,7 @@ public:
 	
 	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
+	MaskType3D::Pointer mask3D;
 	VolumeReaderType::Pointer volumeReader;
 	RescaleFilterType::Pointer rescaleFilter;
 	ShrinkerType::Pointer resizer;
@@ -85,7 +86,9 @@ public:
 	  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
 	    it.Set( 255 );
 	  }
-	
+		
+	  mask3D = MaskType3D::New();
+		mask3D->SetImage( maskVolume );
 	}
 	
 	VolumeType::Pointer GetVolume() {
@@ -94,6 +97,10 @@ public:
 	
 	MaskVolumeType::Pointer GetMaskVolume() {
 		return maskVolume;
+	}
+	
+	MaskType3D::Pointer GetMask3D() {
+		return mask3D;
 	}
 	
 protected:
