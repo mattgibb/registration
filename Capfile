@@ -10,6 +10,6 @@ end
 
 desc "Push changes to remote server and hard reset the remote project"
 task :push do
-  `cd #{local_dir}; git push heart`
+  `cd #{local_dir}; git push -f heart`
   run " cd #{remote_dir}; git reset --hard"
 end
