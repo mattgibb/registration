@@ -43,7 +43,7 @@ int main( int argc, char * argv[] )
   reader->SetFileName( argv[1] );
   writer->SetFileName( argv[2] );
   
-  const double factor = 64.0;
+  const double factor = 128.0;
   
   try {
     reader->Update();
@@ -66,12 +66,13 @@ int main( int argc, char * argv[] )
   GaussianFilterType::Pointer smootherX = GaussianFilterType::New();
   GaussianFilterType::Pointer smootherY = GaussianFilterType::New();
 	
-  smootherX->SetInput( caster->GetOutput() );
+  // smootherX->SetInput( caster->GetOutput() );
+  smootherX->SetInput( reader->GetOutput() ); // skip caster
   smootherY->SetInput( smootherX->GetOutput() );
 	
   // The Sigma values to use in the smoothing filters is computed based on the
   // pixel spacings of the input image and the factors provided as arguments.
-  
+
   const InputImageType::SpacingType& inputSpacing = inputImage->GetSpacing();
 
   const double sigmaX = inputSpacing[0] * factor;
@@ -86,16 +87,15 @@ int main( int argc, char * argv[] )
   smootherX->SetNormalizeAcrossScale( false );
   smootherY->SetNormalizeAcrossScale( false );
   
-  typedef itk::VectorResampleImageFilter< InternalImageType, OutputImageType >  ResampleFilterType;
-
+  typedef itk::VectorResampleImageFilter< InternalImageType, OutputImageType > ResampleFilterType;
   ResampleFilterType::Pointer resampler = ResampleFilterType::New();
 
-  typedef itk::IdentityTransform< double, Dimension >  TransformType;
+  typedef itk::IdentityTransform< double, Dimension > TransformType;
 
   TransformType::Pointer transform = TransformType::New();
   transform->SetIdentity();
   resampler->SetTransform( transform );
-
+  
   typedef itk::VectorLinearInterpolateImageFunction< InternalImageType, double >  InterpolatorType;
   InterpolatorType::Pointer interpolator = InterpolatorType::New();
   resampler->SetInterpolator( interpolator );
@@ -111,10 +111,9 @@ int main( int argc, char * argv[] )
   resampler->SetOutputOrigin( inputImage->GetOrigin() );
   resampler->SetOutputDirection( inputImage->GetDirection() );
 
-  InputImageType::SizeType   inputSize = inputImage->GetLargestPossibleRegion().GetSize();
+  InputImageType::SizeType inputSize = inputImage->GetLargestPossibleRegion().GetSize();
 
   typedef InputImageType::SizeType::SizeValueType SizeValueType;
-
   InputImageType::SizeType size;
 
   size[0] = static_cast< SizeValueType >( inputSize[0] / factor );

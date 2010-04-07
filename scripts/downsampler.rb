@@ -14,7 +14,7 @@ end
 
 def downsampled_files
   # this code is repeated in 
-  Dir[DOWNSAMPLES_DIR + '/*.bmp'].map {|f| File.basename f, '.bmp' }  
+  Dir[DOWNSAMPLES_DIR + '/*.bmp'].map {|f| File.basename f, '.bmp' }
 end
 
 def files_ready_to_be_downsampled
