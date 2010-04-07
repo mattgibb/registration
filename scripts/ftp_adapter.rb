@@ -10,7 +10,8 @@ class FtpAdapter
     # set up the ftp connection
     @host, @user, @password, @remote_dir = host, user, password, remote_dir
     @ftp = Net::FTP.new(@host, @user, @password)
-    @ftp.chdir @remote_dir if @remote_dir    
+    @ftp.chdir @remote_dir if @remote_dir
+    @ftp.passive = true
   end
   
   def download_file(basename)
