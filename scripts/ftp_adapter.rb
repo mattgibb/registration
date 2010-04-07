@@ -17,6 +17,7 @@ class FtpAdapter
   def download_file(basename)
     raise "no download directory specified in FTP adaptor" unless @download_dir
     check_connection
+    check_local_space
     whole_name = File.join(@download_dir, "#{basename}.bmp")
     part_name  = whole_name + ".part"
     print "Downloading #{basename}.bmp..."
@@ -50,6 +51,17 @@ class FtpAdapter
       @ftp.chdir @remote_dir if @remote_dir
       puts "done"
     end
+  end
+  
+  def check_local_space
+    while available_gigabytes < 5
+      puts "Not enough space, trying again in a minute..."
+      sleep 60
+    end
+  end
+  
+  def available_gigabytes
+    `df`..split("\n")[-1].split[3].to_i / 1000000
   end
   
   def remote_files
