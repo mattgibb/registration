@@ -61,7 +61,7 @@ class FtpAdapter
   end
   
   def available_gigabytes
-    `df`..split("\n")[-1].split[3].to_i / 1000000
+    `df`.split("\n")[-1].split[3].to_i / 1000000
   end
   
   def remote_files
