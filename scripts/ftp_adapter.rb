@@ -16,11 +16,11 @@ class FtpAdapter
   
   def download_file(basename)
     raise "no download directory specified in FTP adaptor" unless @download_dir
-    check_connection
     check_local_space
     whole_name = File.join(@download_dir, "#{basename}.bmp")
     part_name  = whole_name + ".part"
     print "Downloading #{basename}.bmp..."
+    check_connection
     @ftp.getbinaryfile("#{basename}.bmp", part_name)
     puts "done."
     print "Removing '.part' extension..."
@@ -30,15 +30,22 @@ class FtpAdapter
   
   def upload_file(basename)
     raise "no upload directory specified in FTP adaptor" unless @upload_dir
-    check_connection
     whole_name = File.join(@upload_dir, basename)
     part_name = basename + ".part"
     print "Uploading #{basename}..."
+    check_connection
     @ftp.putbinaryfile(whole_name, part_name)
     puts "done."
     print "Removing '.part' exension..."
     @ftp.rename(part_name, basename)
     puts "done.\n\n"
+  end
+  
+  def check_local_space
+    while available_gigabytes < 5
+      puts "Not enough space, trying again in a minute..."
+      sleep 60
+    end
   end
   
   def check_connection
@@ -50,13 +57,6 @@ class FtpAdapter
       @ftp.connect @host
       @ftp.chdir @remote_dir if @remote_dir
       puts "done"
-    end
-  end
-  
-  def check_local_space
-    while available_gigabytes < 5
-      puts "Not enough space, trying again in a minute..."
-      sleep 60
     end
   end
   
