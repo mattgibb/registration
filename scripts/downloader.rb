@@ -26,7 +26,7 @@ def files_to_download
 end
 
 # Initialise FTP connection
-require 'ftp_adapter'
+require 'ftp_adaptor'
 
 ftp = FtpAdapter.new('nas-mef2.physiol.ox.ac.uk', 'mef', 'meflab',
                      'NAS-MEF2/Rabbit/001/Histology/HiRes/', download_dir: ORIGINALS_DIR)

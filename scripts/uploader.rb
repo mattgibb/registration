@@ -15,7 +15,7 @@ def files_to_upload(ftp)
 end
 
 # Initialise FTP connection
-require 'ftp_adapter'
+require 'ftp_adaptor'
 
 ftp = FtpAdapter.new('nas-mef2.physiol.ox.ac.uk', 'mef', 'meflab',
                      '/NAS-MEF2/Rabbit/001/Histology/downsampled_16x64x64',

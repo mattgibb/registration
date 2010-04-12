@@ -52,7 +52,7 @@ class FtpAdapter
     begin
       @ftp.noop
     rescue Net::FTPError => e
-      puts e + "\n\n"
+      puts "Oops, an #{e} was raised.\n\n"
       print "Reconnecting to FTP server..."
       @ftp.connect @host
       @ftp.chdir @remote_dir if @remote_dir
