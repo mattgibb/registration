@@ -51,7 +51,7 @@ class FtpAdapter
   def check_connection
     begin
       @ftp.noop
-    rescue Net::FTPError => e
+    rescue StandardError => e
       puts "\n\n#{e}\n\n"
       print "Reconnecting to FTP server..."
       @ftp.connect(@host)
