@@ -28,7 +28,7 @@ end
 
 def downsample_file(basename)
   print "Downsampling #{basename}.bmp..."
-  `../itk/ShrinkImage #{ORIGINALS_DIR}/#{basename}.bmp #{DOWNSAMPLES_DIR}/#{basename}.bmp`
+  `../itk/ShrinkImage '#{ORIGINALS_DIR}/#{basename}.bmp' '#{DOWNSAMPLES_DIR}/#{basename}.bmp'`
   puts "done."
   print "Removing hi-res copy of #{basename}.bmp..."
   rm "#{ORIGINALS_DIR}/#{basename}.bmp"
