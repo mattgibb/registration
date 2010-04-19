@@ -1,0 +1,3 @@
+optimizer_translation_scale_3D: 15000.0
+optimizer_translation_scale_2D: 15000.0 # What is an appropriate 2D translation scale?
+stack_spacings: [70.4, 70.4, 160] # Not implemented yet
