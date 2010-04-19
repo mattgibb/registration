@@ -19,8 +19,8 @@ class FtpAdapter
     check_local_space
     whole_name = File.join(@download_dir, "#{basename}.bmp")
     part_name  = whole_name + ".part"
-    print "Downloading #{basename}.bmp..."
     check_connection
+    print "Downloading #{basename}.bmp..."
     @ftp.getbinaryfile("#{basename}.bmp", part_name)
     puts "done."
     print "Removing '.part' extension..."
