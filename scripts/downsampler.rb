@@ -6,10 +6,10 @@ include FileUtils
 IMAGES_DIR = '../../images'
 ORIGINALS_DIR = IMAGES_DIR + '/originals'
 DOWNSAMPLES_DIR = IMAGES_DIR + '/downsamples'
-
+CONFIG_DIR = '../config'
 
 def all_files
-  File.read("../config/all_files.txt").split
+  File.read("#{CONFIG_DIR}/all_files.txt").split
 end
 
 def downsampled_files
@@ -29,7 +29,12 @@ end
 def downsample_file(basename)
   print "Downsampling #{basename}.bmp..."
   `../itk/ShrinkImage '#{ORIGINALS_DIR}/#{basename}.bmp' '#{DOWNSAMPLES_DIR}/#{basename}.bmp'`
-  puts "done."
+  if $? == 0
+    puts "done."
+  else
+    File.open("#{CONFIG_DIR}/error_files.txt", "a") {|f| f.puts basename }
+    print "Downsampling failed. Filename has been appended to 'error_files.txt'."
+  end
   print "Removing hi-res copy of #{basename}.bmp..."
   rm "#{ORIGINALS_DIR}/#{basename}.bmp"
   puts "done.\n\n"

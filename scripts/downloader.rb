@@ -3,9 +3,10 @@
 IMAGES_DIR = '../../images'
 ORIGINALS_DIR = IMAGES_DIR + '/originals'
 DOWNSAMPLES_DIR = IMAGES_DIR + '/downsamples'
+CONFIG_DIR = '../config'
 
 def all_files
-  File.read("../config/all_files.txt").split
+  File.read("#{CONFIG_DIR}/all_files.txt").split
 end
 
 def downsampled_files
@@ -18,11 +19,15 @@ def fully_downloaded_files
   Dir[ORIGINALS_DIR + '/*.bmp'].map {|f| File.basename f, '.bmp' }
 end
 
+def error_files
+  File.read(CONFIG_DIR + "/error_files.txt").split
+end
+
 def files_to_download
-  # Finds all files, and removes files that have been downsampled
-  # and files that are already fully downloaded. Ignores and overwrites
-  # files that are partially downloaded.
-  all_files - fully_downloaded_files - downsampled_files
+  # Finds all files, and removes files that have been downsampled,
+  # files that are already fully downloaded and files that could not
+  # be processed. Ignores and overwrites files that are partially downloaded.
+  all_files - fully_downloaded_files - downsampled_files - error_files
 end
 
 # Initialise FTP connection
