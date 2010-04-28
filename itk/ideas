@@ -1,1 +1,15 @@
 Check `8.5.3 Plotting Joint Histograms' in ITK Software Guide.
+Is the centre of rotation set in the middle of the two images for the 2D and the 3D registration? or at the origin?
+3D registration behaves differently with a moving image mask as without.
+
+
+TODO:
+Set up MRI to construct transformed volume and mask volume, then build vectors of slices in 'slices' and 'maskSlices' for external use.
+
+I could either subclass the initialiser and override the method for calculating moments, or play with rotation matrices until the hearts are well aligned.
+
+Check out RegionOfInterestImageFilter
+
+See void itkImage::FillBuffer() in itkImage.h
+
+http://www.vtk.org/Wiki/CMake:How_To_Find_Libraries

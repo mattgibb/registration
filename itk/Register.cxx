@@ -1,3 +1,7 @@
+// YAML config reader
+#include "yaml.h"
+
+// ITK includes
 #include "itkImage.h"
 #include "itkImageRegistrationMethod.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
@@ -6,16 +10,6 @@
 #include "itkResampleImageFilter.h"
 #include "itkCastImageFilter.h"
 #include "itkImageMaskSpatialObject.h"
-
-// 3-D registration
-#include "itkMultiResolutionImageRegistrationMethod.h"
-#include "itkMultiResolutionPyramidImageFilter.h"
-#include "itkVersorRigid3DTransform.h"
-#include "itkCenteredTransformInitializer.h"
-#include "itkVersorRigid3DTransformOptimizer.h"
-
-// 2-D registration
-#include "itkRegularStepGradientDescentOptimizer.h"
 
 // File IO
 #include "itkRegularExpressionSeriesFileNames.h"
@@ -83,24 +77,29 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
 	}
 }
 
-void setUpObservers() {
-	
+void readRegistrationParameters(YAML::Node & parameters) {
+  ifstream config_filestream("config/registration_parameters.yml");
+  YAML::Parser parser(config_filestream);
+  parser.GetNextDocument(parameters);
 }
 
 int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
 	
+  YAML::Node registrationParameters;
+	// read registration parameters
+  readRegistrationParameters(registrationParameters);
 	
 	// initialise stack and MRI objects
 	Stack stack( getFileNames(argv) );
-	MRI mriVolume( argv[4] );
-		
-	// perform 3-D registration
-	Framework3D framework3D(&stack, &mriVolume);
+  Stack::VolumeType::Pointer stackVolume = stack.GetVolume();
+	MRI mriVolume( argv[4], stackVolume->GetSpacing(), stackVolume->GetLargestPossibleRegion().GetSize() );
   	
+	// perform 3-D registration
+	Framework3D framework3D(&stack, &mriVolume, registrationParameters);  
 	framework3D.beginRegistration( argv[9] );
-			
+	
 	// Get final parameters
   Framework3D::OptimizerType3D::ParametersType finalParameters3D = framework3D.registration3D->GetLastTransformParameters();
   
@@ -161,17 +160,21 @@ int main (int argc, char const *argv[]) {
 	// typedef itk::ExtractImageFilter< OutputImageType, OutputSliceType > ExtractFilterType;
   // ExtractFilterType::Pointer extractor = ExtractFilterType::New();
   
+  // Framework2D framework2D(&stack, &mriVolume);
+  // framework2D->setOptimizerTranslationScale( registrationParameters["optimizer_translation_scale_2D"] );
+	
 	
 	
 	// perform 2-D registration
 	typedef StdOutIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
 	ObserverType2D::Pointer observer2D = ObserverType2D::New();
 	
+	// perform non-rigid registration
+	// check out itkMultiResolutionPDEDeformableRegistration
 	
 	// write volume and mask to disk
 	writeImage< Stack::VolumeType >( stack.GetVolume(), argv[7] );
 	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), argv[8] );
 		
-	
   return EXIT_SUCCESS;
 }

@@ -2,7 +2,20 @@
 
 #ifndef FRAMEWORK3D_HPP_
 #define FRAMEWORK3D_HPP_
+// YAML config reader
+#include "yaml.h"
 
+// 3-D registration
+#include "itkMultiResolutionImageRegistrationMethod.h"
+#include "itkMultiResolutionPyramidImageFilter.h"
+#include "itkVersorRigid3DTransform.h"
+#include "itkCenteredTransformInitializer.h"
+#include "itkVersorRigid3DTransformOptimizer.h"
+#include "itkMattesMutualInformationImageToImageMetric.h"
+#include "itkLinearInterpolateImageFunction.h"
+#include "itkImageMaskSpatialObject.h"
+
+// my files
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
 #include "MultiResRegistrationCommand.hpp"
@@ -22,7 +35,7 @@ public:
 	typedef StdOutIterationUpdate< OptimizerType3D > StdOutObserverType3D;
 	typedef FileIterationUpdate< OptimizerType3D > FileObserverType3D;
 	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D, MetricType3D > MultiResCommandType;
- 
+  
 	
 	Stack *stack;
 	MRI *mriVolume;
@@ -33,36 +46,37 @@ public:
   TransformType3D::Pointer transform3D;
 	FixedImagePyramidType::Pointer fixedImagePyramid;
 	MovingImagePyramidType::Pointer movingImagePyramid;
-	MaskType3D::Pointer stackMask;
 	StdOutObserverType3D::Pointer stdOutObserver3D;
 	FileObserverType3D::Pointer fileObserver3D;
 	MultiResCommandType::Pointer multiResCommand;
 	ofstream observerOutput;
+  YAML::Node& registrationParameters;
 	
 	
-	Framework3D(Stack *inputStack, MRI *inputMriVolume) {
-		this->stack = inputStack;
-		this->mriVolume = inputMriVolume;
-		
+	Framework3D(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
+	  stack(inputStack),
+	  mriVolume(inputMriVolume),
+	  registrationParameters(parameters)
+	  {	
 		initializeRegistrationComponents();
 		
 		wireUpRegistrationComponents();
-		
-		setOptimizerTranslationScale(1.0 / 15000.0);
-
-		metric3D->SetFixedImageMask( stack->GetMask3D() );
-		
+		    
 		registration3D->SetFixedImage( stack->GetVolume() );
-		
 	  registration3D->SetMovingImage( mriVolume->GetVolume() );
-        
-	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetBufferedRegion() );
 	  
+	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetLargestPossibleRegion() );
+	  
+		metric3D->SetFixedImageMask( stack->GetMask3D() );
+    metric3D->SetMovingImageMask( mriVolume->GetMask3D() );
+		
 	  registration3D->SetNumberOfLevels( 4 );
 		
 		initializeTransformParameters();
 		
 		setUpObservers();
+		
+    setOptimizerTranslationScale();
 	}
 	
 	void initializeRegistrationComponents() {
@@ -82,20 +96,6 @@ public:
 	  registration3D->SetTransform( transform3D );
 	  registration3D->SetFixedImagePyramid( fixedImagePyramid );
 	  registration3D->SetMovingImagePyramid( movingImagePyramid );
-	}
-		
-	void setOptimizerTranslationScale(const double scale) {
-		OptimizerType3D::ScalesType optimizerScales3D( transform3D->GetNumberOfParameters() );
-	  const double translationScale = scale;
-    
-	  optimizerScales3D[0] = 1.0;
-	  optimizerScales3D[1] = 1.0;
-	  optimizerScales3D[2] = 1.0;
-	  optimizerScales3D[3] = translationScale;
-	  optimizerScales3D[4] = translationScale;
-	  optimizerScales3D[5] = translationScale;
-    
-	  optimizer3D->SetScales( optimizerScales3D );
 	}
 	
 	void initializeTransformParameters() {
@@ -152,6 +152,30 @@ public:
 	
 	  // add output to fileObserver3D
 		fileObserver3D->SetOfstream( &observerOutput );
+		
+		// set maximum number of iterations at each level
+    itk::Array<unsigned int> maxIterations(4);
+    for(int i=0; i<4; i++)  { registrationParameters["maxIterations"][i] >> maxIterations[i]; }
+    multiResCommand->setMaxIterations(maxIterations);
+	}
+	
+	void setOptimizerTranslationScale() {
+    string translationScaleStr;
+    registrationParameters["optimizerTranslationScale3D"] >> translationScaleStr;
+    double translationScale = atof(translationScaleStr.c_str());
+    
+    cout << "translationScale: " << translationScale << endl;
+	  
+		OptimizerType3D::ScalesType optimizerScales3D( transform3D->GetNumberOfParameters() );
+    
+	  optimizerScales3D[0] = 1.0;
+	  optimizerScales3D[1] = 1.0;
+	  optimizerScales3D[2] = 1.0;
+	  optimizerScales3D[3] = translationScale;
+	  optimizerScales3D[4] = translationScale;
+	  optimizerScales3D[5] = translationScale;
+    
+	  optimizer3D->SetScales( optimizerScales3D );
 	}
 	
 	void beginRegistration(char const *outputFileName) {

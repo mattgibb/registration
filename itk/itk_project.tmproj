@@ -3,14 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>Observers/MultiResRegistrationCommand.hpp</string>
+	<string>Stack.hpp</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>CMakeLists.txt</string>
 			<key>lastUsed</key>
-			<date>2010-03-24T20:35:07Z</date>
+			<date>2010-04-20T15:30:43Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -21,6 +21,8 @@
 		<dict>
 			<key>filename</key>
 			<string>ideas</string>
+			<key>lastUsed</key>
+			<date>2010-04-20T15:30:57Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -36,13 +38,13 @@
 			<key>filename</key>
 			<string>MRI.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-03-26T17:07:04Z</date>
+			<date>2010-04-20T12:57:27Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>Register.cxx</string>
 			<key>lastUsed</key>
-			<date>2010-03-26T17:07:13Z</date>
+			<date>2010-04-20T12:57:35Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -60,7 +62,9 @@
 			<key>filename</key>
 			<string>Stack.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-03-26T17:07:03Z</date>
+			<date>2010-04-20T15:30:57Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -78,111 +82,116 @@
 			<key>filename</key>
 			<string>Framework3D.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-03-26T17:08:02Z</date>
+			<date>2010-04-20T12:41:43Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>Framework2D.hpp</string>
+			<key>lastUsed</key>
+			<date>2010-04-19T20:12:09Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>288</integer>
 	<key>metaData</key>
 	<dict>
-		<key>Framework3D.hpp</key>
+		<key>CMakeLists.txt</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>79</integer>
 				<key>line</key>
-				<integer>124</integer>
+				<integer>12</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>Framework2D.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>33</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>20</integer>
+		</dict>
+		<key>Framework3D.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>42</integer>
+				<key>line</key>
+				<integer>76</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>49</integer>
 		</dict>
 		<key>MRI.hpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>39</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>11</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
 				<integer>34</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
 				<key>line</key>
-				<integer>39</integer>
-			</dict>
-		</dict>
-		<key>Observers/MultiResRegistrationCommand.hpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>40</integer>
-				<key>line</key>
-				<integer>41</integer>
+				<integer>234</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>10</integer>
+			<integer>0</integer>
 		</dict>
 		<key>Register.cxx</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>1</integer>
+				<integer>49</integer>
 				<key>line</key>
-				<integer>120</integer>
+				<integer>161</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>16</integer>
+			<integer>0</integer>
 		</dict>
 		<key>Stack.hpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>2</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>179</integer>
+				<integer>191</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>135</integer>
+			<integer>157</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>Register.cxx</string>
+		<string>CMakeLists.txt</string>
+		<string>Framework3D.hpp</string>
+		<string>Framework2D.hpp</string>
 		<string>MRI.hpp</string>
 		<string>Stack.hpp</string>
-		<string>Framework3D.hpp</string>
-		<string>Observers/MultiResRegistrationCommand.hpp</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{986, 4}, {933, 1174}}</string>
+	<string>{{995, 4}, {925, 1174}}</string>
 </dict>
 </plist>

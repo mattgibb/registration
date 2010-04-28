@@ -20,10 +20,12 @@ class Stack {
 public:
   typedef short PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
-	typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 2 > MaskSliceType;
+	typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
 	typedef vector< SliceType::Pointer > SliceVectorType;
+  typedef vector< MaskSliceType::Pointer > MaskSliceVectorType;
+  typedef itk::ImageFileReader< SliceType > ReaderType;
 	typedef itk::CenteredRigid2DTransform< double > TransformType;
 	typedef TransformType::ParametersType ParametersType;
   typedef itk::LinearInterpolateImageFunction< SliceType, double > LinearInterpolatorType;
@@ -36,14 +38,18 @@ public:
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
   typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
 	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
+  typedef itk::ImageMaskSpatialObject< 2 > MaskType2D;
+	typedef vector< MaskType2D::Pointer > MaskVectorType2D;
 	
 	
 	SliceVectorType originalImages;
-	SliceType::SizeType maxSize;
-	SliceType::SpacingType spacings2D;
+  MaskSliceVectorType originalMasks;
 	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
+	SliceType::SizeType maxSize;
+	SliceType::SpacingType spacings2D;
 	MaskType3D::Pointer mask3D;
+	MaskVectorType2D masks2D;
 	vector< ParametersType > parameters;
 	TransformType::Pointer transform;
 	LinearInterpolatorType::Pointer linearInterpolator;
@@ -57,7 +63,6 @@ public:
 	
 	
 	Stack(vector< string > fileNames) {
-		typedef itk::ImageFileReader< SliceType > ReaderType;
 		ReaderType::Pointer reader;
 		
 		for(unsigned int i=0; i<fileNames.size(); i++)
@@ -70,6 +75,8 @@ public:
 		}
 		
 		// initialise volume and mask
+    buildOriginalMaskSlices();
+    buildOriginalMasks();
 		initialiseParametersVector();
 		calculateMaxSize();
 		initialiseFilters();
@@ -189,23 +196,8 @@ public:
 		// build mask slices and attach them to the tile filter
 		for(unsigned int i=0; i<originalImages.size(); i++)
 		{
-			// make new maskSlice and make it all white
-			MaskSliceType::RegionType region;
-			region.SetSize( originalImages[i]->GetLargestPossibleRegion().GetSize() );
-			
-			MaskSliceType::Pointer maskSlice = MaskSliceType::New();
-			maskSlice->SetRegions( region );
-			maskSlice->CopyInformation( originalImages[i] );
-			maskSlice->GetMetaDataDictionary().Print( cout );
-		  maskSlice->Allocate();
-			
-		  IteratorType it(maskSlice,region);
-		  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
-		    it.Set( 255 );
-		  }
-			
 			// apply as in buildVolume
-			maskResampler->SetInput( maskSlice );
+			maskResampler->SetInput( originalMasks[i] );
 			transform->SetParameters( parameters[i] );
 			maskResampler->Update();
 			
@@ -226,6 +218,41 @@ public:
 		mask3D = MaskType3D::New();
 		mask3D->SetImage( maskVolume );
 		
+	}
+	
+	void buildOriginalMaskSlices() {
+		// build a vector of mask slices
+		for(unsigned int i=0; i<originalImages.size(); i++)
+		{
+			// make new maskSlice and make it all white
+			MaskSliceType::RegionType region;
+			region.SetSize( originalImages[i]->GetLargestPossibleRegion().GetSize() );
+		  
+			MaskSliceType::Pointer maskSlice = MaskSliceType::New();
+			maskSlice->SetRegions( region );
+			maskSlice->CopyInformation( originalImages[i] );
+		  maskSlice->Allocate();
+			
+		  IteratorType it(maskSlice,region);
+		  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
+		    it.Set( 255 );
+		  }
+		  
+		  originalMasks.push_back( maskSlice );
+			originalMasks.back()->DisconnectPipeline();
+			
+	  }
+	}
+	
+	void buildOriginalMasks() {
+	  // build a vector of masks from the mask slices
+    for(unsigned int i=0; i<originalImages.size(); i++)
+    {
+      // make new 2D masks and assign mask slices to them
+      MaskType2D::Pointer mask2D = MaskType2D::New();
+      mask2D->SetImage( originalMasks[i] );
+      masks2D.push_back( mask2D );
+    }
 	}
 	
 	VolumeType::Pointer GetVolume() {
