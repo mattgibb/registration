@@ -58,12 +58,13 @@ vector< string > getFileNames(char const *argv[]) {
 	return nameGenerator->GetFileNames();
 }
 
-template<typename ImageType>
-void writeImage(typename ImageType::Pointer image, char const *fileName) {
-	typedef itk::ImageFileWriter< ImageType > WriterType;
+template<typename WriterType, typename DataType>
+void writeData(typename DataType::Pointer data, char const *fileName) {
+  // typedef itkTransformFileWriter WriterType;
   typename WriterType::Pointer writer = WriterType::New();
 	
-	writer->SetInput( image );
+	writer->SetInput( data );
+  // writer->AddTransform( anotherTransform ); // only applies to writing transforms
   
   writer->SetFileName( fileName );
 	
@@ -75,6 +76,11 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
     std::cerr << err << std::endl;
 		exit(EXIT_FAILURE);
 	}
+}
+
+template<typename ImageType>
+void writeImage(typename ImageType::Pointer image, char const *fileName) {
+  writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
 }
 
 void readRegistrationParameters(YAML::Node & parameters) {
@@ -97,30 +103,14 @@ int main (int argc, char const *argv[]) {
 	MRI mriVolume( argv[4], stackVolume->GetSpacing(), stackVolume->GetLargestPossibleRegion().GetSize() );
   	
 	// perform 3-D registration
-	Framework3D framework3D(&stack, &mriVolume, registrationParameters);  
+	Framework3D framework3D(&stack, &mriVolume, registrationParameters);
 	framework3D.beginRegistration( argv[9] );
 	
 	// Get final parameters
   Framework3D::OptimizerType3D::ParametersType finalParameters3D = framework3D.registration3D->GetLastTransformParameters();
   
 	// Write final transform to file
-	itk::TransformFileWriter::Pointer writer = itk::TransformFileWriter::New();
-
-  writer->SetInput( framework3D.transform3D );
-  // writer->AddTransform( anotherTransform );
-
-  writer->SetFileName( argv[5] );
-
-  try
-    {
-    writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << "Error while saving the transforms" << std::endl;
-    std::cerr << excp << std::endl;
-    return 0;
-    }
+  writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, argv[5] );
 	
   Framework3D::TransformType3D::MatrixType matrix3D = framework3D.transform3D->GetRotationMatrix();
   Framework3D::TransformType3D::OffsetType offset3D = framework3D.transform3D->GetOffset();
@@ -152,7 +142,7 @@ int main (int argc, char const *argv[]) {
   resampler3D->SetInput( mriVolume.GetVolume() );
 
 	writeImage< MRI::VolumeType >(resampler3D->GetOutput(), argv[6] );
-    
+  
   // used for final resampling
 	typedef itk::NearestNeighborInterpolateImageFunction< MRI::VolumeType, double > NearestNeighborInterpolatorType3D;
   

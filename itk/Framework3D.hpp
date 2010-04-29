@@ -164,8 +164,6 @@ public:
     registrationParameters["optimizerTranslationScale3D"] >> translationScaleStr;
     double translationScale = atof(translationScaleStr.c_str());
     
-    cout << "translationScale: " << translationScale << endl;
-	  
 		OptimizerType3D::ScalesType optimizerScales3D( transform3D->GetNumberOfParameters() );
     
 	  optimizerScales3D[0] = 1.0;
