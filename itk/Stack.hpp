@@ -232,11 +232,7 @@ public:
 			maskSlice->SetRegions( region );
 			maskSlice->CopyInformation( originalImages[i] );
 		  maskSlice->Allocate();
-			
-		  IteratorType it(maskSlice,region);
-		  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
-		    it.Set( 255 );
-		  }
+			maskSlice->FillBuffer( 255 );
 		  
 		  originalMasks.push_back( maskSlice );
 			originalMasks.back()->DisconnectPipeline();

@@ -93,8 +93,8 @@ int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
 	
-  YAML::Node registrationParameters;
 	// read registration parameters
+  YAML::Node registrationParameters;
   readRegistrationParameters(registrationParameters);
 	
 	// initialise stack and MRI objects
@@ -121,7 +121,6 @@ int main (int argc, char const *argv[]) {
   typedef itk::ResampleImageFilter< MRI::VolumeType, MRI::VolumeType > ResampleFilterType;
   Framework3D::TransformType3D::Pointer finalTransform = Framework3D::TransformType3D::New();
   
-  // TODO Check to see if using transform3D directly instead of finalTransform makes a difference
   finalTransform->SetCenter( framework3D.transform3D->GetCenter() );
   finalTransform->SetParameters( finalParameters3D );
   finalTransform->SetFixedParameters( framework3D.transform3D->GetFixedParameters() );

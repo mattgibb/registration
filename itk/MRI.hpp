@@ -67,9 +67,10 @@ public:
   MaskSliceExtractorType::Pointer maskSliceExtractor;
   
 	
-	MRI(char const *inputFileName, VolumeType::SpacingType spacing, VolumeType::SizeType size):parameters(6) {
-    resamplerSize = size;
-    resamplerSpacing = spacing;
+	MRI(char const *inputFileName, VolumeType::SpacingType spacing, VolumeType::SizeType size):
+	  parameters(6),
+	  resamplerSpacing(spacing),
+	  resamplerSize(size) {
 		readFile(inputFileName);
 		rescaleIntensity();
 		resizeImage(0.8);
@@ -118,11 +119,7 @@ public:
 		originalMask->SetRegions( region );
 		originalMask->CopyInformation( originalImage );
 	  originalMask->Allocate();
-		
-	  IteratorType it(originalMask,region);
-	  for(it.GoToBegin(); !it.IsAtEnd(); ++it) {
-	    it.Set( 255 );
-	  }
+    originalMask->FillBuffer( 255 );
 		
 		maskSpacer = MaskSpacerType::New();
 		maskSpacer->ChangeSpacingOn();
