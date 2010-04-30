@@ -56,8 +56,7 @@ public:
 	Framework3D(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
 	  stack(inputStack),
 	  mriVolume(inputMriVolume),
-	  registrationParameters(parameters)
-	  {	
+	  registrationParameters(parameters) {
 		initializeRegistrationComponents();
 		
 		wireUpRegistrationComponents();
@@ -193,6 +192,8 @@ public:
 	    }
     
 	  observerOutput.close();
+	  
+    mriVolume->SetTransformParameters( transform3D );
 	}
 	
 protected:

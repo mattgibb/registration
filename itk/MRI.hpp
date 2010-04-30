@@ -52,7 +52,6 @@ public:
   MaskSliceVectorType maskSlices;
 	MaskType3D::Pointer mask3D;
   MaskVectorType2D masks2D;
-  ParametersType parameters;
   TransformType::Pointer transform;
   LinearInterpolatorType::Pointer linearInterpolator;
 	NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
@@ -67,15 +66,13 @@ public:
   MaskSliceExtractorType::Pointer maskSliceExtractor;
   
 	
-	MRI(char const *inputFileName, VolumeType::SpacingType spacing, VolumeType::SizeType size):
-	  parameters(6),
+	MRI(char const *inputFileName, VolumeType::SpacingType spacing, VolumeType::SizeType size, double initialResizeFactor):
 	  resamplerSpacing(spacing),
 	  resamplerSize(size) {
 		readFile(inputFileName);
 		rescaleIntensity();
-		resizeImage(0.8);
+		resizeImage(initialResizeFactor);
 		buildOriginalMaskVolume();
-		initialiseParameters();
     initialiseFilters();
     buildSlices();
     buildMaskSlices();
@@ -132,15 +129,11 @@ public:
 	  mask3D = MaskType3D::New();
 		mask3D->SetImage( originalMask );
 	}
-	
-	void initialiseParameters() {
-		parameters.Fill(0);
-	}
-	
+		
 	void initialiseFilters() {
 		// resamplers
 		transform = TransformType::New();
-	  transform->SetParameters( parameters );
+	  transform->SetIdentity();
 		linearInterpolator = LinearInterpolatorType::New();
 		nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
 		resampler = ResamplerType::New();
@@ -149,6 +142,7 @@ public:
 		resampler->SetOutputSpacing( resamplerSpacing );
 		resampler->SetSize( resamplerSize );
 		resampler->SetTransform( transform );
+		resampler->SetDefaultPixelValue( 127 );
 		maskResampler = MaskResamplerType::New();
 		maskResampler->SetInput( originalMask );
 		maskResampler->SetInterpolator( nearestNeighborInterpolator );
@@ -157,12 +151,10 @@ public:
 		maskResampler->SetTransform( transform );
 		
 		// extract image filters
-		sliceExtractor = SliceExtractorType::New();
+    sliceExtractor = SliceExtractorType::New();
     sliceExtractor->SetInput( resampler->GetOutput() );
 		maskSliceExtractor = MaskSliceExtractorType::New();
     maskSliceExtractor->SetInput( maskResampler->GetOutput() );
-	    
-	  
 	}
 	
 	void buildSlices() {
@@ -219,6 +211,11 @@ public:
   
 	}
 	
+	void SetTransformParameters(TransformType::Pointer inputTransform) {
+    transform->SetParameters( inputTransform->GetParameters() );
+    transform->SetFixedParameters( inputTransform->GetFixedParameters() );
+	}
+	
 	VolumeType::Pointer GetVolume() {
 		return originalImage;
 	}
@@ -229,6 +226,16 @@ public:
 	
 	MaskType3D::Pointer GetMask3D() {
 		return mask3D;
+	}
+	
+	VolumeType::Pointer GetResampledVolume() {
+    resampler->Update();
+    return resampler->GetOutput();
+	}
+	
+	MaskVolumeType::Pointer GetResampledMaskVolume() {
+    maskResampler->Update();
+    return maskResampler->GetOutput();
 	}
 	
 protected:

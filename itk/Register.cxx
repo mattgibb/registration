@@ -99,48 +99,25 @@ int main (int argc, char const *argv[]) {
 	
 	// initialise stack and MRI objects
 	Stack stack( getFileNames(argv) );
-  Stack::VolumeType::Pointer stackVolume = stack.GetVolume();
-	MRI mriVolume( argv[4], stackVolume->GetSpacing(), stackVolume->GetLargestPossibleRegion().GetSize() );
-  	
+	
+  double MRIInitialResizeFactor;
+  registrationParameters["MRIInitialResizeFactor"] >> MRIInitialResizeFactor;
+	MRI mriVolume( argv[4],
+	               stack.GetVolume()->GetSpacing(),
+	               stack.GetVolume()->GetLargestPossibleRegion().GetSize(),
+	               MRIInitialResizeFactor);
+	
 	// perform 3-D registration
 	Framework3D framework3D(&stack, &mriVolume, registrationParameters);
 	framework3D.beginRegistration( argv[9] );
-	
-	// Get final parameters
-  Framework3D::OptimizerType3D::ParametersType finalParameters3D = framework3D.registration3D->GetLastTransformParameters();
-  
+	  
 	// Write final transform to file
   writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, argv[5] );
+	  
+  std::cout << "Matrix = " << std::endl << framework3D.transform3D->GetRotationMatrix() << std::endl;
+  std::cout << "Offset = " << std::endl << framework3D.transform3D->GetOffset() << std::endl;  
 	
-  Framework3D::TransformType3D::MatrixType matrix3D = framework3D.transform3D->GetRotationMatrix();
-  Framework3D::TransformType3D::OffsetType offset3D = framework3D.transform3D->GetOffset();
-  
-  std::cout << "Matrix = " << std::endl << matrix3D << std::endl;
-  std::cout << "Offset = " << std::endl << offset3D << std::endl;  
-	
-  typedef itk::ResampleImageFilter< MRI::VolumeType, MRI::VolumeType > ResampleFilterType;
-  Framework3D::TransformType3D::Pointer finalTransform = Framework3D::TransformType3D::New();
-  
-  finalTransform->SetCenter( framework3D.transform3D->GetCenter() );
-  finalTransform->SetParameters( finalParameters3D );
-  finalTransform->SetFixedParameters( framework3D.transform3D->GetFixedParameters() );
-  
-  ResampleFilterType::Pointer resampler3D = ResampleFilterType::New();
-  
-  Stack::VolumeType::Pointer fixedImage3D = stack.GetVolume();
-  
-  resampler3D->SetSize( fixedImage3D->GetLargestPossibleRegion().GetSize() );
-  resampler3D->SetOutputOrigin( fixedImage3D->GetOrigin() );
-  resampler3D->SetOutputSpacing( fixedImage3D->GetSpacing() );
-  resampler3D->SetOutputDirection( fixedImage3D->GetDirection() );
-  resampler3D->SetDefaultPixelValue( 100 );
-  
-  // resampler3D->SetTransform( finalTransform );
-  resampler3D->SetTransform( framework3D.transform3D );
-	resampler3D->SetInterpolator( framework3D.interpolator3D );
-  resampler3D->SetInput( mriVolume.GetVolume() );
-
-	writeImage< MRI::VolumeType >(resampler3D->GetOutput(), argv[6] );
+	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), argv[6] );
   
   // used for final resampling
 	typedef itk::NearestNeighborInterpolateImageFunction< MRI::VolumeType, double > NearestNeighborInterpolatorType3D;
