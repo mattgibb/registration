@@ -17,7 +17,7 @@ int main( int argc, char * argv[] )
   if( argc < 3 ) {
     cerr << "Usage: " << endl;
     cerr << argv[0] << "  inputImageFile  outputImageFile" << endl;
-    return EXIT_FAILURE;
+    exit(EXIT_FAILURE);
   }
   
   const     unsigned int   Dimension = 2;
@@ -51,6 +51,7 @@ int main( int argc, char * argv[] )
   catch( itk::ExceptionObject & excep ) {
     cerr << "Exception caught!" << endl;
     cerr << excep << endl;
+    exit(EXIT_FAILURE);
   }
   
   InputImageType::ConstPointer inputImage = reader->GetOutput();
