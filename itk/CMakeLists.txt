@@ -6,16 +6,16 @@ PROJECT(REGISTRATION)
 FIND_PACKAGE(ITK REQUIRED)
 
 FIND_LIBRARY(YAML_LIBRARY
-  NAMES libyaml-cpp.dylib
-  PATHS /usr/local/lib
+  NAMES libyaml-cpp.dylib libyaml-cpp.so
+  PATHS /usr/local/lib $ENV{HOME}/lib
   )
 
-# MESSAGE( STATUS "YAML_LIBRARY: ${YAML_LIBRARY}" )
+# MESSAGE( STATUS "HOME: $ENV{HOME}" )
   
 INCLUDE(${ITK_USE_FILE})
 # INCLUDE( CMakePrintSystemInformation )
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/Observers /usr/local/include/yaml-cpp)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/Observers /usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
 
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
