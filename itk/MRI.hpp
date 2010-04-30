@@ -34,8 +34,9 @@ public:
 	typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskSpacerType;
 	typedef itk::VersorRigid3DTransform< double > TransformType;
 	typedef TransformType::ParametersType ParametersType;
-  typedef itk::LinearInterpolateImageFunction< VolumeType, double > LinearInterpolatorType;
-  typedef itk::NearestNeighborInterpolateImageFunction< MaskVolumeType, double > NearestNeighborInterpolatorType;
+  // typedef itk::LinearInterpolateImageFunction< VolumeType, double > VolumeInterpolatorType;
+  typedef itk::NearestNeighborInterpolateImageFunction< VolumeType, double > VolumeInterpolatorType;
+  typedef itk::NearestNeighborInterpolateImageFunction< MaskVolumeType, double > MaskVolumeInterpolatorType;
   typedef itk::ResampleImageFilter< VolumeType, VolumeType > ResamplerType;
   typedef itk::ResampleImageFilter< MaskVolumeType, MaskVolumeType > MaskResamplerType;
   typedef itk::ExtractImageFilter< VolumeType, SliceType > SliceExtractorType;
@@ -53,8 +54,8 @@ public:
 	MaskType3D::Pointer mask3D;
   MaskVectorType2D masks2D;
   TransformType::Pointer transform;
-  LinearInterpolatorType::Pointer linearInterpolator;
-	NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
+  VolumeInterpolatorType::Pointer volumeInterpolator;
+	MaskVolumeInterpolatorType::Pointer maskVolumeInterpolator;
 	RescaleIntensityFilterType::Pointer intensityRescaler;
 	ShrinkerType::Pointer resizer;
 	MaskSpacerType::Pointer maskSpacer;
@@ -134,18 +135,18 @@ public:
 		// resamplers
 		transform = TransformType::New();
 	  transform->SetIdentity();
-		linearInterpolator = LinearInterpolatorType::New();
-		nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
+    volumeInterpolator = VolumeInterpolatorType::New();
+		maskVolumeInterpolator = MaskVolumeInterpolatorType::New();
 		resampler = ResamplerType::New();
     resampler->SetInput( originalImage );
-		resampler->SetInterpolator( linearInterpolator );
+		resampler->SetInterpolator( volumeInterpolator );
 		resampler->SetOutputSpacing( resamplerSpacing );
 		resampler->SetSize( resamplerSize );
 		resampler->SetTransform( transform );
 		resampler->SetDefaultPixelValue( 127 );
 		maskResampler = MaskResamplerType::New();
 		maskResampler->SetInput( originalMask );
-		maskResampler->SetInterpolator( nearestNeighborInterpolator );
+		maskResampler->SetInterpolator( maskVolumeInterpolator );
 		maskResampler->SetOutputSpacing( resamplerSpacing );
 		maskResampler->SetSize( resamplerSize );
 		maskResampler->SetTransform( transform );
