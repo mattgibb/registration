@@ -33,7 +33,7 @@ def downsample_file(basename)
     puts "done."
   else
     File.open("#{CONFIG_DIR}/error_files.txt", "a") {|f| f.puts basename }
-    print "Downsampling failed. Filename has been appended to 'error_files.txt'."
+    puts "Downsampling failed. Filename has been appended to 'error_files.txt'."
   end
   print "Removing hi-res copy of #{basename}.bmp..."
   rm "#{ORIGINALS_DIR}/#{basename}.bmp"
