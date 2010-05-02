@@ -13,7 +13,7 @@ def all_files
 end
 
 def downsampled_files
-  # this code is repeated in 
+  # this code is repeated in
   Dir[DOWNSAMPLES_DIR + '/*.bmp'].map {|f| File.basename f, '.bmp' }
 end
 
@@ -22,8 +22,12 @@ def files_ready_to_be_downsampled
   Dir[ORIGINALS_DIR + '/*.bmp'].map {|f| File.basename f, '.bmp' }
 end
 
+def error_files
+  File.read(CONFIG_DIR + "/error_files.txt").split
+end
+
 def files_to_downsample
-  all_files - downsampled_files
+  all_files - downsampled_files - error_files
 end
 
 def downsample_file(basename)
