@@ -130,7 +130,7 @@ public:
 	  mask3D = MaskType3D::New();
 		mask3D->SetImage( originalMask );
 	}
-		
+	
 	void initialiseFilters() {
 		// resamplers
 		transform = TransformType::New();
@@ -159,6 +159,8 @@ public:
 	}
 	
 	void buildSlices() {
+	  resampler->Update();
+	  
 	  // set up extractor
     VolumeType::SizeType size = resamplerSize;
     size[2] = 0;
@@ -169,16 +171,18 @@ public:
     sliceRegion.SetSize( size );
     sliceRegion.SetIndex( sliceIndex );
     
-    sliceExtractor->SetExtractionRegion( sliceRegion );
-    
     slices.clear();
     
     for(unsigned int i=0; i<resamplerSize[2]; i++) {
       // Set the z-coordinate of the slice to be extracted
-      sliceIndex[2] = i;
+      sliceRegion.SetIndex(2, i);
+      
+      sliceExtractor->SetExtractionRegion( sliceRegion );
+      
+      // DON'T FORGET TO CHANGE CODE IN buildMaskSlices TOO!!!
       
       // add output to slices vector
-      // sliceExtractor->Update();
+     sliceExtractor->Update();
       slices.push_back( sliceExtractor->GetOutput() );
       slices.back()->DisconnectPipeline();
     }
@@ -186,6 +190,8 @@ public:
 	}
 	
 	void buildMaskSlices() {
+    maskResampler->Update();
+	  
 	  // set up extractor
     VolumeType::SizeType size = resamplerSize;
     size[2] = 0;
@@ -196,16 +202,16 @@ public:
     sliceRegion.SetSize( size );
     sliceRegion.SetIndex( sliceIndex );
     
-    maskSliceExtractor->SetExtractionRegion( sliceRegion );
-    
     maskSlices.clear();
     
     for(unsigned int i=0; i<resamplerSize[2]; i++) {
       // Set the z-coordinate of the slice to be extracted
-      sliceIndex[2] = i;
+      sliceRegion.SetIndex(2, i);
       
+      maskSliceExtractor->SetExtractionRegion( sliceRegion );
+    
       // add output to slices vector
-      // maskSliceExtractor->Update();
+      maskSliceExtractor->Update();
       maskSlices.push_back( maskSliceExtractor->GetOutput() );
       maskSlices.back()->DisconnectPipeline();
     }
@@ -215,6 +221,8 @@ public:
 	void SetTransformParameters(TransformType::Pointer inputTransform) {
     transform->SetParameters( inputTransform->GetParameters() );
     transform->SetFixedParameters( inputTransform->GetFixedParameters() );
+    buildSlices();
+    buildMaskSlices();
 	}
 	
 	VolumeType::Pointer GetVolume() {
@@ -230,13 +238,19 @@ public:
 	}
 	
 	VolumeType::Pointer GetResampledVolume() {
-    resampler->Update();
     return resampler->GetOutput();
 	}
 	
 	MaskVolumeType::Pointer GetResampledMaskVolume() {
-    maskResampler->Update();
     return maskResampler->GetOutput();
+	}
+	
+	SliceType::Pointer GetResampledSlice(unsigned int slice_number) {
+    return slices[slice_number];
+	}
+	
+	MaskSliceType::Pointer GetResampledMaskSlice(unsigned int slice_number) {
+    return maskSlices[slice_number];
 	}
 	
 protected:

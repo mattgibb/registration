@@ -47,21 +47,19 @@ public:
 		initializeRegistrationComponents();
 		
 		wireUpRegistrationComponents();
-		    
+		
     unsigned int number_of_slices = stack->originalImages.size();
     
-    for(unsigned int slice_number = 0; slice_number < number_of_slices; slice++)
-    {
+    for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
   		registration2D->SetFixedImage( stack->originalImages[slice_number] );
   	  registration2D->SetMovingImage( mriVolume->GetVolume() );
-	
+	    
   	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetLargestPossibleRegion() );
 	    
   		metric3D->SetFixedImageMask( stack->GetMask3D() );
   		metric3D->SetMovingImageMask( mriVolume->GetMask3D() );
-				
+			
   	  registration3D->SetNumberOfLevels( 4 );
-		
     }
     
 		initializeTransformParameters();
