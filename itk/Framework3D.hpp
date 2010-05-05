@@ -159,9 +159,8 @@ public:
 	}
 	
 	void setOptimizerTranslationScale() {
-    string translationScaleStr;
-    registrationParameters["optimizerTranslationScale3D"] >> translationScaleStr;
-    double translationScale = atof(translationScaleStr.c_str());
+    double translationScale;
+    registrationParameters["optimizerTranslationScale3D"] >> translationScale;
     
 		OptimizerType3D::ScalesType optimizerScales3D( transform3D->GetNumberOfParameters() );
     
