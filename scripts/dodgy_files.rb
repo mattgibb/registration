@@ -16,14 +16,22 @@ def remove_dodgy_files(files)
   end
 end
 
-# generate lists of filenames
-downsamples = dodgy = nil
-downsamples = Dir.chdir(DOWNSAMPLES_DIR) { downsamples = Dir['*'] }
-dodgy       = Dir.chdir(DODGY_DIR)       { dodgy       = Dir['*'] }
-
-# find common files, sorted by when they were downsampled
-@both = downsamples & dodgy
-@both = @both.sort_by {|f| File.mtime "#{DOWNSAMPLES_DIR}/#{f}"}
+def common_files(params)
+  # generate lists of filenames
+  downsamples = Dir.chdir(DOWNSAMPLES_DIR) { Dir['*'] }
+  dodgy       = Dir.chdir(DODGY_DIR)       { Dir['*'] }
+  
+  # find common files, sorted by when they were downsampled
+  @both = downsamples & dodgy
+  
+  case params[:sorted_by]
+  when :name  then @both.sort
+  when :mtime then @both.sort_by {|f| File.mtime "#{DOWNSAMPLES_DIR}/#{f}"}
+  when :atime then @both.sort_by {|f| File.atime "#{DOWNSAMPLES_DIR}/#{f}"}
+  when :size  then @both.sort_by {|f| File.size  "#{DOWNSAMPLES_DIR}/#{f}"}
+  end
+  
+end
 
 # print out differences between dodgy files and newly downsampled files
-print_differences(@both)
+print_differences(common_files sorted_by: :mtime)
