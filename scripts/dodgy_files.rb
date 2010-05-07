@@ -5,7 +5,15 @@ DOWNSAMPLES_DIR = IMAGES_DIR + '/downsamples'
 DODGY_DIR = IMAGES_DIR + '/dodgy_downsamples'
 
 def print_differences(files)
-  files.each {|f| puts "differences for #{f}:", `diff #{DODGY_DIR}/#{f} #{DOWNSAMPLES_DIR}/#{f}` }
+  files.each do |f|
+    puts "differences for #{f}:", `diff #{DODGY_DIR}/#{f} #{DOWNSAMPLES_DIR}/#{f}`
+  end
+end
+
+def remove_dodgy_files(files)
+  files.each do |f|
+    `rm #{DOWNSAMPLES_DIR}/#{f}` if `diff #{DODGY_DIR}/#{f} #{DOWNSAMPLES_DIR}/#{f}`.empty?
+  end
 end
 
 # generate lists of filenames
