@@ -54,9 +54,10 @@ public:
 	
 	
 	Framework3D(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
-	  stack(inputStack),
-	  mriVolume(inputMriVolume),
-	  registrationParameters(parameters) {
+	stack(inputStack),
+	mriVolume(inputMriVolume),
+	registrationParameters(parameters) {
+	    
 		initializeRegistrationComponents();
 		
 		wireUpRegistrationComponents();
@@ -64,7 +65,9 @@ public:
 		registration3D->SetFixedImage( stack->GetVolume() );
 	  registration3D->SetMovingImage( mriVolume->GetVolume() );
 	  
+	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
 	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetLargestPossibleRegion() );
+	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
 	  
 		metric3D->SetFixedImageMask( stack->GetMask3D() );
     metric3D->SetMovingImageMask( mriVolume->GetMask3D() );
@@ -100,8 +103,6 @@ public:
 	void initializeTransformParameters() {
 		initializeTranslationParameters();
 		initializeRotationParameters();
-		
-	  registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
 	}
 	
 	void initializeTranslationParameters() {
@@ -154,7 +155,7 @@ public:
 		
 		// set maximum number of iterations at each level
     itk::Array<unsigned int> maxIterations(4);
-    for(int i=0; i<4; i++)  { registrationParameters["maxIterations"][i] >> maxIterations[i]; }
+    for(int i=0; i<4; i++)  { registrationParameters["maxIterations3D"][i] >> maxIterations[i]; }
     multiResCommand->setMaxIterations(maxIterations);
 	}
 	
@@ -174,8 +175,10 @@ public:
 	  optimizer3D->SetScales( optimizerScales3D );
 	}
 	
-	void beginRegistration(char const *outputFileName) {
+	void StartRegistration(char const *outputFileName) {
 		observerOutput.open( outputFileName );
+    
+    registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
     
 	  try
 	    {

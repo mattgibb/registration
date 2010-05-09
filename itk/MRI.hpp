@@ -156,6 +156,11 @@ public:
     sliceExtractor->SetInput( resampler->GetOutput() );
 		maskSliceExtractor = MaskSliceExtractorType::New();
     maskSliceExtractor->SetInput( maskResampler->GetOutput() );
+    
+    // masks
+    for(unsigned int i=0; i<resamplerSize[2]; i++) {
+  		masks2D.push_back( MaskType2D::New() );
+    }		
 	}
 	
 	void buildSlices() {
@@ -179,10 +184,8 @@ public:
       
       sliceExtractor->SetExtractionRegion( sliceRegion );
       
-      // DON'T FORGET TO CHANGE CODE IN buildMaskSlices TOO!!!
-      
       // add output to slices vector
-     sliceExtractor->Update();
+      sliceExtractor->Update();
       slices.push_back( sliceExtractor->GetOutput() );
       slices.back()->DisconnectPipeline();
     }
@@ -213,6 +216,7 @@ public:
       // add output to slices vector
       maskSliceExtractor->Update();
       maskSlices.push_back( maskSliceExtractor->GetOutput() );
+  		masks2D[i]->SetImage( maskSlices.back() );
       maskSlices.back()->DisconnectPipeline();
     }
   
@@ -251,6 +255,10 @@ public:
 	
 	MaskSliceType::Pointer GetResampledMaskSlice(unsigned int slice_number) {
     return maskSlices[slice_number];
+	}
+	
+	MaskType2D::Pointer GetMask2D(unsigned int slice_number) {
+		return masks2D[slice_number];
 	}
 	
 protected:

@@ -24,7 +24,7 @@
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 #include "Framework3D.hpp"
-// #include "Framework2D.hpp"
+#include "Framework2D.hpp"
 
 
 using namespace std;
@@ -111,26 +111,19 @@ int main (int argc, char const *argv[]) {
 	
 	// perform 3-D registration
 	Framework3D framework3D(&stack, &mriVolume, registrationParameters);
-	framework3D.beginRegistration( argv[9] );
+	framework3D.StartRegistration( argv[9] );
 	
 	// Write final transform to file
   writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, argv[5] );
 	
-  std::cout << "Matrix = " << std::endl << framework3D.transform3D->GetRotationMatrix() << std::endl;
-  std::cout << "Offset = " << std::endl << framework3D.transform3D->GetOffset() << std::endl;  
-	
 	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), argv[6] );
   
-  // used for final resampling
-	typedef itk::NearestNeighborInterpolateImageFunction< MRI::VolumeType, double > NearestNeighborInterpolatorType3D;
-  
 	// extract 2-D MRI slices
-  // Framework2D framework2D(&stack, &mriVolume);
-  // framework2D->setOptimizerTranslationScale( registrationParameters["optimizer_translation_scale_2D"] );
+  // Framework2D framework2D(&stack, &mriVolume, registrationParameters);
 	
 	// perform 2-D registration
-	typedef StdOutIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
-	ObserverType2D::Pointer observer2D = ObserverType2D::New();
+  // typedef StdOutIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
+  // ObserverType2D::Pointer observer2D = ObserverType2D::New();
 	
 	// perform non-rigid registration
 	// check out itkMultiResolutionPDEDeformableRegistration
@@ -138,16 +131,6 @@ int main (int argc, char const *argv[]) {
 	// write volume and mask to disk
 	writeImage< Stack::VolumeType >( stack.GetVolume(), argv[7] );
 	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), argv[8] );
-	
-	// TESTING
-  unsigned int number_of_slices = stack.GetVolume()->GetLargestPossibleRegion().GetSize()[2];
-  char filename[100];
-  
-  for(unsigned int slice=0; slice<number_of_slices; slice++) {
-    sprintf(filename, "../images/test_results/MRI_mask_slices/MaskSlice%04u.mha", slice);
-    writeImage< MRI::MaskSliceType >( mriVolume.GetResampledMaskSlice(slice), filename );
-  }
-	// TESTING
-	
+		
   return EXIT_SUCCESS;
 }
