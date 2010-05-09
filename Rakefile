@@ -22,7 +22,7 @@ desc "Test refactored output against original output"
 task :test_refactor do
   register(refactor_dir)
   # test to see if refactored output matches original
-  diff_output = `diff -r #{test_dir} #{refactor_dir}`
+  diff_output = `diff -r -x .DS_Store #{test_dir} #{refactor_dir}`
   if $?.success?
     `echo The refactoring worked\! | growlnotify Success\!`
     puts "\nrefactoring successful!"
