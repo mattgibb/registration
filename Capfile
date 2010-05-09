@@ -1,7 +1,7 @@
 role :servers, "heart"
 
-set :remote_dir, "/users/matg/imaging/downsampler"
-set :local_dir, "/Users/matthewgibb/Documents/DPhil/code/imaging/downsampler"
+set :remote_dir, "/users/matg/imaging/registration"
+set :local_dir, "/Users/matthewgibb/Documents/DPhil/code/imaging/registration"
 
 desc "Compile all the itk programs on the servers"
 task :compile do
