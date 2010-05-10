@@ -24,7 +24,7 @@ end
 
 def dodgy_files(params={})
   common_files(params).select do |f|
-    `diff #{DODGY_DIR}/#{f} #{DOWNSAMPLES_DIR}/#{f}`.empty?
+    `diff '#{DODGY_DIR}/#{f}' '#{DOWNSAMPLES_DIR}/#{f}'`.empty?
   end
 end
 
