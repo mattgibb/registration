@@ -44,7 +44,7 @@ def copy_candidate_files
   end
 end
 
-def remove_checked_candidates
+def remove_checked_candidate_files
   checked_candidates = Dir.chdir(CANDIDATES_DIR) {Dir['*']}
   checked_candidates.each do |f|
     `rm '#{DODGY_DIR}/#{f}' '#{CANDIDATES_DIR}/#{f}'`
