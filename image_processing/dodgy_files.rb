@@ -34,19 +34,19 @@ end
 
 def remove_dodgy_files
   dodgy_files.each do |f|
-    `rm #{DODGY_DIR}/#{f}`
+    `rm '#{DODGY_DIR}/#{f}'`
   end
 end
 
 def copy_candidate_files
   candidate_files.each do |f|
-    `cp #{DOWNSAMPLES_DIR}/#{f} #{CANDIDATES_DIR}/`
+    `cp '#{DOWNSAMPLES_DIR}/#{f}' '#{CANDIDATES_DIR}/'`
   end
 end
 
 def remove_checked_candidates
   checked_candidates = Dir.chdir(CANDIDATES_DIR) {Dir['*']}
   checked_candidates.each do |f|
-    `rm #{DODGY_DIR}/#{f} #{CANDIDATES_DIR}/#{f}`
+    `rm '#{DODGY_DIR}/#{f}' '#{CANDIDATES_DIR}/#{f}'`
   end
 end
