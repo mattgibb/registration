@@ -34,7 +34,7 @@ end
 
 def remove_dodgy_files
   dodgy_files.each do |f|
-    `rm '#{DODGY_DIR}/#{f}'`
+    `rm '#{DOWNSAMPLES_DIR}/#{f}'`
   end
 end
 
