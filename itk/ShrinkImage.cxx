@@ -133,6 +133,7 @@ int main( int argc, char * argv[] )
   catch( itk::ExceptionObject & excep ) {
     cerr << "Exception caught!" << endl;
     cerr << excep << endl;
+    exit(EXIT_FAILURE);
   }
 	
   return EXIT_SUCCESS;
