@@ -35,7 +35,8 @@ void checkUsage(int argc, char const *argv[]) {
     cerr << "\nUsage: " << std::endl;
     cerr << argv[0] << " histoDir regularExpression ";
 		cerr << "sortingExpression mriFile transformFile3D ";
-		cerr << "outputMRI outputStack outputMask outputParameters\n\n";
+    cerr << "outputMRI outputStack outputMask outputInfo3D ";
+		cerr << "outputInfo2D\n\n";
 		cerr << "histoDir should have no trailing slash\n";
 		cerr << "regularExpression should be enclosed in single quotes\n";
 		cerr << "sortingExpression should be an integer ";
@@ -45,7 +46,7 @@ void checkUsage(int argc, char const *argv[]) {
   
 }
 
-vector< string > getFileNames(char const *argv[]) {
+vector< string > getFileNames2(char const *argv[]) {
 	string directory = argv[1];
 	string regularExpression = argv[2];
 	const unsigned int subMatch = atoi( argv[3]);
@@ -58,6 +59,19 @@ vector< string > getFileNames(char const *argv[]) {
   nameGenerator->SetDirectory( directory );
   
 	return nameGenerator->GetFileNames();
+}
+
+vector< string > getFileNames(char const *argv[]) {
+  string directory = argv[1];
+  vector< string > fileNames;
+  string fileName;
+  fileNames.clear();
+  ifstream infile("config/downsample_64x64x16_files.txt", ios_base::in);
+  while (getline(infile, fileName)) {
+    fileNames.push_back(directory + fileName);
+  }
+  
+  return fileNames;
 }
 
 template<typename WriterType, typename DataType>
@@ -86,7 +100,8 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
 }
 
 void readRegistrationParameters(YAML::Node & parameters) {
-  ifstream config_filestream("config/registration_parameters.yml");
+  // TODO: extract filename into ARGV.
+  ifstream config_filestream("config/registration_parameters_64.yml");
   YAML::Parser parser(config_filestream);
   parser.GetNextDocument(parameters);
 }
@@ -104,13 +119,14 @@ int main (int argc, char const *argv[]) {
 	
   double MRIInitialResizeFactor;
   registrationParameters["MRIInitialResizeFactor"] >> MRIInitialResizeFactor;
-	MRI mriVolume( argv[4],
+  MRI mriVolume( argv[4],
 	               stack.GetVolume()->GetSpacing(),
 	               stack.GetVolume()->GetLargestPossibleRegion().GetSize(),
 	               MRIInitialResizeFactor);
 	
 	// perform 3-D registration
 	Framework3D framework3D(&stack, &mriVolume, registrationParameters);
+  cout << "Starting Registration..." << endl;
 	framework3D.StartRegistration( argv[9] );
 	
 	// Write final transform to file
@@ -118,12 +134,10 @@ int main (int argc, char const *argv[]) {
 	
 	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), argv[6] );
   
-	// extract 2-D MRI slices
-  // Framework2D framework2D(&stack, &mriVolume, registrationParameters);
-	
 	// perform 2-D registration
-  // typedef StdOutIterationUpdate< itk::RegularStepGradientDescentOptimizer > ObserverType2D;
-  // ObserverType2D::Pointer observer2D = ObserverType2D::New();
+  // Framework2D framework2D(&stack, &mriVolume, registrationParameters);
+  // framework2D.StartRegistration( argv[10] );
+	
 	
 	// perform non-rigid registration
 	// check out itkMultiResolutionPDEDeformableRegistration

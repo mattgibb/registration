@@ -10,7 +10,9 @@ class MultiResRegistrationCommand : public itk::Command
 {
 protected:
   MultiResRegistrationCommand() {};
-  itk::Array<unsigned int> maxIterations;
+  itk::Array<unsigned int> maxIterations, spatialSamples;
+  itk::Array<double> maxStepLengths, minStepLengths;
+  unsigned int histogramBins;
 
 public:
   typedef  MultiResRegistrationCommand      Self;
@@ -35,25 +37,19 @@ public:
 
     unsigned long level = registration->GetCurrentLevel();
     optimizer->SetNumberOfIterations( maxIterations[level] );
+    optimizer->SetMaximumStepLength( maxStepLengths[level] );
+    optimizer->SetMinimumStepLength( minStepLengths[level] );
+		metric->SetNumberOfSpatialSamples( spatialSamples[level] );
     
     if ( level == 0 ) {
-      optimizer->SetMaximumStepLength( 0.25 );
-      optimizer->SetMinimumStepLength( 0.00125 );
-			metric->SetNumberOfSpatialSamples( 24000 );
-			// metric->SetNumberOfSpatialSamples( 200000 );
-			// Number of bins recommended to be about 50, see ITK Software Guide p341
-			metric->SetNumberOfHistogramBins( 50 );
+			metric->SetNumberOfHistogramBins( histogramBins );
     }
     else {
 	    cout << "Optimizer stop condition: "
 			   	 << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
-      optimizer->SetMaximumStepLength( optimizer->GetMaximumStepLength() / 2.0 );
-			// optimizer->SetMaximumStepLength( optimizer->GetCurrentStepLength() );
-      optimizer->SetMinimumStepLength( optimizer->GetMinimumStepLength() / 2.0 );
-			// metric->SetNumberOfSpatialSamples( metric->GetNumberOfSpatialSamples() * 4 );
-			// metric->SetNumberOfSpatialSamples( metric->GetNumberOfSpatialSamples() * 8 );
     }
-
+    
+    cout << "TESTING This should be 50: " << metric->GetNumberOfHistogramBins() << endl;
     cout << "-------------------------------------" << endl;
     cout << "MultiResolution Level : " << registration->GetCurrentLevel()  << endl;
 		cout << "Max step length : " << optimizer->GetMaximumStepLength() << endl;
@@ -67,10 +63,25 @@ public:
   void Execute(const itk::Object * , const itk::EventObject & ) {
 		return;
 	}
-	
-	void setMaxIterations(itk::Array<unsigned int> const& array) {
-    maxIterations = array;
-	}
+	  
+  void configure(YAML::Node& parameters) {
+    // initialise arrays
+    maxIterations = itk::Array< unsigned int >(4);
+    spatialSamples = itk::Array< unsigned int >(4);
+    maxStepLengths = itk::Array< double >(4);
+    minStepLengths = itk::Array< double >(4);
+    
+    // assign values
+    parameters["histogramBins3D"] >> histogramBins;
+    
+    
+    for(int i=0; i<4; i++) {
+      parameters["maxIterations3D"][i]  >> maxIterations[i];
+      parameters["spatialSamples3D"][i] >> spatialSamples[i];
+      parameters["maxStepLengths3D"][i] >> maxStepLengths[i];
+      parameters["minStepLengths3D"][i] >> minStepLengths[i];
+    }
+  }
   
 };
 #endif

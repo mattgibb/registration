@@ -58,10 +58,9 @@ public:
 	mriVolume(inputMriVolume),
 	registrationParameters(parameters) {
 	    
-		initializeRegistrationComponents();
-		
-		wireUpRegistrationComponents();
-		    
+    initializeRegistrationComponents();
+    wireUpRegistrationComponents();
+    
 		registration3D->SetFixedImage( stack->GetVolume() );
 	  registration3D->SetMovingImage( mriVolume->GetVolume() );
 	  
@@ -74,9 +73,9 @@ public:
 		
 	  registration3D->SetNumberOfLevels( 4 );
 		
-		initializeTransformParameters();
+    initializeTransformParameters();
 		
-		setUpObservers();
+    setUpObservers();
 		
     setOptimizerTranslationScale();
 	}
@@ -145,7 +144,7 @@ public:
 		fileObserver3D   = FileObserverType3D::New();
 		multiResCommand  = MultiResCommandType::New();
 		
-		// register the observers
+	  // register the observers
 	  optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
 	  optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D );
 	  registration3D->AddObserver( itk::IterationEvent(), multiResCommand );
@@ -153,10 +152,8 @@ public:
 	  // add output to fileObserver3D
 		fileObserver3D->SetOfstream( &observerOutput );
 		
-		// set maximum number of iterations at each level
-    itk::Array<unsigned int> maxIterations(4);
-    for(int i=0; i<4; i++)  { registrationParameters["maxIterations3D"][i] >> maxIterations[i]; }
-    multiResCommand->setMaxIterations(maxIterations);
+	  // pass parameters to multiResCommand so it can configure itself
+    multiResCommand->configure( registrationParameters );
 	}
 	
 	void setOptimizerTranslationScale() {
