@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-DOWNSAMPLES_DIR = '../../images/downsamples_16x64x64'
+DOWNSAMPLES_DIR = '../../images/downsamples'
 
 def downsampled_files
   Dir[DOWNSAMPLES_DIR + '/*'].map {|f| File.basename f }
@@ -18,10 +18,9 @@ end
 require 'ftp_adaptor'
 
 ftp = FtpAdapter.new('nas-mef2.physiol.ox.ac.uk', 'mef', 'meflab',
-                     '/NAS-MEF2/Rabbit/001/Histology/downsampled_16x64x64',
+                     '/NAS-MEF2/Rabbit/001/Histology/downsamples_128',
                      upload_dir: DOWNSAMPLES_DIR)
 
 ftp.upload_file files_to_upload(ftp)[0] until files_to_upload(ftp).empty?
 
 puts "All files have been uploaded!"
-
