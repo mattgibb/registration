@@ -6,10 +6,10 @@ test_dir = "../images/test_results"
 refactor_dir = "../images/refactored_results"
 
 def register(dir)
-  sh "itk/Register ../images/downsamples_64x64 '^Slack[0-9]+\.bmp$' 0 " +
+  sh "itk/Register ../images/downsamples_64 '^Slack[0-9]+\.bmp$' 0 " +
      "../images/mri/heart_bin.mhd #{dir}/finalParameters3D.transform " +
      "#{dir}/registered_mri.mhd #{dir}/stack.mhd #{dir}/mask.mhd " +
-     "#{dir}/output.txt"
+     "#{dir}/output3D.txt #{dir}/output2D.txt"
 end
 
 desc "Run Register and save results in #{test_dir}"
