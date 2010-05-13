@@ -32,41 +32,21 @@ using namespace std;
 void checkUsage(int argc, char const *argv[]) {
   if( argc < 10 )
   {
-    cerr << "\nUsage: " << std::endl;
-    cerr << argv[0] << " histoDir regularExpression ";
-		cerr << "sortingExpression mriFile transformFile3D ";
+    cerr << "\nUsage: " << endl;
+    cerr << argv[0] << " histoDir fileNames mriFile registrationFile transformFile3D ";
     cerr << "outputMRI outputStack outputMask outputInfo3D ";
 		cerr << "outputInfo2D\n\n";
-		cerr << "histoDir should have no trailing slash\n";
-		cerr << "regularExpression should be enclosed in single quotes\n";
-		cerr << "sortingExpression should be an integer ";
-		cerr << "representing the group in the regexp\n\n";
+		cerr << "histoDir should have no trailing slash\n\n";
     exit(EXIT_FAILURE);
   }
   
 }
 
-vector< string > getFileNames2(char const *argv[]) {
-	string directory = argv[1];
-	string regularExpression = argv[2];
-	const unsigned int subMatch = atoi( argv[3]);
-	
-	typedef itk::RegularExpressionSeriesFileNames    NameGeneratorType;
-  NameGeneratorType::Pointer nameGenerator = NameGeneratorType::New();
-
-  nameGenerator->SetRegularExpression( regularExpression );
-  nameGenerator->SetSubMatch( subMatch );
-  nameGenerator->SetDirectory( directory );
-  
-	return nameGenerator->GetFileNames();
-}
-
-vector< string > getFileNames(char const *argv[]) {
-  string directory = argv[1];
+vector< string > getFileNames(char const *directory, char const *fileList) {
   vector< string > fileNames;
   string fileName;
   fileNames.clear();
-  ifstream infile("config/downsample_64x64x16_files.txt", ios_base::in);
+  ifstream infile(fileList, ios_base::in);
   while (getline(infile, fileName)) {
     fileNames.push_back(directory + fileName);
   }
@@ -88,8 +68,8 @@ void writeData(typename DataType::Pointer data, char const *fileName) {
   	writer->Update();
   }
 	catch( itk::ExceptionObject & err ) {
-    std::cerr << "ExceptionObject caught !" << std::endl;
-    std::cerr << err << std::endl;
+    cerr << "ExceptionObject caught !" << endl;
+    cerr << err << endl;
 		exit(EXIT_FAILURE);
 	}
 }
@@ -99,9 +79,9 @@ void writeImage(typename ImageType::Pointer image, char const *fileName) {
   writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
 }
 
-void readRegistrationParameters(YAML::Node & parameters) {
+void readRegistrationParameters(YAML::Node & parameters, const char *yamlFile) {
   // TODO: extract filename into ARGV.
-  ifstream config_filestream("config/registration_parameters_64.yml");
+  ifstream config_filestream(yamlFile);
   YAML::Parser parser(config_filestream);
   parser.GetNextDocument(parameters);
 }
@@ -112,21 +92,20 @@ int main (int argc, char const *argv[]) {
 	
 	// read registration parameters
   YAML::Node registrationParameters;
-  readRegistrationParameters(registrationParameters);
+  readRegistrationParameters(registrationParameters, argv[4]);
 	
 	// initialise stack and MRI objects
-	Stack stack( getFileNames(argv) );
+	Stack stack( getFileNames(argv[1], argv[2]) );
 	
   double MRIInitialResizeFactor;
   registrationParameters["MRIInitialResizeFactor"] >> MRIInitialResizeFactor;
-  MRI mriVolume( argv[4],
+  MRI mriVolume( argv[3],
 	               stack.GetVolume()->GetSpacing(),
 	               stack.GetVolume()->GetLargestPossibleRegion().GetSize(),
 	               MRIInitialResizeFactor);
 	
 	// perform 3-D registration
 	Framework3D framework3D(&stack, &mriVolume, registrationParameters);
-  cout << "Starting Registration..." << endl;
 	framework3D.StartRegistration( argv[9] );
 	
 	// Write final transform to file
