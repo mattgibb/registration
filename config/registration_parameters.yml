@@ -1,8 +1,0 @@
-optimizerTranslationScale3D: 15000.0
-optimizerTranslationScale2D: 15000.0 # What is an appropriate 2D translation scale?
-maxIterations3D: [2, 2, 2, 2]
-maxStepLength2D: 0.1 # Dubious numbers
-minStepLength2D: 0.001 # Dubious numbers
-maxIterations2D: 100 # Dubious numbers
-stackSpacings: [70.4, 70.4, 160] # Not implemented yet
-MRIInitialResizeFactor: 0.8

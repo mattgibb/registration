@@ -1,0 +1,14 @@
+optimizerTranslationScale3D: 15000.0
+maxIterations3D: [2, 2, 2, 2]
+maxStepLengths3D: [0.25, 0.125, 0.0625, 0.03125]
+minStepLengths3D: [0.00125, 0.000625, 0.0003125, 0.00015625]
+spatialSamples3D: [24000, 24000, 24000, 24000]
+histogramBins3D: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
+
+optimizerTranslationScale2D: 15000.0 # What is an appropriate 2D translation scale?
+maxIterations2D: 100 # Dubious numbers
+maxStepLength2D: 0.1 # Dubious numbers
+minStepLength2D: 0.001 # Dubious numbers
+
+stackSpacings: [70.4, 70.4, 160] # Not implemented yet
+MRIInitialResizeFactor: 0.8
