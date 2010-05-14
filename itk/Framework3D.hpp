@@ -71,7 +71,8 @@ public:
 		metric3D->SetFixedImageMask( stack->GetMask3D() );
     metric3D->SetMovingImageMask( mriVolume->GetMask3D() );
 		
-	  registration3D->SetNumberOfLevels( 4 );
+    unsigned int levels; parameters["levels"] >> levels;
+	  registration3D->SetNumberOfLevels( levels );
 		
     initializeTransformParameters();
 		

@@ -1,3 +1,4 @@
+levels: 4 # number of levels of multiresolution registration
 optimizerTranslationScale3D: 15000.0
 maxIterations3D: [2, 2, 2, 2]
 maxStepLengths3D: [0.25, 0.125, 0.0625, 0.03125]

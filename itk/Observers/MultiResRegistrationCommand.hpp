@@ -49,14 +49,13 @@ public:
 			   	 << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
     }
     
-    cout << "TESTING This should be 50: " << metric->GetNumberOfHistogramBins() << endl;
     cout << "-------------------------------------" << endl;
     cout << "MultiResolution Level : " << registration->GetCurrentLevel()  << endl;
 		cout << "Max step length : " << optimizer->GetMaximumStepLength() << endl;
 		cout << "Min step length : " << optimizer->GetMinimumStepLength() << endl;
 		cout << "Spatial samples : " << metric->GetNumberOfSpatialSamples() << endl << endl;
   }
-
+  
   // Another version of the Execute() method accepting a const
   // input object is also required since this method is defined as pure virtual
   // in the base class.  This version simply returns without taking any action.
@@ -74,8 +73,7 @@ public:
     // assign values
     parameters["histogramBins3D"] >> histogramBins;
     
-    
-    for(int i=0; i<4; i++) {
+    for(unsigned int i = 0; i<parameters["maxIterations3D"].size();i++) {
       parameters["maxIterations3D"][i]  >> maxIterations[i];
       parameters["spatialSamples3D"][i] >> spatialSamples[i];
       parameters["maxStepLengths3D"][i] >> maxStepLengths[i];

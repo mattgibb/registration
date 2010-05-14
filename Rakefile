@@ -14,7 +14,7 @@ def register_64(dir)
 end
 
 def register_128(dir)
-  sh "itk/Register ../images/downsamples_128/ config/downsample_128x128x32_files.txt" +
+  sh "itk/Register ../images/downsamples_128/ config/downsample_128x128x32_files.txt " +
      "../images/mri/heart_bin.mhd config/registration_parameters_128.yml " +
      "#{dir}/finalParameters3D.transform " +
      "#{dir}/registered_mri.mhd #{dir}/stack.mhd #{dir}/mask.mhd " +
