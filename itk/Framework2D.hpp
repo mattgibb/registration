@@ -141,8 +141,6 @@ public:
   	    }
     }
     
-    
-    
 	  observerOutput.close();
 	}
 	

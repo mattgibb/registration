@@ -33,6 +33,7 @@ public:
 	typedef itk::ResampleImageFilter< MaskSliceType, MaskSliceType > MaskResamplerType;
   typedef itk::TileImageFilter< SliceType, VolumeType > TileFilterType;
   typedef itk::TileImageFilter< MaskSliceType, MaskVolumeType > MaskTileFilterType;
+  typedef itk::ChangeInformationImageFilter< SliceType > XYScaleType;
   typedef itk::ChangeInformationImageFilter< VolumeType > ZScaleType;
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
   typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
@@ -42,11 +43,12 @@ public:
 	
 	
 	SliceVectorType originalImages;
+	XYScaleType::Pointer xyScaler;
   MaskSliceVectorType originalMasks;
 	VolumeType::Pointer volume;
 	MaskVolumeType::Pointer maskVolume;
 	SliceType::SizeType maxSize;
-	SliceType::SpacingType spacings2D;
+	VolumeType::SpacingType spacings;
 	MaskType3D::Pointer mask3D;
 	MaskVectorType2D masks2D;
 	vector< TransformType::Pointer > transforms;
@@ -55,16 +57,17 @@ public:
 	ResamplerType::Pointer resampler;
 	MaskResamplerType::Pointer maskResampler;
 	TileFilterType::Pointer tileFilter;
+	TileFilterType::LayoutArrayType layout;
 	MaskTileFilterType::Pointer maskTileFilter;
 	ZScaleType::Pointer zScaler;
 	MaskZScaleType::Pointer maskZScaler;
+  YAML::Node& registrationParameters;
 	
-	
-	Stack(vector< string > fileNames) {
+	Stack(vector< string > fileNames, YAML::Node& parameters ):
+	registrationParameters(parameters) {
 		ReaderType::Pointer reader;
 		
-		for(unsigned int i=0; i<fileNames.size(); i++)
-		{
+		for(unsigned int i=0; i<fileNames.size(); i++) {
 			reader = ReaderType::New();
 			reader->SetFileName( fileNames[i] );
 			reader->Update();
@@ -72,7 +75,8 @@ public:
 			originalImages.back()->DisconnectPipeline();
 		}
 		
-		// initialise volume and mask
+		// scale slices and initialise volume and mask
+    scaleOriginalSlices();
     buildOriginalMaskSlices();
     buildOriginalMasks();
     calculateMaxSize();
@@ -82,10 +86,32 @@ public:
 		buildMask();
 	}
 	
+	void scaleOriginalSlices() {
+    // initialise spacings
+		for(unsigned int i=0; i<3; i++) {
+      registrationParameters["stackSpacings"][i] >> spacings[i];
+	  }
+	  
+    SliceType::SpacingType spacings2D;
+		for(unsigned int i=0; i<2; i++) {
+      spacings2D[i] = spacings[i];
+	  }
+	  
+	  // rescale original images
+    xyScaler = XYScaleType::New();
+		xyScaler->ChangeSpacingOn();
+		xyScaler->SetOutputSpacing( spacings2D );
+		for(unsigned int i=0; i<originalImages.size(); i++) {
+      xyScaler->SetInput( originalImages[i] );
+      xyScaler->Update();
+      originalImages[i] = xyScaler->GetOutput();
+      originalImages[i]->DisconnectPipeline();
+		}
+	}
+	
 	void buildOriginalMaskSlices() {
 		// build a vector of mask slices
-		for(unsigned int i=0; i<originalImages.size(); i++)
-		{
+		for(unsigned int i=0; i<originalImages.size(); i++) {
 			// make new maskSlice and make it all white
 			MaskSliceType::RegionType region;
 			region.SetSize( originalImages[i]->GetLargestPossibleRegion().GetSize() );
@@ -97,15 +123,14 @@ public:
 			maskSlice->FillBuffer( 255 );
 		  
 		  originalMasks.push_back( maskSlice );
-			originalMasks.back()->DisconnectPipeline();
+      // originalMasks.back()->DisconnectPipeline();
 			
 	  }
 	}
 	
 	void buildOriginalMasks() {
 	  // build a vector of masks from the mask slices
-    for(unsigned int i=0; i<originalImages.size(); i++)
-    {
+    for(unsigned int i=0; i<originalImages.size(); i++) {
       // make new 2D masks and assign mask slices to them
       masks2D.push_back( MaskType2D::New() );
       masks2D.back()->SetImage( originalMasks[i] );
@@ -118,8 +143,7 @@ public:
 		maxSize.Fill(0);
 		unsigned int dimension = size.GetSizeDimension();
 
-		for(unsigned int i=0; i<originalImages.size(); i++)
-		{
+		for(unsigned int i=0; i<originalImages.size(); i++) {
 			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
 
 			for(unsigned int j=0; j<dimension; j++)
@@ -127,9 +151,6 @@ public:
 				if(maxSize[j] < size[j]) { maxSize[j] = size[j]; }
 			}
 		}
-		
-		// spacings in 2D
-		spacings2D = originalImages[0]->GetSpacing();
 	}
 	
 	void initialiseFilters() {
@@ -150,22 +171,13 @@ public:
 		maskZScaler = MaskZScaleType::New();
 		zScaler    ->ChangeSpacingOn();
 		maskZScaler->ChangeSpacingOn();
-		ZScaleType::SpacingType spacings3D;
-		spacings3D[0] = 70.4;
-		spacings3D[1] = 70.4;
-		spacings3D[2] = 160;
-		zScaler    ->SetOutputSpacing( spacings3D );
-		maskZScaler->SetOutputSpacing( spacings3D );
+		zScaler    ->SetOutputSpacing( spacings );
+		maskZScaler->SetOutputSpacing( spacings );
 		
-		// tile filters
-		tileFilter = TileFilterType::New();
-		maskTileFilter = MaskTileFilterType::New();
-		TileFilterType::LayoutArrayType layout;
+		// tile filter layout
 		layout[0] = 1;
 	  layout[1] = 1;
 	  layout[2] = 0;
-		tileFilter    ->SetLayout( layout );
-		maskTileFilter->SetLayout( layout );
 		
 		// masks
 		mask3D = MaskType3D::New();
@@ -179,12 +191,12 @@ public:
     for(unsigned int i=0; i<originalImages.size(); i++)
 		{
 			// calculate parameters
-			size = originalImages[i]->GetLargestPossibleRegion().GetSize();			
+			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
 			parameters[0] = 0;
-			parameters[1] = spacings2D[0] * maxSize[0] / 2.0;
-			parameters[2] = spacings2D[1] * maxSize[1] / 2.0;
-			parameters[3] = - spacings2D[0] * ( maxSize[0] - size[0] ) / 2.0;
-			parameters[4] = - spacings2D[1] * ( maxSize[1] - size[1] ) / 2.0;
+			parameters[1] = spacings[0] * maxSize[0] / 2.0;
+			parameters[2] = spacings[1] * maxSize[1] / 2.0;
+			parameters[3] = - spacings[0] * ( maxSize[0] - size[0] ) / 2.0;
+			parameters[4] = - spacings[1] * ( maxSize[1] - size[1] ) / 2.0;
 			
 			// set them to new transform
       transforms.push_back( TransformType::New() );
@@ -194,8 +206,11 @@ public:
 	}
 	
 	void buildVolume() {
-    for(unsigned int i=0; i<originalImages.size(); i++)
-		{
+	  // construct tile filter
+		tileFilter = TileFilterType::New();
+		tileFilter    ->SetLayout( layout );
+		
+    for(unsigned int i=0; i<originalImages.size(); i++) {
 			// resample transformed image
 			resampler->SetInput( originalImages[i] );
 			resampler->SetTransform( transforms[i] );
@@ -215,6 +230,10 @@ public:
 	}
 	
 	void buildMask() {
+	  // construct tile filter
+		maskTileFilter = MaskTileFilterType::New();
+		maskTileFilter->SetLayout( layout );
+		
 		// build mask slices and attach them to the tile filter
 		for(unsigned int i=0; i<originalImages.size(); i++)
 		{
@@ -240,6 +259,11 @@ public:
 		mask3D->SetImage( maskVolume );
 	}
 	
+	void UpdateVolumes() {
+    buildVolume();
+    buildMask();
+	}
+	
 	VolumeType::Pointer GetVolume() {
 		return volume;
 	}
@@ -254,6 +278,10 @@ public:
 	
 	MaskType2D::Pointer GetMask2D(unsigned int slice_number) {
 		return masks2D[slice_number];
+	}
+	
+	MaskSliceType::Pointer GetMaskSlice(unsigned int slice_number) {
+    return originalMasks[slice_number];
 	}
 	
   TransformType::Pointer GetTransform(unsigned int slice_number) {
