@@ -22,6 +22,6 @@ flipped_files = slice_info.select do |filename, hash|
 end
 
 flipped_files.each do |filename, hash|
-  path = File.expand_path(File.join(project_root, "../images/downsamples_16x64x64", "#{filename}.bmp"))  
+  path = File.expand_path(File.join(project_root, "../images/downsamples_128", "#{filename}.bmp"))  
   flip_file(path)
 end
