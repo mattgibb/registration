@@ -111,20 +111,7 @@ int main (int argc, char const *argv[]) {
   writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, argv[5] );
 	
 	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), argv[6] );
-  
-  // TESTING
-  unsigned int number_of_slices = stack.originalImages.size();
-  
-  for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
-    char number_string[12];
-    sprintf(number_string, "%03d", slice_number);
-	  writeImage< MRI::SliceType >( mriVolume.GetResampledSlice(slice_number), (string("../images/refactored_results/mri_resampled_slices/mri_resampled_slices") + number_string + string(".mhd")).c_str()) ;
-	  writeImage< Stack::SliceType >( stack.originalImages[slice_number] , (string("../images/refactored_results/stack_original_slices/stack_original_slices") + number_string + string(".mhd")).c_str() ) ;
-	  writeImage< MRI::MaskSliceType >( mriVolume.GetResampledMaskSlice(slice_number) , (string("../images/refactored_results/mri_mask_slices/mri_mask_slices") + number_string + string(".mhd")).c_str() ) ;
-    writeImage< Stack::MaskSliceType >( stack.GetMaskSlice(slice_number) , (string("../images/refactored_results/stack_mask_slices/stack_mask_slices") + number_string + string(".mhd")).c_str() ) ;
-  }
-  // TESTING
-  
+    
 	// perform 2-D registration
   Framework2D framework2D(&stack, &mriVolume, registrationParameters);
   framework2D.StartRegistration( argv[10] );
