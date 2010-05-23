@@ -29,13 +29,10 @@
 using namespace std;
 
 void checkUsage(int argc, char const *argv[]) {
-  if( argc < 10 )
+  if( argc < 6 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " histoDir fileNames mriFile registrationFile transformFile3D ";
-    cerr << "outputMRI outputStack outputMask outputInfo3D ";
-		cerr << "outputInfo2D\n\n";
-		cerr << "histoDir should have no trailing slash\n\n";
+    cerr << argv[0] << " histoDir fileNames mriFile registrationFile outputDir ";
     exit(EXIT_FAILURE);
   }
   
@@ -86,6 +83,8 @@ void readRegistrationParameters(YAML::Node & parameters, const char *yamlFile) {
 }
 
 int main (int argc, char const *argv[]) {
+  string outputDir(argv[5]);
+  
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
 	
@@ -105,16 +104,16 @@ int main (int argc, char const *argv[]) {
 	
 	// perform 3-D registration
   Framework3D framework3D(&stack, &mriVolume, registrationParameters);
-  framework3D.StartRegistration( argv[9] );
+  framework3D.StartRegistration( (outputDir + "/output3D.txt").c_str() );
 	
 	// Write final transform to file
-  writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, argv[5] );
+  writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
 	
-	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), argv[6] );
+	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), (outputDir + "/registered_mri.mhd").c_str() );
     
 	// perform 2-D registration
   Framework2D framework2D(&stack, &mriVolume, registrationParameters);
-  framework2D.StartRegistration( argv[10] );
+  framework2D.StartRegistration( (outputDir + "/output2D.txt").c_str() );
 	
 	
 	// perform non-rigid registration
@@ -122,8 +121,8 @@ int main (int argc, char const *argv[]) {
 	
 	// write volume and mask to disk
   stack.UpdateVolumes();
-	writeImage< Stack::VolumeType >( stack.GetVolume(), argv[7] );
-	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), argv[8] );
+	writeImage< Stack::VolumeType >( stack.GetVolume(), (outputDir + "/stack.mhd").c_str() );
+	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), (outputDir + "/mask.mhd").c_str() );
 		
   return EXIT_SUCCESS;
 }
