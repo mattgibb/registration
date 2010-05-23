@@ -1,4 +1,6 @@
 require 'rake'
+require 'fileutils'
+include FileUtils::Verbose
 
 task :default => [:test_refactor]
 
@@ -24,13 +26,15 @@ end
 desc "Run Register and save results in #{test_dir}"
 task :run do
   register_128(test_dir)
+  cp 'config/registration_parameters_128.yml', test_dir
   sh "say done"
 end
 
 desc "Run refactored code and test output against original output"
 task :run_refactor do
   register_128(refactor_dir)
-  Rake::Task['test'].invoke
+  Rake::Task[:test].invoke
+  cp 'config/registration_parameters_128.yml', refactor_dir
 end
 
 desc "Test refactored output against original output"
