@@ -27,9 +27,14 @@ task :run do
   sh "say done"
 end
 
-desc "Test refactored output against original output"
-task :test_refactor do
+desc "Run refactored code and test output against original output"
+task :run_refactor do
   register_128(refactor_dir)
+  Rake::Task['test'].invoke
+end
+
+desc "Test refactored output against original output"
+task :test do
   # test to see if refactored output matches original
   diff_output = `diff -r -x .DS_Store #{test_dir} #{refactor_dir}`
   if $?.success?
