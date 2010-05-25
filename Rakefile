@@ -50,5 +50,5 @@ end
 
 desc "Generate graph movies of registration iteration data"
 task :movies do
-  sh "graphing/registration_graphs.py #{test_dir}/output.txt #{test_dir}"
+  sh "graphing/registration_graphs.py #{test_dir}"
 end
