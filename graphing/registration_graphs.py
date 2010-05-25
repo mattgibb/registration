@@ -6,7 +6,7 @@ from IPython.Shell import IPShellEmbed
 ipshell = IPShellEmbed()
 
 # my packages
-from sources.versor_transform_reader import VersorTransformReader
+from sources.versor_reader import VersorReader
 from sequences.matplotlib_plotter import MatplotlibPlotter
 from sequences.mayavi_plotter import MayaviPlotter
 
@@ -14,7 +14,7 @@ from sequences.mayavi_plotter import MayaviPlotter
 output_dir = sys.argv[1]
 
 # parse input file
-multires = VersorTransformReader(output_dir + "/output3D.txt")
+multires = VersorReader(output_dir + "/output3D.txt")
 
 print multires.array
 
