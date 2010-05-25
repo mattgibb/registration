@@ -4,6 +4,7 @@
 import sys
 from IPython.Shell import IPShellEmbed
 ipshell = IPShellEmbed()
+# ipshell()
 
 # my packages
 from sources.versor_reader import VersorReader
@@ -14,10 +15,8 @@ from sequences.mayavi_plotter import MayaviPlotter
 output_dir = sys.argv[1]
 
 # parse input file
-multires = VersorReader(output_dir + "/output3D.txt")
+params3D = VersorReader(output_dir + "/output3D.txt")
 
-print multires.array
-
-# plotter = MatplotlibPlotter(output_dir + "/movies, singleres)
-# plotter = MayaviPlotter(output_dir + "/movies", multires)
-# plotter.plot()
+# plotter = MatplotlibPlotter(output_dir + "/movies", singleres)
+plotter = MayaviPlotter(output_dir + "/movies", params3d)
+plotter.plot()
