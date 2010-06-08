@@ -23,15 +23,13 @@ module ImageProcessing
       all_files - fully_downloaded_files - downsampled_files
     end
 
-    def check_local_space
-      while available_gigabytes < 5
-        puts "Not enough space, trying again in a minute..."
-        sleep 60
-      end
-    end
-    
     def available_gigabytes
-      `df`.split("\n")[-1].split[3].to_i / 1000000
+      if ENV["HOSTNAME"] = "heart.comlab"
+        `df`.split("\n")[-1].split[3].to_i / 1000000
+      else
+        puts "Warning: available space is not checked on this system."
+        10
+      end
     end
     
   end

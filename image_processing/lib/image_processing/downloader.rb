@@ -30,7 +30,16 @@ module ImageProcessing
     def download_file(filename)
       source = File.join(@config.remote_originals_dir, filename)
       destination = File.join(@config.local_originals_dir, filename)
+      check_local_space
       @ftp.download_file(source, destination)
     end
+    
+    def check_local_space
+      while @file_manager.available_gigabytes < 5
+        puts "Not enough space, trying again in a minute..."
+        sleep 60
+      end
+    end
+    
   end
 end
