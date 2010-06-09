@@ -28,15 +28,20 @@ module ImageProcessing
       Dir[File.join(@config.local_downsamples_dir, '*.bmp')].map {|f| File.basename f }
     end
 
+    def error_files
+      File.read(File.join(@config.local_dataset_dir, "error_files.txt")).split
+    end
+    
     def files_to_be_downsampled
-      all_files - downsampled_files
+      all_files - downsampled_files - error_files
     end
     
     def files_to_be_downloaded
-      # Finds all files, and removes files that have been downsampled and
-      # files that are already fully downloaded. Ignores and overwrites files
-      # that are partially downloaded.
       files_to_be_downsampled - fully_downloaded_files
+    end
+    
+    def files_ready_to_be_downsampled
+      fully_downloaded_files - error_files
     end
     
     def available_gigabytes
@@ -48,5 +53,9 @@ module ImageProcessing
       end
     end
     
+    def add_error_file(filename)
+        File.open(File.join(@config.local_dataset_dir, "error_files.txt"), "a") {|f| f.puts filename }
+        puts "Downsampling failed. Filename has been appended to 'error_files.txt'."
+    end
   end
 end

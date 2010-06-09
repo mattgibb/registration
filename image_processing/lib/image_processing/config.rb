@@ -10,14 +10,15 @@ module ImageProcessing
     attr_reader :host, :user, :password,
                 :remote_originals_dir, :local_originals_dir,
                 :remote_downsamples_dir, :local_downsamples_dir,
-                :downsample_ratio
+                :local_dataset_dir, :downsample_ratio
     
     def initialize(argv)
       parse(argv)
       parse_server_config
       
-      @local_originals_dir    = File.join(IMAGES_DIR, @dataset, "originals")
-      @local_downsamples_dir  = File.join(IMAGES_DIR, @dataset, "downsamples_#{@downsample_ratio}")
+      @local_dataset_dir      = File.join(IMAGES_DIR, @dataset)
+      @local_originals_dir    = File.join(@local_dataset_dir, "originals")
+      @local_downsamples_dir  = File.join(@local_dataset_dir, "downsamples_#{@downsample_ratio}")
       @remote_downsamples_dir = "#{@remote_originals_dir}_downsamples_#{@downsample_ratio}"
     end
     

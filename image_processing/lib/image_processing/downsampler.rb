@@ -17,8 +17,8 @@ module ImageProcessing
       @file_manager.check_local_dirs
       
       until @file_manager.files_to_be_downsampled.empty?
-        unless @file_manager.fully_downloaded_files.empty?
-          downsample_file(@file_manager.fully_downloaded_files[0])
+        unless @file_manager.files_ready_to_be_downsampled.empty?
+          downsample_file(@file_manager.files_ready_to_be_downsampled[0])
         else
           puts "No files ready to downsample yet, sleeping..."
           sleep 10
@@ -39,9 +39,8 @@ module ImageProcessing
         rm "#{original}"
         puts "done.\n\n"
       else
-        puts "Downsampling failed!"
+        @file_manager.add_error_file(filename)
       end
     end
-    
   end
 end
