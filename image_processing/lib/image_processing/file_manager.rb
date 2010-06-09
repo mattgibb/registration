@@ -1,5 +1,9 @@
+require 'fileutils'
+
 module ImageProcessing
   class FileManager
+    include FileUtils::Verbose
+    
     def initialize(config, ftp)
       @config, @ftp = config, ftp
     end

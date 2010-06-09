@@ -4,7 +4,7 @@ require 'fileutils'
 module ImageProcessing
   class FtpAdaptor
     include FileUtils
-  
+    
     def initialize(config)
       # set up the ftp connection
       @host, @user, @password = config.host, config.user, config.password
