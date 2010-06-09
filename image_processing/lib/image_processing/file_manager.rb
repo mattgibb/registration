@@ -38,7 +38,8 @@ module ImageProcessing
     end
 
     def error_files
-      File.read(File.join(@config.local_dataset_dir, "error_files.txt")).split
+      error_list = File.join(@config.local_dataset_dir, "error_files.txt")
+      File.exists?(error_list) ? File.read(error_list).split : []
     end
     
     def files_to_be_downsampled
