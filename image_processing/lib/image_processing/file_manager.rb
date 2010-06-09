@@ -28,13 +28,17 @@ module ImageProcessing
       Dir[File.join(@config.local_downsamples_dir, '*.bmp')].map {|f| File.basename f }
     end
 
+    def files_to_be_downsampled
+      all_files - downsampled_files
+    end
+    
     def files_to_be_downloaded
       # Finds all files, and removes files that have been downsampled and
       # files that are already fully downloaded. Ignores and overwrites files
       # that are partially downloaded.
-      all_files - fully_downloaded_files - downsampled_files
+      files_to_be_downsampled - fully_downloaded_files
     end
-
+    
     def available_gigabytes
       if ENV["HOSTNAME"] = "heart.comlab"
         `df`.split("\n")[-1].split[3].to_i / 1000000

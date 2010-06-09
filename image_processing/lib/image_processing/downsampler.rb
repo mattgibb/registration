@@ -16,9 +16,9 @@ module ImageProcessing
     def go
       @file_manager.check_local_dirs
       
-      until @config.files_to_be_downsampled.empty?
-        unless @config.fully_downloaded_files.empty?
-          downsample_file(fully_downloaded_files[0])
+      until @file_manager.files_to_be_downsampled.empty?
+        unless @file_manager.fully_downloaded_files.empty?
+          downsample_file(@file_manager.fully_downloaded_files[0])
         else
           puts "No files ready to downsample yet, sleeping..."
           sleep 10
