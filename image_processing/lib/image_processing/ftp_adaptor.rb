@@ -38,6 +38,10 @@ module ImageProcessing
       puts "done.\n\n"
     end
     
+    def mkdir(dir)
+      @ftp.mkdir(dir)
+    end
+    
   private
     def check_connection
       begin
