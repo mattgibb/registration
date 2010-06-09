@@ -9,7 +9,8 @@ module ImageProcessing
     
     attr_reader :host, :user, :password,
                 :remote_originals_dir, :local_originals_dir,
-                :remote_downsamples_dir, :local_downsamples_dir
+                :remote_downsamples_dir, :local_downsamples_dir,
+                :downsample_ratio
     
     def initialize(argv)
       parse(argv)

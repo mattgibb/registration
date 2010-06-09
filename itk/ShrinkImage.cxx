@@ -14,9 +14,9 @@ using namespace std;
 
 int main( int argc, char * argv[] )
 {
-  if( argc < 3 ) {
+  if( argc < 4 ) {
     cerr << "Usage: " << endl;
-    cerr << argv[0] << "  inputImageFile  outputImageFile" << endl;
+    cerr << argv[0] << "  inputImageFile  outputImageFile downsampleRatio" << endl;
     exit(EXIT_FAILURE);
   }
   
@@ -43,7 +43,7 @@ int main( int argc, char * argv[] )
   reader->SetFileName( argv[1] );
   writer->SetFileName( argv[2] );
   
-  const double factor = 128.0;
+  const double factor = atoi(argv[3]);
   
   try {
     reader->Update();
@@ -125,7 +125,7 @@ int main( int argc, char * argv[] )
   resampler->SetInput( smootherY->GetOutput() );
 
   writer->SetInput( resampler->GetOutput() );
-
+  
 
   try {
     writer->Update();

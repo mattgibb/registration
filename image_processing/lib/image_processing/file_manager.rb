@@ -4,6 +4,14 @@ module ImageProcessing
       @config, @ftp = config, ftp
     end
     
+    def check_local_dirs
+      [@config.local_originals_dir, @config.local_downsamples_dir].each do |dir|
+        unless Dir.exists?(dir)
+          mkdir_p(dir)
+        end 
+      end
+    end
+    
     def all_files
       @all_files ||= @ftp.list(@config.remote_originals_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
     end
