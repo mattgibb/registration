@@ -5,7 +5,7 @@ require 'fileutils'
 
 module ImageProcessing
   class Downsampler
-    include FileUtils::Verbose
+    include FileUtils
     
     def initialize(argv)
       @config = Config.new(argv)
