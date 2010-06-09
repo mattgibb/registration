@@ -13,6 +13,7 @@ module ImageProcessing
     end
     
     def list(dir)
+      check_connection
       @ftp.nlst(dir)
     end
     
@@ -39,6 +40,7 @@ module ImageProcessing
     end
     
     def mkdir(dir)
+      check_connection
       @ftp.mkdir(dir)
     end
     
