@@ -13,9 +13,9 @@ module ImageProcessing
     def go
       @file_manager.check_remote_downsamples_dir
       
-      until @file_manager.files_to_be_uploaded.empty?
-        source      = File.join(@config.local_downsamples_dir,  @file_manager.files_to_be_uploaded[0])
-        destination = File.join(@config.remote_downsamples_dir, @file_manager.files_to_be_uploaded[0])
+      until @file_manager.downsamples_to_be_uploaded.empty?
+        source      = File.join(@config.local_downsamples_dir,  @file_manager.downsamples_to_be_uploaded[0])
+        destination = File.join(@config.remote_downsamples_dir, @file_manager.downsamples_to_be_uploaded[0])
         @ftp.upload_file(source, destination)
       end
 

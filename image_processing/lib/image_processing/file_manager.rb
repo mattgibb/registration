@@ -25,43 +25,47 @@ module ImageProcessing
       end
     end
     
-    def all_files
-      @all_files ||= @ftp.list(@config.remote_originals_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
+    def remote_originals
+      @remote_originals ||= @ftp.list(@config.remote_originals_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
     end
     
-    def fully_downloaded_files
+    def local_originals
       Dir[File.join(@config.local_originals_dir, '*.bmp')].map {|f| File.basename f }
     end
 
-    def downsampled_files
+    def local_downsamples
       Dir[File.join(@config.local_downsamples_dir, '*.bmp')].map {|f| File.basename f }
     end
 
+    def remote_downsamples
+      @ftp.list(@config.remote_downsamples_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
+    end
+    
     def error_files
       error_list = File.join(@config.local_dataset_dir, "error_files.txt")
       File.exists?(error_list) ? File.read(error_list).split : []
     end
     
-    def files_to_be_downsampled
-      all_files - downsampled_files - error_files
+    def originals_to_be_downsampled
+      remote_originals - local_downsamples - error_files
     end
     
-    def files_to_be_downloaded
-      files_to_be_downsampled - fully_downloaded_files
+    def originals_to_be_downloaded
+      originals_to_be_downsampled - local_originals
     end
     
-    def files_ready_to_be_downsampled
-      fully_downloaded_files - error_files
+    def originals_ready_to_be_downsampled
+      local_originals - error_files
     end
     
-    def fully_uploaded_files
-      @ftp.list(@config.remote_downsamples_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
+    def downsamples_to_be_uploaded
+      local_downsamples - remote_downsamples
     end
     
-    def files_to_be_uploaded
-      downsampled_files - fully_uploaded_files
+    def downsamples_to_be_downloaded
+      remote_downsamples - local_downsamples
     end
-
+    
     def available_gigabytes
       if ENV["HOSTNAME"] = "heart.comlab"
         `df`.split("\n")[-1].split[3].to_i / 1000000

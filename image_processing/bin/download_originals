@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'image_processing'
+
+downloader = ImageProcessing::OriginalsDownloader.new(ARGV)
+downloader.go
