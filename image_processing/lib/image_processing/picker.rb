@@ -6,13 +6,14 @@ module ImageProcessing
   class ImageFile
     attr_reader :name, :slice_number, :version_number
     
+    REGEXP = /(\d+)([a-z])?.bmp$/
+    
     def initialize(filename)
-      raise "#{filename} doesn't seem to be an image file." unless filename =~ /\.bmp$/
       @name = filename
-      m = @name.match(/(\d+)(\(\d+\))?.bmp$/)
+      raise "Cannot extract slice number and version from #{filename}." unless m = @name.match(REGEXP)
       @slice_number = m[1].to_i
       @version_number = m[2].to_i if m[2]
-    end                                    
+    end
     
   end
   
@@ -29,7 +30,7 @@ module ImageProcessing
     end
     
   private  
-    def pick_files      
+    def pick_files
       # select one every @config.downsample_ratio images
       available_files = @file_manager.remote_originals.sort.map {|f| ImageFile.new(f) }
       puts available_files.count
