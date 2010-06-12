@@ -67,7 +67,7 @@ module ImageProcessing
     end
     
     def available_gigabytes
-      if ENV["HOSTNAME"] = "heart.comlab"
+      if ENV["HOSTNAME"] == "heart.comlab"
         `df`.split("\n")[-1].split[3].to_i / 1000000
       else
         puts "Warning: available space is not checked on this system."
