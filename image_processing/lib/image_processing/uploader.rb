@@ -14,6 +14,7 @@ module ImageProcessing
       @file_manager.check_remote_downsamples_dir
       
       until @file_manager.downsamples_to_be_uploaded.empty?
+        puts "Uploaded #{@file_manager.remote_downsamples.count} of #{@file_manager.local_downsamples.count} files..."
         source      = File.join(@config.local_downsamples_dir,  @file_manager.downsamples_to_be_uploaded[0])
         destination = File.join(@config.remote_downsamples_dir, @file_manager.downsamples_to_be_uploaded[0])
         @ftp.upload_file(source, destination)

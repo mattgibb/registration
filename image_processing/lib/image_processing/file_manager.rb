@@ -46,8 +46,12 @@ module ImageProcessing
       File.exists?(error_list) ? File.read(error_list).split : []
     end
     
+    def processed_files
+      local_downsamples + error_files
+    end
+
     def originals_to_be_downsampled
-      remote_originals - local_downsamples - error_files
+      remote_originals - processed_files
     end
     
     def originals_to_be_downloaded

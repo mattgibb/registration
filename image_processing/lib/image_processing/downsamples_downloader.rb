@@ -13,7 +13,10 @@ module ImageProcessing
     
     def go
       @file_manager.check_local_dirs
-      download_downsample(@file_manager.downsamples_to_be_downloaded[0]) until @file_manager.downsamples_to_be_downloaded.empty?
+      until @file_manager.downsamples_to_be_downloaded.empty?
+        puts "Downloaded #{@file_manager.local_downsamples.count} of #{@file_manager.remote_downsamples.count} files..."
+        download_downsample(@file_manager.downsamples_to_be_downloaded[0])
+      end
       puts "All files have been downloaded!"
     end
         

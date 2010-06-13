@@ -17,6 +17,7 @@ module ImageProcessing
       @file_manager.check_local_dirs
       
       until @file_manager.originals_to_be_downsampled.empty?
+        puts "Downsampled #{@file_manager.processed_files} of #{@file_manager.remote_downsamples} files..."
         unless @file_manager.originals_ready_to_be_downsampled.empty?
           downsample_file(@file_manager.originals_ready_to_be_downsampled[0])
         else

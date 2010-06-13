@@ -13,7 +13,11 @@ module ImageProcessing
     
     def go
       @file_manager.check_local_dirs
-      download_original(@file_manager.originals_to_be_downloaded[0]) until @file_manager.originals_to_be_downloaded.empty?
+      until @file_manager.originals_to_be_downloaded.empty?
+        puts "Downloaded #{(@file_manager.remote_originals - @file_manager.originals_to_be_downloaded).count} " +
+             "of #{@file_manager.remote_originals.count} files..."
+        download_original(@file_manager.originals_to_be_downloaded[0])
+      end
       puts "All files have been downloaded!"
     end
         
