@@ -4,14 +4,15 @@ require 'yaml'
 module ImageProcessing
   class Config
     PROJECT_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "../../.."))
-    IMAGES_DIR = File.expand_path(File.join(PROJECT_ROOT_DIR, "images"))
+    IMAGES_DIR = File.join(PROJECT_ROOT_DIR, "images")
     CONFIG_DIR = File.join(PROJECT_ROOT_DIR, "config")
     RESULTS_DIR = File.join(PROJECT_ROOT_DIR, "results")
     
     attr_reader :host, :user, :password,
                 :remote_originals_dir, :local_originals_dir,
                 :remote_downsamples_dir, :local_downsamples_dir,
-                :local_dataset_dir, :downsample_ratio
+                :local_dataset_dir, :local_output_dir,
+                :downsample_ratio
     
     def initialize(argv)
       parse(argv)
@@ -20,7 +21,9 @@ module ImageProcessing
       @local_dataset_dir      = File.join(IMAGES_DIR, @dataset)
       @local_originals_dir    = File.join(@local_dataset_dir, "originals")
       @local_downsamples_dir  = File.join(@local_dataset_dir, "downsamples_#{@downsample_ratio}")
+      @local_output_dir       = File.join(RESULTS_DIR, @dataset, "downsamples_#{downsample_ratio}", "latest")
       @remote_downsamples_dir = "#{@remote_originals_dir}_downsamples_#{@downsample_ratio}"
+      
     end
     
   private
