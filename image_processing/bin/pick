@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+require 'image_processing/picker'
+require 'ruby-debug'
+
+picker = ImageProcessing::Picker.new(ARGV)
+picker.step = ARGV[2].to_i
+picker.go
+picker.write_files
