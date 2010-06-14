@@ -4,8 +4,9 @@ require 'yaml'
 module ImageProcessing
   class Config
     PROJECT_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "../../.."))
-    IMAGES_DIR = File.expand_path(File.join(PROJECT_ROOT_DIR, "..", "images"))
+    IMAGES_DIR = File.expand_path(File.join(PROJECT_ROOT_DIR, "images"))
     CONFIG_DIR = File.join(PROJECT_ROOT_DIR, "config")
+    RESULTS_DIR = File.join(PROJECT_ROOT_DIR, "results")
     
     attr_reader :host, :user, :password,
                 :remote_originals_dir, :local_originals_dir,
