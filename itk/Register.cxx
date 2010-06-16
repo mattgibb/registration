@@ -104,7 +104,7 @@ int main (int argc, char const *argv[]) {
 	
 	// perform 3-D registration
   Framework3D framework3D(&stack, &mriVolume, registrationParameters);
-  framework3D.StartRegistration( (outputDir + "/output3D.txt").c_str() );
+  framework3D.StartRegistration( outputDir + "/output3D.txt" );
 	
 	// Write final transform to file
   writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
@@ -113,7 +113,7 @@ int main (int argc, char const *argv[]) {
     
 	// perform 2-D registration
   Framework2D framework2D(&stack, &mriVolume, registrationParameters);
-  framework2D.StartRegistration( (outputDir + "/output2D.txt").c_str() );
+  framework2D.StartRegistration( outputDir + "/output2D.txt" );
 	
 	
 	// perform non-rigid registration

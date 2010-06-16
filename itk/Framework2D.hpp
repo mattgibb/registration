@@ -108,8 +108,8 @@ public:
 	  optimizer2D->SetScales( optimizerScales2D );
 	}
 	
-	void StartRegistration(char const *outputFileName) {
-		observerOutput.open( outputFileName );
+	void StartRegistration(string outputFileName) {
+		observerOutput.open( outputFileName.c_str() );
     
     unsigned int number_of_slices = stack->originalImages.size();
     

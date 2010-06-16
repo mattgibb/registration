@@ -173,8 +173,8 @@ public:
 	  optimizer3D->SetScales( optimizerScales3D );
 	}
 	
-	void StartRegistration(char const *outputFileName) {
-		observerOutput.open( outputFileName );
+	void StartRegistration(string outputFileName) {
+		observerOutput.open( outputFileName.c_str() );
     
     registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
     
