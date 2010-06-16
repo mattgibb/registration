@@ -23,10 +23,13 @@ TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
 ADD_EXECUTABLE(Register Register.cxx )
 TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO ITKNumerics ${YAML_LIBRARY})
 
-ADD_EXECUTABLE(test test.cpp )
-TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
-
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
 TARGET_LINK_LIBRARIES(FlipImage ITKCommon ITKBasicFilters ITKIO)
+
+ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
+TARGET_LINK_LIBRARIES(BuildVolumes ITKCommon ITKBasicFilters ITKIO ITKNumerics ${YAML_LIBRARY})
+
+ADD_EXECUTABLE(test test.cpp )
+TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
 
 # GET_TARGET_PROPERTY(LINK_FLAGS REGISTER LINK_FLAGS)

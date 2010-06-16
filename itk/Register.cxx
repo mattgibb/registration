@@ -25,8 +25,7 @@
 #include "Stack.hpp"
 #include "Framework3D.hpp"
 #include "Framework2D.hpp"
-
-using namespace std;
+#include "helper_functions.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc < 6 )
@@ -36,50 +35,6 @@ void checkUsage(int argc, char const *argv[]) {
     exit(EXIT_FAILURE);
   }
   
-}
-
-vector< string > getFileNames(char const *directory, char const *fileList) {
-  vector< string > fileNames;
-  string fileName;
-  fileNames.clear();
-  ifstream infile(fileList, ios_base::in);
-  while (getline(infile, fileName)) {
-    fileNames.push_back(directory + fileName);
-  }
-  
-  return fileNames;
-}
-
-template<typename WriterType, typename DataType>
-void writeData(typename DataType::Pointer data, char const *fileName) {
-  // typedef itkTransformFileWriter WriterType;
-  typename WriterType::Pointer writer = WriterType::New();
-	
-	writer->SetInput( data );
-  // writer->AddTransform( anotherTransform ); // only applies to writing transforms
-  
-  writer->SetFileName( fileName );
-	
-  try {
-  	writer->Update();
-  }
-	catch( itk::ExceptionObject & err ) {
-    cerr << "ExceptionObject caught !" << endl;
-    cerr << err << endl;
-		exit(EXIT_FAILURE);
-	}
-}
-
-template<typename ImageType>
-void writeImage(typename ImageType::Pointer image, char const *fileName) {
-  writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
-}
-
-void readRegistrationParameters(YAML::Node & parameters, const char *yamlFile) {
-  // TODO: extract filename into ARGV.
-  ifstream config_filestream(yamlFile);
-  YAML::Parser parser(config_filestream);
-  parser.GetNextDocument(parameters);
 }
 
 int main (int argc, char const *argv[]) {

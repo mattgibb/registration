@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>currentDocument</key>
-	<string>TransformReadWrite.cxx</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -22,7 +20,7 @@
 			<key>filename</key>
 			<string>ideas</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T14:37:57Z</date>
+			<date>2010-06-16T17:16:06Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -38,13 +36,13 @@
 			<key>filename</key>
 			<string>MRI.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T13:36:25Z</date>
+			<date>2010-06-16T17:16:06Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>Register.cxx</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T14:43:31Z</date>
+			<date>2010-06-16T17:16:05Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -62,7 +60,7 @@
 			<key>filename</key>
 			<string>Stack.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T14:43:35Z</date>
+			<date>2010-06-16T17:16:07Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -74,152 +72,35 @@
 			<key>filename</key>
 			<string>TransformReadWrite.cxx</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T14:43:35Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2010-06-16T17:16:07Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>Framework3D.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T14:38:04Z</date>
+			<date>2010-06-16T17:16:06Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>helper_functions.hpp</string>
+			<key>selected</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>BuildVolumes.cxx</string>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>Framework2D.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-05-09T13:36:26Z</date>
+			<date>2010-06-16T17:16:06Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>288</integer>
 	<key>metaData</key>
-	<dict>
-		<key>Framework2D.hpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>71</integer>
-				<key>line</key>
-				<integer>99</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>71</integer>
-		</dict>
-		<key>Framework3D.hpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>55</integer>
-				<key>line</key>
-				<integer>115</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>MRI.hpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>244</integer>
-			</dict>
-			<key>columnSelection</key>
-			<false/>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>203</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>243</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>244</integer>
-			</dict>
-		</dict>
-		<key>Register.cxx</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>47</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>33</integer>
-		</dict>
-		<key>Stack.hpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>23</integer>
-				<key>line</key>
-				<integer>77</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>53</integer>
-		</dict>
-		<key>TransformReadWrite.cxx</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>2</integer>
-				<key>line</key>
-				<integer>25</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>ideas</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>12</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-	</dict>
-	<key>openDocuments</key>
-	<array>
-		<string>Register.cxx</string>
-		<string>ideas</string>
-		<string>Framework3D.hpp</string>
-		<string>Framework2D.hpp</string>
-		<string>MRI.hpp</string>
-		<string>Stack.hpp</string>
-		<string>TransformReadWrite.cxx</string>
-	</array>
+	<dict/>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
