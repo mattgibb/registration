@@ -1,6 +1,6 @@
 from sources.reader_base import ReaderBase
 
-class VersorReader(ReaderBase):
+class CenteredRigidReader(ReaderBase):
     def angle_params(self):
         return self.array[:,3]
     
