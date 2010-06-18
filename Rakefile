@@ -52,3 +52,5 @@ desc "Generate graph movies of registration iteration data"
 task :movies do
   sh "graphing/registration_graphs.py #{test_dir}"
 end
+
+# String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
