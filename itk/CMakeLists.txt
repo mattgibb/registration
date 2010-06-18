@@ -15,7 +15,7 @@ FIND_LIBRARY(YAML_LIBRARY
 INCLUDE(${ITK_USE_FILE})
 # INCLUDE( CMakePrintSystemInformation )
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/Observers /usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Frameworks ${PROJECT_SOURCE_DIR}/Observers /usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
 
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)

@@ -1,7 +1,5 @@
-// This object constructs and encapsulates the 2D registration framework.
-
-#ifndef FRAMEWORK2D_HPP_
-#define FRAMEWORK2D_HPP_
+#ifndef FRAMEWORK2DBASE_HPP_
+#define FRAMEWORK2DBASE_HPP_
 
 // YAML config reader
 #include "yaml.h"
@@ -12,15 +10,14 @@
 #include "itkRegularStepGradientDescentOptimizer.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkLinearInterpolateImageFunction.h"
-#include "itkImageMaskSpatialObject.h"
+// #include "itkImageMaskSpatialObject.h"
 
 // my files
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
-#include "Stack.hpp"
-#include "MRI.hpp"
 
-class Framework2D {
+
+class Framework2DBase {
 public:
   // typedef itk::CenteredRigid2DTransform< double > TransformType2D;
   typedef itk::RegularStepGradientDescentOptimizer OptimizerType2D;
@@ -31,9 +28,6 @@ public:
 	typedef StdOutIterationUpdate< OptimizerType2D > StdOutObserverType2D;
 	typedef FileIterationUpdate< OptimizerType2D > FileObserverType2D;
 	
-	
-	Stack *stack;
-	MRI *mriVolume;
 	RegistrationType2D::Pointer registration2D;
 	MetricType2D::Pointer metric2D;
 	OptimizerType2D::Pointer optimizer2D;
@@ -43,35 +37,28 @@ public:
 	ofstream observerOutput;
 	YAML::Node& registrationParameters;
   
-	
-	Framework2D(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
-	stack(inputStack),
-	mriVolume(inputMriVolume),
-	registrationParameters(parameters) {
-	  
-		initializeRegistrationComponents();
-		
-		wireUpRegistrationComponents();
-		
+  Framework2DBase(YAML::Node& parameters):
+  registrationParameters(parameters) {
+    initializeRegistrationComponents();
+    wireUpRegistrationComponents();
 		setUpObservers();
-		
-		setOptimizerTranslationScale();
-	}
-	
-	void initializeRegistrationComponents() {
+    setOptimizerTranslationScale();
+  }
+  
+  void initializeRegistrationComponents() {
 		registration2D = RegistrationType2D::New();
 		metric2D = MetricType2D::New();
 	  optimizer2D = OptimizerType2D::New();
 	  interpolator2D = LinearInterpolatorType2D::New();
 	}
-	
-	void wireUpRegistrationComponents() {
+  
+  void wireUpRegistrationComponents() {
 		registration2D->SetMetric( metric2D );
 	  registration2D->SetOptimizer( optimizer2D );
 	  registration2D->SetInterpolator( interpolator2D );
 	}
-		
-	void setUpObservers() {
+  
+  void setUpObservers() {
     // Create the command observers
 		stdOutObserver2D = StdOutObserverType2D::New();
 		fileObserver2D   = FileObserverType2D::New();
@@ -97,7 +84,7 @@ public:
 	  double translationScale;
     registrationParameters["optimizerTranslationScale2D"] >> translationScale;
 
-		OptimizerType2D::ScalesType optimizerScales2D( stack->GetTransform(0)->GetNumberOfParameters() );
+		OptimizerType2D::ScalesType optimizerScales2D( 5 );
     
 	  optimizerScales2D[0] = 1.0;
 	  optimizerScales2D[1] = translationScale;
@@ -108,42 +95,18 @@ public:
 	  optimizer2D->SetScales( optimizerScales2D );
 	}
 	
-	void StartRegistration(string outputFileName) {
-		observerOutput.open( outputFileName.c_str() );
-    
-    unsigned int number_of_slices = stack->originalImages.size();
-    
-    for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
-  	  registration2D->SetFixedImage( mriVolume->GetResampledSlice(slice_number) );
-  		registration2D->SetMovingImage( stack->originalImages[slice_number] );
-	    
-  	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
-  	  registration2D->SetFixedImageRegion( mriVolume->GetResampledSlice(slice_number)->GetLargestPossibleRegion() );
-  	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
-	    
-  		metric2D->SetFixedImageMask( mriVolume->GetMask2D(slice_number) );
-  		metric2D->SetMovingImageMask( stack->GetMask2D(slice_number) );
-  		
-  		registration2D->SetTransform( stack->GetTransform(slice_number) );
-  		registration2D->SetInitialTransformParameters( stack->GetTransform(slice_number)->GetParameters() );
-  		
-  	  try
-  	    {
-  	    registration2D->StartRegistration();
-  	    cout << "Optimizer stop condition: "
-  	         << registration2D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
-  	    }
-  	  catch( itk::ExceptionObject & err )
-  	    {
-  	    std::cerr << "ExceptionObject caught !" << std::endl;
-  	    std::cerr << err << std::endl;
-  	    exit(EXIT_FAILURE);
-  	    }
-    }
-    
-	  observerOutput.close();
-	}
+	// explicitly declare virtual destructor,
+  // so that base pointers to derived classes will be destroyed fully
+  virtual ~Framework2DBase()=0;
+  
+private:
+  // Copy constructor and copy assignment operator deliberately not implemented
+  // Made private so that nobody can use them
+  Framework2DBase(const Framework2DBase&);
+  Framework2DBase& operator=(const Framework2DBase&);
 	
-protected:
 };
+
+Framework2DBase::~Framework2DBase() {}
+
 #endif

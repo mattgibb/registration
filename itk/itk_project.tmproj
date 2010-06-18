@@ -6,9 +6,15 @@
 	<array>
 		<dict>
 			<key>filename</key>
+			<string>BuildVolumes.cxx</string>
+			<key>lastUsed</key>
+			<date>2010-06-18T15:33:09Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>CMakeLists.txt</string>
 			<key>lastUsed</key>
-			<date>2010-04-27T18:59:14Z</date>
+			<date>2010-06-18T12:11:12Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -20,7 +26,7 @@
 			<key>filename</key>
 			<string>ideas</string>
 			<key>lastUsed</key>
-			<date>2010-06-16T17:16:06Z</date>
+			<date>2010-06-18T15:43:03Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -42,7 +48,7 @@
 			<key>filename</key>
 			<string>Register.cxx</string>
 			<key>lastUsed</key>
-			<date>2010-06-16T17:16:05Z</date>
+			<date>2010-06-18T15:33:10Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -52,15 +58,9 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>SingleViewRegistration.cxx</string>
-			<key>lastUsed</key>
-			<date>2010-05-08T17:39:01Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
 			<string>Stack.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-06-16T17:16:07Z</date>
+			<date>2010-06-18T15:33:10Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -69,32 +69,22 @@
 			<date>2010-03-24T20:34:49Z</date>
 		</dict>
 		<dict>
-			<key>filename</key>
-			<string>TransformReadWrite.cxx</string>
-			<key>lastUsed</key>
-			<date>2010-06-16T17:16:07Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>Framework3D.hpp</string>
-			<key>lastUsed</key>
-			<date>2010-06-16T17:16:06Z</date>
+			<key>expanded</key>
+			<true/>
+			<key>name</key>
+			<string>Frameworks</string>
+			<key>regexFolderFilter</key>
+			<string>!.*/(\.[^/]*|CVS|_darcs|_MTN|\{arch\}|blib|.*~\.nib|.*\.(framework|app|pbproj|pbxproj|xcode(proj)?|bundle))$</string>
+			<key>selected</key>
+			<true/>
+			<key>sourceDirectory</key>
+			<string>Frameworks</string>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>helper_functions.hpp</string>
-			<key>selected</key>
-			<true/>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>BuildVolumes.cxx</string>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>Framework2D.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-06-16T17:16:06Z</date>
+			<date>2010-06-18T15:33:09Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -104,6 +94,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{2, 4}, {925, 1174}}</string>
+	<string>{{7, 4}, {966, 1174}}</string>
 </dict>
 </plist>

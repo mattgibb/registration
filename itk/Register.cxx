@@ -24,7 +24,7 @@
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 #include "Framework3D.hpp"
-#include "Framework2D.hpp"
+#include "Framework2DRabbit.hpp"
 #include "helper_functions.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
@@ -67,8 +67,8 @@ int main (int argc, char const *argv[]) {
 	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), (outputDir + "/registered_mri.mhd").c_str() );
     
 	// perform 2-D registration
-  Framework2D framework2D(&stack, &mriVolume, registrationParameters);
-  framework2D.StartRegistration( outputDir + "/output2D.txt" );
+  Framework2DRabbit framework2DRabbit(&stack, &mriVolume, registrationParameters);
+  framework2DRabbit.StartRegistration( outputDir + "/output2D.txt" );
 	
 	
 	// perform non-rigid registration

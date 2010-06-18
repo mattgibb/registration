@@ -11,5 +11,5 @@ maxIterations2D: 100 # Dubious numbers
 maxStepLength2D: 0.1 # Dubious numbers
 minStepLength2D: 0.001 # Dubious numbers
 
-stackSpacings: [70.4, 70.4, 160] # Not implemented yet
+stackSpacings: [70.4, 70.4, 160]
 MRIInitialResizeFactor: 0.8

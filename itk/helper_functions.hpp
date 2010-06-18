@@ -1,6 +1,7 @@
 #ifndef HELPER_FUNCTIONS_HPP_
 #define HELPER_FUNCTIONS_HPP_
 
+
 using namespace std;
 
 vector< string > getFileNames(string directory, string fileList) {
@@ -46,4 +47,5 @@ void readRegistrationParameters(YAML::Node & parameters, string yamlFile) {
   YAML::Parser parser(config_filestream);
   parser.GetNextDocument(parameters);
 }
+
 #endif

@@ -24,11 +24,11 @@
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 #include "Framework3D.hpp"
-#include "Framework2D.hpp"
+#include "Framework2DRat.hpp"
 #include "helper_functions.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
-  if( argc < 4 )
+  if( argc != 5 )
   {
     cerr << "\nUsage: " << endl;
     cerr << argv[0] << " LoResDir HiResDir registrationFile outputDir\n\n";
@@ -48,9 +48,10 @@ int main (int argc, char const *argv[]) {
   readRegistrationParameters(registrationParameters, registrationFile);
 	
 	// initialise stack and MRI objects
-  cout << "Check file separator before basename: " << outputDir + "/picked_files.txt" << endl;
+  cout << "Check file separator before basename: " << outputDir << "/picked_files.txt" << endl;
 	Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), registrationParameters );
-		
+  // Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), registrationParameters );
+	
   // Write final transform to file
     // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
     

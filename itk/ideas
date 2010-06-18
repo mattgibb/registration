@@ -10,3 +10,4 @@ Use transform3D.GetRotationMatrix() and transform3D.GetOffset() instead of using
 
 Check out RegionOfInterestImageFilter
 
+If need to see the full set of transform params, or to read a transform file without knowing the type of transform in the file, check out TransformReadWrite.cxx in the examples.
