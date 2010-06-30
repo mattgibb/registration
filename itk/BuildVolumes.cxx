@@ -31,7 +31,7 @@ void checkUsage(int argc, char const *argv[]) {
   if( argc != 5 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " LoResDir HiResDir registrationFile outputDir\n\n";
+    cerr << argv[0] << " LoResDir HiResDir registrationParamsFile outputDir\n\n";
     exit(EXIT_FAILURE);
   }
   
@@ -41,32 +41,39 @@ int main (int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
   
-  string LoResDir(argv[1]), HiResDir(argv[2]), registrationFile(argv[3]), outputDir(argv[4]);
+  string LoResDir(argv[1]), HiResDir(argv[2]), registrationParamsFile(argv[3]), outputDir(argv[4]);
 	
 	// read registration parameters
   YAML::Node registrationParameters;
-  readRegistrationParameters(registrationParameters, registrationFile);
+  readRegistrationParameters(registrationParameters, registrationParamsFile);
 	
-	// initialise stack and MRI objects
-  cout << "Check file separator before basename: " << outputDir << "/picked_files.txt" << endl;
-	Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), registrationParameters );
-  // Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), registrationParameters );
-	
+	// initialise stack objects
+  Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
+	for(unsigned int i=0; i<3; i++) {
+    registrationParameters["LoResSpacings"][i] >> LoResSpacings[i];
+    registrationParameters["HiResSpacings"][i] >> HiResSpacings[i];
+  }
+  
+	Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings );
+  Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files2.txt"), HiResSpacings );
+  
   // Write final transform to file
-    // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
-    
+  // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
+  
 	// perform 2-D registration
-  // Framework2D framework2D(&stack, &mriVolume, registrationParameters);
-  // framework2D.StartRegistration( (outputDir + "/output2D.txt").c_str() );
-  //  
+  Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
+  framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
+  //
 	
 	// perform non-rigid registration
 	// check out itkMultiResolutionPDEDeformableRegistration
 	
 	// write volume and mask to disk
-  LoResStack.UpdateVolumes();
-	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), (outputDir + "/LoResStack.mhd").c_str() );
-	writeImage< Stack::MaskVolumeType >( LoResStack.GetMaskVolume(), (outputDir + "/LoResMask.mhd").c_str() );
+  // LoResStack.UpdateVolumes();
+	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "/LoResStack.mhd" );
+  // writeImage< Stack::MaskVolumeType >( LoResStack.GetMaskVolume(), outputDir + "/LoResMask.mhd" );
+	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "/HiResStack.mhd" );
+  // writeImage< Stack::MaskVolumeType >( HiResStack.GetMaskVolume(), outputDir + "/HiResMask.mhd" );
 		
   return EXIT_SUCCESS;
 }

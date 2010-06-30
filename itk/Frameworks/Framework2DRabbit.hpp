@@ -28,24 +28,24 @@ public:
     unsigned int number_of_slices = stack->originalImages.size();
     
     for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
-  	  registration2D->SetFixedImage( mriVolume->GetResampledSlice(slice_number) );
-  		registration2D->SetMovingImage( stack->originalImages[slice_number] );
+  	  registration->SetFixedImage( mriVolume->GetResampledSlice(slice_number) );
+  		registration->SetMovingImage( stack->originalImages[slice_number] );
 	    
   	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
-  	  registration2D->SetFixedImageRegion( mriVolume->GetResampledSlice(slice_number)->GetLargestPossibleRegion() );
+  	  registration->SetFixedImageRegion( mriVolume->GetResampledSlice(slice_number)->GetLargestPossibleRegion() );
   	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
 	    
-  		metric2D->SetFixedImageMask( mriVolume->GetMask2D(slice_number) );
-  		metric2D->SetMovingImageMask( stack->GetMask2D(slice_number) );
+  		metric->SetFixedImageMask( mriVolume->GetMask2D(slice_number) );
+  		metric->SetMovingImageMask( stack->GetMask2D(slice_number) );
   		
-  		registration2D->SetTransform( stack->GetTransform(slice_number) );
-  		registration2D->SetInitialTransformParameters( stack->GetTransform(slice_number)->GetParameters() );
+  		registration->SetTransform( stack->GetTransform(slice_number) );
+  		registration->SetInitialTransformParameters( stack->GetTransform(slice_number)->GetParameters() );
   		
   	  try
   	    {
-  	    registration2D->StartRegistration();
+  	    registration->StartRegistration();
   	    cout << "Optimizer stop condition: "
-  	         << registration2D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+  	         << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
   	    }
   	  catch( itk::ExceptionObject & err )
   	    {

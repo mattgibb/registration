@@ -24,30 +24,30 @@
 
 class Framework3D {
 public:
-	typedef itk::VersorRigid3DTransform< double > TransformType3D;
-  typedef itk::VersorRigid3DTransformOptimizer OptimizerType3D;
-	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRI::VolumeType > MetricType3D;
-  typedef itk::LinearInterpolateImageFunction< MRI::VolumeType, double > LinearInterpolatorType3D;
-	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRI::VolumeType > RegistrationType3D;
+	typedef itk::VersorRigid3DTransform< double > TransformType;
+  typedef itk::VersorRigid3DTransformOptimizer OptimizerType;
+	typedef itk::MattesMutualInformationImageToImageMetric< Stack::VolumeType, MRI::VolumeType > MetricType;
+  typedef itk::LinearInterpolateImageFunction< MRI::VolumeType, double > LinearInterpolatorType;
+	typedef itk::MultiResolutionImageRegistrationMethod< Stack::VolumeType, MRI::VolumeType > RegistrationType;
 	typedef itk::MultiResolutionPyramidImageFilter< Stack::VolumeType, Stack::VolumeType > FixedImagePyramidType;
   typedef itk::MultiResolutionPyramidImageFilter< MRI::VolumeType, MRI::VolumeType > MovingImagePyramidType;
-	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
-	typedef StdOutIterationUpdate< OptimizerType3D > StdOutObserverType3D;
-	typedef FileIterationUpdate< OptimizerType3D > FileObserverType3D;
-	typedef MultiResRegistrationCommand< RegistrationType3D, OptimizerType3D, MetricType3D > MultiResCommandType;
+	typedef itk::ImageMaskSpatialObject< 3 > MaskType;
+	typedef StdOutIterationUpdate< OptimizerType > StdOutObserverType;
+	typedef FileIterationUpdate< OptimizerType > FileObserverType;
+	typedef MultiResRegistrationCommand< RegistrationType, OptimizerType, MetricType > MultiResCommandType;
   
 	
 	Stack *stack;
 	MRI *mriVolume;
-	MetricType3D::Pointer metric3D;
-	OptimizerType3D::Pointer optimizer3D;
-	LinearInterpolatorType3D::Pointer interpolator3D;
-	RegistrationType3D::Pointer registration3D;
-  TransformType3D::Pointer transform3D;
+	MetricType::Pointer metric;
+	OptimizerType::Pointer optimizer;
+	LinearInterpolatorType::Pointer interpolator;
+	RegistrationType::Pointer registration;
+  TransformType::Pointer transform;
 	FixedImagePyramidType::Pointer fixedImagePyramid;
 	MovingImagePyramidType::Pointer movingImagePyramid;
-	StdOutObserverType3D::Pointer stdOutObserver3D;
-	FileObserverType3D::Pointer fileObserver3D;
+	StdOutObserverType::Pointer stdOutObserver;
+	FileObserverType::Pointer fileObserver;
 	MultiResCommandType::Pointer multiResCommand;
 	ofstream observerOutput;
   YAML::Node& registrationParameters;
@@ -61,18 +61,18 @@ public:
     initializeRegistrationComponents();
     wireUpRegistrationComponents();
     
-		registration3D->SetFixedImage( stack->GetVolume() );
-	  registration3D->SetMovingImage( mriVolume->GetVolume() );
+		registration->SetFixedImage( stack->GetVolume() );
+	  registration->SetMovingImage( mriVolume->GetVolume() );
 	  
 	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
-	  registration3D->SetFixedImageRegion( stack->GetVolume()->GetLargestPossibleRegion() );
+	  registration->SetFixedImageRegion( stack->GetVolume()->GetLargestPossibleRegion() );
 	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
 	  
-		metric3D->SetFixedImageMask( stack->GetMask3D() );
-    metric3D->SetMovingImageMask( mriVolume->GetMask3D() );
+		metric->SetFixedImageMask( stack->GetMask3D() );
+    metric->SetMovingImageMask( mriVolume->GetMask3D() );
 		
     unsigned int levels; parameters["levels"] >> levels;
-	  registration3D->SetNumberOfLevels( levels );
+	  registration->SetNumberOfLevels( levels );
 		
     initializeTransformParameters();
 		
@@ -82,22 +82,22 @@ public:
 	}
 	
 	void initializeRegistrationComponents() {
-		registration3D = RegistrationType3D::New();
-		metric3D = MetricType3D::New();
-	  optimizer3D = OptimizerType3D::New();
-	  interpolator3D = LinearInterpolatorType3D::New();
-	  transform3D = TransformType3D::New();
+		registration = RegistrationType::New();
+		metric = MetricType::New();
+	  optimizer = OptimizerType::New();
+	  interpolator = LinearInterpolatorType::New();
+	  transform = TransformType::New();
 	  fixedImagePyramid = FixedImagePyramidType::New();
 	  movingImagePyramid = MovingImagePyramidType::New();
 	}
 	
 	void wireUpRegistrationComponents() {
-		registration3D->SetMetric( metric3D );
-	  registration3D->SetOptimizer( optimizer3D );
-	  registration3D->SetInterpolator( interpolator3D );
-	  registration3D->SetTransform( transform3D );
-	  registration3D->SetFixedImagePyramid( fixedImagePyramid );
-	  registration3D->SetMovingImagePyramid( movingImagePyramid );
+		registration->SetMetric( metric );
+	  registration->SetOptimizer( optimizer );
+	  registration->SetInterpolator( interpolator );
+	  registration->SetTransform( transform );
+	  registration->SetFixedImagePyramid( fixedImagePyramid );
+	  registration->SetMovingImagePyramid( movingImagePyramid );
 	}
 	
 	void initializeTransformParameters() {
@@ -106,12 +106,12 @@ public:
 	}
 	
 	void initializeTranslationParameters() {
-		typedef itk::CenteredTransformInitializer< TransformType3D,
+		typedef itk::CenteredTransformInitializer< TransformType,
 																							 Stack::VolumeType,
 																							 MRI::VolumeType > TransformInitializerType;
 	  TransformInitializerType::Pointer initializer = TransformInitializerType::New();
     
-	  initializer->SetTransform( transform3D );
+	  initializer->SetTransform( transform );
 	  initializer->SetFixedImage( stack->GetVolume() );
 	  initializer->SetMovingImage( mriVolume->GetVolume() );
     
@@ -122,7 +122,7 @@ public:
 	}
 	
 	void initializeRotationParameters() {
-	  typedef TransformType3D::VersorType VersorType;
+	  typedef TransformType::VersorType VersorType;
 	  typedef VersorType::VectorType VectorType;
     
 	  VersorType rotation;
@@ -136,22 +136,22 @@ public:
     
 	  rotation.Set( axis, angle );
     
-	  transform3D->SetRotation( rotation );
+	  transform->SetRotation( rotation );
 	}
 	
 	void setUpObservers() {
 		// Create the command observers
-		stdOutObserver3D = StdOutObserverType3D::New();
-		fileObserver3D   = FileObserverType3D::New();
+		stdOutObserver = StdOutObserverType::New();
+		fileObserver   = FileObserverType::New();
 		multiResCommand  = MultiResCommandType::New();
 		
 	  // register the observers
-	  optimizer3D->AddObserver( itk::IterationEvent(), stdOutObserver3D );
-	  optimizer3D->AddObserver( itk::IterationEvent(), fileObserver3D );
-	  registration3D->AddObserver( itk::IterationEvent(), multiResCommand );
+	  optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
+	  optimizer->AddObserver( itk::IterationEvent(), fileObserver );
+	  registration->AddObserver( itk::IterationEvent(), multiResCommand );
 	
-	  // add output to fileObserver3D
-		fileObserver3D->SetOfstream( &observerOutput );
+	  // add output to fileObserver
+		fileObserver->SetOfstream( &observerOutput );
 		
 	  // pass parameters to multiResCommand so it can configure itself
     multiResCommand->configure( registrationParameters );
@@ -161,28 +161,28 @@ public:
     double translationScale;
     registrationParameters["optimizerTranslationScale3D"] >> translationScale;
     
-		OptimizerType3D::ScalesType optimizerScales3D( transform3D->GetNumberOfParameters() );
+		OptimizerType::ScalesType optimizerScales( transform->GetNumberOfParameters() );
     
-	  optimizerScales3D[0] = 1.0;
-	  optimizerScales3D[1] = 1.0;
-	  optimizerScales3D[2] = 1.0;
-	  optimizerScales3D[3] = translationScale;
-	  optimizerScales3D[4] = translationScale;
-	  optimizerScales3D[5] = translationScale;
+	  optimizerScales[0] = 1.0;
+	  optimizerScales[1] = 1.0;
+	  optimizerScales[2] = 1.0;
+	  optimizerScales[3] = translationScale;
+	  optimizerScales[4] = translationScale;
+	  optimizerScales[5] = translationScale;
     
-	  optimizer3D->SetScales( optimizerScales3D );
+	  optimizer->SetScales( optimizerScales );
 	}
 	
 	void StartRegistration(string outputFileName) {
 		observerOutput.open( outputFileName.c_str() );
     
-    registration3D->SetInitialTransformParameters( transform3D->GetParameters() );
+    registration->SetInitialTransformParameters( transform->GetParameters() );
     
 	  try
 	    {
-	    registration3D->StartRegistration();
+	    registration->StartRegistration();
 	    cout << "Optimizer stop condition: "
-	         << registration3D->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+	         << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
 	    }
 	  catch( itk::ExceptionObject & err ) 
 	    { 
@@ -193,7 +193,7 @@ public:
     
 	  observerOutput.close();
 	  
-    mriVolume->SetTransformParameters( transform3D );
+    mriVolume->SetTransformParameters( transform );
 	}
 	
 protected:

@@ -48,7 +48,12 @@ int main (int argc, char const *argv[]) {
   readRegistrationParameters(registrationParameters, argv[4]);
 	
 	// initialise stack and MRI objects
-	Stack stack( getFileNames(argv[1], argv[2]), registrationParameters );
+	Stack::VolumeType::SpacingType stackSpacings;
+	for(unsigned int i=0; i<3; i++) {
+    registrationParameters["stackSpacings"][i] >> stackSpacings[i];
+  }
+  
+	Stack stack( getFileNames(argv[1], argv[2]), stackSpacings );
 		
   double MRIInitialResizeFactor;
   registrationParameters["MRIInitialResizeFactor"] >> MRIInitialResizeFactor;
@@ -62,7 +67,7 @@ int main (int argc, char const *argv[]) {
   framework3D.StartRegistration( outputDir + "/output3D.txt" );
 	
 	// Write final transform to file
-  writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
+  writeData< itk::TransformFileWriter, Framework3D::TransformType >( framework3D.transform, (outputDir + "/finalParameters3D.transform").c_str() );
 	
 	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), (outputDir + "/registered_mri.mhd").c_str() );
     
