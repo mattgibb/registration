@@ -16,6 +16,9 @@
 #include "itkImageMaskSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
+#include <sys/stat.h> // for fileExists
+
+
 class Stack {
 public:
   typedef short PixelType;
@@ -61,18 +64,24 @@ public:
 	MaskTileFilterType::Pointer maskTileFilter;
 	ZScaleType::Pointer zScaler;
 	MaskZScaleType::Pointer maskZScaler;
-  YAML::Node& registrationParameters;
 	
-	Stack(vector< string > fileNames, YAML::Node& parameters ):
-	registrationParameters(parameters) {
+	Stack(vector< string > fileNames, VolumeType::SpacingType inputSpacings):
+	spacings(inputSpacings) {
 		ReaderType::Pointer reader;
 		
 		for(unsigned int i=0; i<fileNames.size(); i++) {
-			reader = ReaderType::New();
-			reader->SetFileName( fileNames[i] );
-			reader->Update();
-			originalImages.push_back( reader->GetOutput() );
-			originalImages.back()->DisconnectPipeline();
+		  if( fileExists(fileNames[i]) ) {
+  			reader = ReaderType::New();
+  			reader->SetFileName( fileNames[i] );
+  			reader->Update();
+  			originalImages.push_back( reader->GetOutput() );
+  			originalImages.back()->DisconnectPipeline();
+		  }
+		  else
+		  {
+		    // create a new image of zero size
+        originalImages.push_back( SliceType::New() );
+		  }
 		}
 		
 		// scale slices and initialise volume and mask
@@ -80,28 +89,23 @@ public:
     buildOriginalMaskSlices();
     buildOriginalMasks();
     calculateMaxSize();
-		initialiseFilters();
-		initializeCenteredTransforms();
-		buildVolume();
-		buildMask();
+    initialiseFilters();
+    initializeCenteredTransforms();
+    buildVolume();
+    buildMask();
 	}
 	
-	void scaleOriginalSlices() {
-    // initialise spacings
-		for(unsigned int i=0; i<3; i++) {
-      registrationParameters["stackSpacings"][i] >> spacings[i];
-	  }
-	  
+	void scaleOriginalSlices() {	  
     SliceType::SpacingType spacings2D;
 		for(unsigned int i=0; i<2; i++) {
       spacings2D[i] = spacings[i];
 	  }
 	  
 	  // rescale original images
-    xyScaler = XYScaleType::New();
-		xyScaler->ChangeSpacingOn();
-		xyScaler->SetOutputSpacing( spacings2D );
 		for(unsigned int i=0; i<originalImages.size(); i++) {
+		  xyScaler = XYScaleType::New();
+  		xyScaler->ChangeSpacingOn();
+  		xyScaler->SetOutputSpacing( spacings2D );
       xyScaler->SetInput( originalImages[i] );
       xyScaler->Update();
       originalImages[i] = xyScaler->GetOutput();
@@ -124,7 +128,6 @@ public:
 		  
 		  originalMasks.push_back( maskSlice );
       // originalMasks.back()->DisconnectPipeline();
-			
 	  }
 	}
 	
@@ -289,5 +292,29 @@ public:
   }
 	
 protected:
+  static bool fileExists(const string& strFilename) { 
+    struct stat stFileInfo; 
+    bool blnReturn; 
+    int intStat; 
+
+    // Attempt to get the file attributes 
+    intStat = stat(strFilename.c_str(),&stFileInfo); 
+    if(intStat == 0) { 
+      // We were able to get the file attributes 
+      // so the file obviously exists. 
+      blnReturn = true; 
+    } else { 
+      // We were not able to get the file attributes. 
+      // This may mean that we don't have permission to 
+      // access the folder which contains this file. If you 
+      // need to do that level of checking, lookup the 
+      // return values of stat which will give you 
+      // more details on why stat failed. 
+      blnReturn = false; 
+    } 
+
+    return(blnReturn); 
+  }
+  
 };
 #endif

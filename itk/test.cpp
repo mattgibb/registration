@@ -18,11 +18,7 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	typedef itk::VersorRigid3DTransform< double > TransformType;
-  TransformType::Pointer t = TransformType::New();
-  t->SetIdentity();
-  cout << "t->GetMatrix(): " << endl << t->GetMatrix() << endl;
-  cout << "t->GetRotationMatrix(): " << endl << t->GetRotationMatrix() << endl;
-  cout << "t->GetParameters(): " << endl << t->GetParameters() << endl;
-  cout << "t->GetVersor(): " << endl << t->GetVersor() << endl;
+  typedef itk::Image< short, 2 > ImageType;
+  ImageType::Pointer image = ImageType::New();
+  cout << "image: " << image << endl;
 }

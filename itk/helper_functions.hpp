@@ -37,11 +37,11 @@ void writeData(typename DataType::Pointer data, string fileName) {
 }
 
 template<typename ImageType>
-void writeImage(typename ImageType::Pointer image, string fileName) {
+void writeImage(typename ImageType::Pointer image, const string& fileName) {
   writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
 }
 
-void readRegistrationParameters(YAML::Node & parameters, string yamlFile) {
+void readRegistrationParameters(YAML::Node & parameters, const string& yamlFile) {
   // TODO: extract filename into ARGV.
   ifstream config_filestream( yamlFile.c_str() );
   YAML::Parser parser(config_filestream);
