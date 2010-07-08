@@ -25,18 +25,18 @@ public:
 	void StartRegistration(const string& outputFileName) {
 		observerOutput.open( outputFileName.c_str() );
     
-    unsigned int number_of_slices = stack->originalImages.size();
+    unsigned int number_of_slices = stack->GetSize();
     
     for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
   	  registration->SetFixedImage( mriVolume->GetResampledSlice(slice_number) );
-  		registration->SetMovingImage( stack->originalImages[slice_number] );
+  		registration->SetMovingImage( stack->GetOriginalImage(slice_number) );
 	    
   	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
   	  registration->SetFixedImageRegion( mriVolume->GetResampledSlice(slice_number)->GetLargestPossibleRegion() );
   	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
 	    
   		metric->SetFixedImageMask( mriVolume->GetMask2D(slice_number) );
-  		metric->SetMovingImageMask( stack->GetMask2D(slice_number) );
+  		metric->SetMovingImageMask( stack->GetOriginal2DMask(slice_number) );
   		
   		registration->SetTransform( stack->GetTransform(slice_number) );
   		registration->SetInitialTransformParameters( stack->GetTransform(slice_number)->GetParameters() );

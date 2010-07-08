@@ -237,7 +237,7 @@ public:
 		return originalMask;
 	}
 	
-	MaskType3D::Pointer GetMask3D() {
+	MaskType3D::Pointer Get3DMask() {
 		return mask3D;
 	}
 	

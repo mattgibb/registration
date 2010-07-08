@@ -4,7 +4,7 @@
 
 using namespace std;
 
-vector< string > getFileNames(string directory, string fileList) {
+vector< string > getFileNames(string directory, const string& fileList) {
   vector< string > fileNames;
   string fileName;
   fileNames.clear();
@@ -17,7 +17,7 @@ vector< string > getFileNames(string directory, string fileList) {
 }
 
 template<typename WriterType, typename DataType>
-void writeData(typename DataType::Pointer data, string fileName) {
+void writeData(const typename DataType::ConstPointer data, const string& fileName) {
   // typedef itkTransformFileWriter WriterType;
   typename WriterType::Pointer writer = WriterType::New();
 	
@@ -36,8 +36,18 @@ void writeData(typename DataType::Pointer data, string fileName) {
 	}
 }
 
+template<typename WriterType, typename DataType>
+void writeData(const typename DataType::Pointer data, const string& fileName) {
+  writeData< WriterType, DataType >( (typename DataType::ConstPointer) data, fileName);
+}
+
 template<typename ImageType>
-void writeImage(typename ImageType::Pointer image, const string& fileName) {
+void writeImage(const typename ImageType::ConstPointer image, const string& fileName) {
+  writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
+}
+
+template<typename ImageType>
+void writeImage(const typename ImageType::Pointer image, const string& fileName) {
   writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
 }
 

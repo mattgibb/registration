@@ -1,7 +1,9 @@
-ActualLoResSpacings: [Dunno, Dunno, 10] # LoRes spacings
+ActualLoResSpacings: [19, 19, 10] # LoRes spacings
 ActualHiResSpacings:  [0.546, 0.546, 10]
-LoResSpacings: [110, 110, 10] # LoRes spacings
-HiResSpacings:  [34.944, 34.944, 10]
+LoResSpacings: [152, 152, 10] # LoRes spacings
+HiResSpacings:  [70.4, 70.4, 10]
+LoResSize: [89, 114]
+LoResOffset: [17000, 2200]
 optimizerTranslationScale2D: 15000.0 # What is an appropriate 2D translation scale?
 maxIterations2D: 100 # Dubious numbers
 maxStepLength2D: 0.1 # Dubious numbers

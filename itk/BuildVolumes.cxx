@@ -38,14 +38,15 @@ void checkUsage(int argc, char const *argv[]) {
 }
 
 int main (int argc, char const *argv[]) {
-	// Verify the number of parameters in the command line
+	// Verify the number of parameters in the command line and apply meaningful names to each
 	checkUsage(argc, argv);
-  
   string LoResDir(argv[1]), HiResDir(argv[2]), registrationParamsFile(argv[3]), outputDir(argv[4]);
+	
 	
 	// read registration parameters
   YAML::Node registrationParameters;
   readRegistrationParameters(registrationParameters, registrationParamsFile);
+	
 	
 	// initialise stack objects
   Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
@@ -54,26 +55,37 @@ int main (int argc, char const *argv[]) {
     registrationParameters["HiResSpacings"][i] >> HiResSpacings[i];
   }
   
-	Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings );
+  Stack::SliceType::SizeType LoResSize, LoResOffset;
+  for(unsigned int i=0; i<2; i++) {
+    registrationParameters["LoResSize"][i] >> LoResSize[i];
+    registrationParameters["LoResOffset"][i] >> LoResOffset[i];
+  }
+  
+  // Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings);
+  Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings , LoResSize, LoResOffset);
   Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files2.txt"), HiResSpacings );
   
-  // Write final transform to file
-  // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, (outputDir + "/finalParameters3D.transform").c_str() );
   
 	// perform 2-D registration
   Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
-  framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
-  //
+  cout << "framework2DRat.StartRegistration(...);" << endl;
+  // framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
+  cout << "finished framework2DRat.StartRegistration(...);" << endl;
+  
 	
+  // Write final transform to file
+  // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "/finalParameters3D.transform" );
+  
 	// perform non-rigid registration
 	// check out itkMultiResolutionPDEDeformableRegistration
-	
+	// update HiRes slices
+  // HiResStack.updateVolumes();
+  
 	// write volume and mask to disk
-  // LoResStack.UpdateVolumes();
 	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "/LoResStack.mhd" );
-  // writeImage< Stack::MaskVolumeType >( LoResStack.GetMaskVolume(), outputDir + "/LoResMask.mhd" );
+  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "/LoResMask.mhd" );
 	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "/HiResStack.mhd" );
-  // writeImage< Stack::MaskVolumeType >( HiResStack.GetMaskVolume(), outputDir + "/HiResMask.mhd" );
+  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "/HiResMask.mhd" );
 		
   return EXIT_SUCCESS;
 }

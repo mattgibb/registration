@@ -68,8 +68,8 @@ public:
 	  registration->SetFixedImageRegion( stack->GetVolume()->GetLargestPossibleRegion() );
 	  // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
 	  
-		metric->SetFixedImageMask( stack->GetMask3D() );
-    metric->SetMovingImageMask( mriVolume->GetMask3D() );
+		metric->SetFixedImageMask( stack->Get3DMask() );
+    metric->SetMovingImageMask( mriVolume->Get3DMask() );
 		
     unsigned int levels; parameters["levels"] >> levels;
 	  registration->SetNumberOfLevels( levels );

@@ -67,9 +67,9 @@ int main (int argc, char const *argv[]) {
   framework3D.StartRegistration( outputDir + "/output3D.txt" );
 	
 	// Write final transform to file
-  writeData< itk::TransformFileWriter, Framework3D::TransformType >( framework3D.transform, (outputDir + "/finalParameters3D.transform").c_str() );
+  writeData< itk::TransformFileWriter, Framework3D::TransformType >( framework3D.transform, outputDir + "/finalParameters3D.transform" );
 	
-	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), (outputDir + "/registered_mri.mhd").c_str() );
+	writeImage< MRI::VolumeType >( mriVolume.GetResampledVolume(), outputDir + "/registered_mri.mhd" );
     
 	// perform 2-D registration
   Framework2DRabbit framework2DRabbit(&stack, &mriVolume, registrationParameters);
@@ -80,9 +80,9 @@ int main (int argc, char const *argv[]) {
 	// check out itkMultiResolutionPDEDeformableRegistration
 	
 	// write volume and mask to disk
-  stack.UpdateVolumes();
-	writeImage< Stack::VolumeType >( stack.GetVolume(), (outputDir + "/stack.mhd").c_str() );
-	writeImage< Stack::MaskVolumeType >( stack.GetMaskVolume(), (outputDir + "/mask.mhd").c_str() );
+  stack.updateVolumes();
+	writeImage< Stack::VolumeType >( stack.GetVolume(), outputDir + "/stack.mhd" );
+	writeImage< Stack::MaskVolumeType >( stack.Get3DMask()->GetImage(), outputDir + "/mask.mhd" );
 		
   return EXIT_SUCCESS;
 }
