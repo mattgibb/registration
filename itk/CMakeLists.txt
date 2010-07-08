@@ -26,6 +26,9 @@ TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO ITKNumerics ${YAM
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
 TARGET_LINK_LIBRARIES(FlipImage ITKCommon ITKBasicFilters ITKIO)
 
+ADD_EXECUTABLE(RotateImage RotateImage.cxx )
+TARGET_LINK_LIBRARIES(RotateImage ITKCommon ITKBasicFilters ITKIO)
+
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ITKCommon ITKBasicFilters ITKIO ITKNumerics ${YAML_LIBRARY})
 
