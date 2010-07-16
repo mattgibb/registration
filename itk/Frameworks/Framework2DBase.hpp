@@ -41,8 +41,8 @@ public:
   registrationParameters(parameters) {
     initializeRegistrationComponents();
     wireUpRegistrationComponents();
+    configureRegistrationComponents();
 		setUpObservers();
-    setOptimizerTranslationScale();
   }
   
   void initializeRegistrationComponents() {
@@ -58,6 +58,44 @@ public:
 	  registration->SetInterpolator( interpolator );
 	}
   
+  void configureRegistrationComponents() {
+    // declare local variables
+    unsigned int maxIterations, numberOfSpatialSamples, numberOfHistogramBins;
+    double maxStepLength, minStepLength;
+    
+    // extract parameter values
+    registrationParameters["maxIterations"]  >> maxIterations;
+    registrationParameters["maxStepLength"]  >> maxStepLength;
+    registrationParameters["minStepLength"]  >> minStepLength;
+    registrationParameters["numberOfSpatialSamples"]  >> numberOfSpatialSamples;
+    registrationParameters["numberOfHistogramBins"]  >> numberOfHistogramBins;
+    
+    // set parameters
+    optimizer->SetNumberOfIterations( maxIterations );
+    optimizer->SetMaximumStepLength( maxStepLength );
+    optimizer->SetMinimumStepLength( minStepLength );
+		metric->SetNumberOfSpatialSamples( numberOfSpatialSamples );
+		metric->SetNumberOfHistogramBins( numberOfHistogramBins );
+		
+    setOptimizerTranslationScale();
+    
+  }
+  
+	void setOptimizerTranslationScale() {
+	  double translationScale;
+    registrationParameters["optimizerTranslationScale"] >> translationScale;
+
+		OptimizerType::ScalesType optimizerScales( 5 );
+    
+	  optimizerScales[0] = 1.0;
+	  optimizerScales[1] = translationScale;
+	  optimizerScales[2] = translationScale;
+	  optimizerScales[3] = translationScale;
+	  optimizerScales[4] = translationScale;
+    
+	  optimizer->SetScales( optimizerScales );
+	}
+	
   void setUpObservers() {
     // Create the command observers
 		stdOutObserver = StdOutObserverType::New();
@@ -69,30 +107,7 @@ public:
 	
 	  // add output to fileObserver
 		fileObserver->SetOfstream( &observerOutput );
-		    
-    // set parameters from config file
-    double maxStepLength, minStepLength, maxIterations;
-    registrationParameters["maxStepLength2D"] >> maxStepLength;
-    registrationParameters["minStepLength2D"] >> minStepLength;
-    registrationParameters["maxIterations2D"] >> maxIterations;
-    optimizer->SetMaximumStepLength( maxStepLength );
-    optimizer->SetMinimumStepLength( minStepLength );
-    optimizer->SetNumberOfIterations( maxIterations );
-	}
-	
-	void setOptimizerTranslationScale() {
-	  double translationScale;
-    registrationParameters["optimizerTranslationScale2D"] >> translationScale;
-
-		OptimizerType::ScalesType optimizerScales( 5 );
-    
-	  optimizerScales[0] = 1.0;
-	  optimizerScales[1] = translationScale;
-	  optimizerScales[2] = translationScale;
-	  optimizerScales[3] = translationScale;
-	  optimizerScales[4] = translationScale;
-    
-	  optimizer->SetScales( optimizerScales );
+		
 	}
 	
 	// explicitly declare virtual destructor,

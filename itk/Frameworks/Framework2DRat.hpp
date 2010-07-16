@@ -50,7 +50,7 @@ public:
     	writeImage< Stack::SliceType >( HiResStack->GetOriginalImage(slice_number), "results/Rat24/LoRes/downsamples_8/deleteme/FirstHiResStackSlice.mhd" );
       writeImage< Stack::MaskSliceType >( HiResStack->GetOriginal2DMask(slice_number)->GetImage(), "results/Rat24/LoRes/downsamples_8/deleteme/FirstHiResStackMaskSlice.mhd" );
       
-      exit(0);
+      // exit(0);
       
       if( bothImagesExist ) {
         cout << "slice number: " << slice_number << endl;

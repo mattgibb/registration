@@ -13,9 +13,9 @@ public:
   typedef CommandObserverBase< OptimizerType > Superclass;
   typedef itk::SmartPointer<Self>              Pointer;
   typedef const OptimizerType*                 OptimizerPointer;
-
+  
   itkNewMacro( Self );
-
+  
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
     OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );

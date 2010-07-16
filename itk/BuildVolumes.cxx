@@ -69,7 +69,7 @@ int main (int argc, char const *argv[]) {
 	// perform 2-D registration
   Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
   cout << "framework2DRat.StartRegistration(...);" << endl;
-  // framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
+  framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
   cout << "finished framework2DRat.StartRegistration(...);" << endl;
   
 	
