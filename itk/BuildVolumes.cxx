@@ -73,7 +73,9 @@ int main (int argc, char const *argv[]) {
   framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
   cout << "finished framework2DRat.StartRegistration(...);" << endl;
   
-	
+  cout << "starting volume update...";
+  HiResStack.updateVolumes();
+  cout << "done" << endl;
   // Write final transform to file
   // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "/finalParameters3D.transform" );
   
