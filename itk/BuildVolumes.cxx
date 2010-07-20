@@ -63,8 +63,9 @@ int main (int argc, char const *argv[]) {
   
   // Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings);
   Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings , LoResSize, LoResOffset);
-  Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files2.txt"), HiResSpacings );
+  Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), HiResSpacings );
   
+  if (LoResStack.GetSize() != HiResStack.GetSize()) { cerr << "LoRes and HiRes stacks are different sizes!" << endl;}
   
 	// perform 2-D registration
   Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
@@ -80,7 +81,6 @@ int main (int argc, char const *argv[]) {
 	// check out itkMultiResolutionPDEDeformableRegistration
 	// update HiRes slices
   // HiResStack.updateVolumes();
-  
 	// write volume and mask to disk
 	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "/LoResStack.mhd" );
   writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "/LoResMask.mhd" );

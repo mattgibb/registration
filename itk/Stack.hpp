@@ -71,7 +71,7 @@ public:
 	Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings):
 	spacings(inputSpacings) {
     readImages(fileNames);
-	      
+	  
 		// scale slices and initialise volume and mask
     offset.Fill(0);
     resamplerSize.Fill(0);
@@ -314,6 +314,13 @@ protected:
 		mask3D->SetImage( maskZScaler->GetOutput() );
 	}
 	
+	void checkSliceNumber(unsigned int slice_number) {
+	  if( slice_number >= this->GetSize() ) {
+      cerr << "Wait a minute, trying to access slice number bigger than this stack!" << endl;
+      exit(EXIT_FAILURE);
+	  }
+	}
+	
 public:
 	// Getter methods
 	unsigned short GetSize() {
@@ -321,30 +328,35 @@ public:
   }
 	
 	SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
 		return originalImages[slice_number];
 	}
 	
 	MaskType2D::Pointer GetOriginal2DMask(unsigned int slice_number) {
-		return original2DMasks[slice_number];
+		checkSliceNumber(slice_number);
+    return original2DMasks[slice_number];
 	}
 	
 	SliceType::Pointer GetResampledSlice(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
     return slices[slice_number];
   }
   
 	MaskType2D::Pointer GetResampled2DMask(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
     return resampled2DMasks[slice_number];
   }
   
 	VolumeType::Pointer GetVolume() {
-		return volume;
+    return volume;
 	}
 		
 	MaskType3D::Pointer Get3DMask() {
-		return mask3D;
+    return mask3D;
 	}
 	
   TransformType::Pointer GetTransform(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
     return transforms[slice_number];
   }
 	

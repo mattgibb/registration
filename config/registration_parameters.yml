@@ -8,5 +8,6 @@ optimizerTranslationScale: 15000.0 # What is an appropriate 2D translation scale
 maxIterations: 100 # Dubious numbers
 maxStepLength: 0.1 # Dubious numbers
 minStepLength: 0.001 # Dubious numbers
-numberOfSpatialSamples: 240000
+# numberOfSpatialSamples: 24000
+numberOfSpatialSamples: 100
 numberOfHistogramBins: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
