@@ -29,7 +29,8 @@ public:
 	typedef vector< SliceType::Pointer > SliceVectorType;
   typedef vector< MaskSliceType::Pointer > MaskSliceVectorType;
   typedef itk::ImageFileReader< SliceType > ReaderType;
-	typedef itk::CenteredRigid2DTransform< double > TransformType;
+	typedef itk::Transform< double, 2, 2 > TransformType;
+	typedef vector< TransformType::Pointer > TransformVectorType;
   typedef itk::LinearInterpolateImageFunction< SliceType, double > LinearInterpolatorType;
   typedef itk::NearestNeighborInterpolateImageFunction< MaskSliceType, double > NearestNeighborInterpolatorType;
 	typedef itk::ResampleImageFilter< SliceType, SliceType > ResamplerType;
@@ -44,7 +45,7 @@ public:
   typedef itk::ImageMaskSpatialObject< 2 > MaskType2D;
 	typedef vector< MaskType2D::Pointer > MaskVectorType2D;
 	
-protected:
+private:
 	SliceVectorType originalImages;
 	XYScaleType::Pointer xyScaler;
   SliceVectorType slices;
@@ -56,7 +57,7 @@ protected:
 	MaskType3D::Pointer mask3D;
 	MaskVectorType2D original2DMasks;
 	MaskVectorType2D resampled2DMasks;
-	vector< TransformType::Pointer > transforms;
+	TransformVectorType transforms;
 	LinearInterpolatorType::Pointer linearInterpolator;
 	NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
 	ResamplerType::Pointer resampler;
@@ -68,7 +69,7 @@ protected:
 	MaskZScaleType::Pointer maskZScaler;
 	
 public:
-	Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings):
+	explicit Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings):
 	spacings(inputSpacings) {
     readImages(fileNames);
 	  
@@ -80,12 +81,10 @@ public:
     calculateMaxSize();
     setResamplerSizeToMaxSize();
     initialiseFilters();
-    initializeCenteredTransforms();
-    updateVolumes();
   }
 	
 	// constructor to specify size and offset
-	Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
+	explicit Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
 	resamplerSize(inputSize),
   offset(inputOffset),
 	spacings(inputSpacings) {
@@ -96,8 +95,6 @@ public:
     buildOriginalMaskSlices();
     calculateMaxSize();
     initialiseFilters();
-    initializeCenteredTransforms();
-    updateVolumes();
   }
 	
 protected:
@@ -180,7 +177,6 @@ protected:
     }
 	}
   
-	
 	void initialiseFilters() {
 		// resamplers
 		linearInterpolator = LinearInterpolatorType::New();
@@ -211,33 +207,6 @@ protected:
 		mask3D = MaskType3D::New();
 	}
 	
-	void initializeCenteredTransforms() {
-    transforms.clear();
-		SliceType::SizeType size;
-    TransformType::ParametersType parameters(5);
-    
-    for(unsigned int i=0; i<originalImages.size(); i++)
-		{
-			// calculate parameters
-			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
-			
-			// rotation in radians
-			parameters[0] = 0;
-			// translation, applied after rotation.
-			parameters[3] = (long)offset[0] - spacings[0] * ( (long)maxSize[0] - (long)size[0] ) / 2.0;
-			parameters[4] = (long)offset[1] - spacings[1] * ( (long)maxSize[1] - (long)size[1] ) / 2.0;			
-			// centre of rotation, before translation is applied.
-			parameters[1] = parameters[3] + ( spacings[0] * resamplerSize[0] ) / 2.0;
-			parameters[2] = parameters[4] + ( spacings[1] * resamplerSize[1] ) / 2.0;
-			
-			
-			// set them to new transform
-      transforms.push_back( TransformType::New() );
-      transforms.back()->SetParameters( parameters );
-		}
-		
-	}
-
 public:	
 	void updateVolumes() {
     buildSlices();
@@ -323,10 +292,26 @@ protected:
 	
 public:
 	// Getter methods
-	unsigned short GetSize() {
-	  return originalImages.size();
+  unsigned short GetSize() const {
+    return originalImages.size();
   }
-	
+  
+  const SliceType::SizeType& GetMaxSize() const {
+    return maxSize;
+  }
+
+  const SliceType::SizeType& GetResamplerSize() const {
+    return resamplerSize;
+  }
+  
+  const SliceType::SizeType& GetOffset() const {
+    return offset;
+  }
+  
+  const VolumeType::SpacingType& GetSpacings() const {
+    return spacings;
+  }
+      
 	SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
     checkSliceNumber(slice_number);
 		return originalImages[slice_number];
@@ -350,7 +335,7 @@ public:
 	VolumeType::Pointer GetVolume() {
     return volume;
 	}
-		
+	
 	MaskType3D::Pointer Get3DMask() {
     return mask3D;
 	}
@@ -358,6 +343,14 @@ public:
   TransformType::Pointer GetTransform(unsigned int slice_number) {
     checkSliceNumber(slice_number);
     return transforms[slice_number];
+  }
+	
+  const TransformVectorType& GetTransforms() const {
+      return transforms;
+  }
+	
+  void SetTransforms(const TransformVectorType& inputTransforms) {
+    transforms = inputTransforms;
   }
 	
 protected:
@@ -378,12 +371,18 @@ protected:
       // access the folder which contains this file. If you 
       // need to do that level of checking, lookup the 
       // return values of stat which will give you 
-      // more details on why stat failed. 
+      // more details on why stat failed.
       blnReturn = false; 
     } 
 
     return(blnReturn); 
   }
   
+private:
+  // Copy constructor and copy assignment operator deliberately not implemented
+  // Made private so that nobody can use them
+  Stack(const Stack&);
+  Stack& operator=(const Stack&);
+
 };
 #endif

@@ -26,6 +26,8 @@
 #include "Framework3D.hpp"
 #include "Framework2DRat.hpp"
 #include "helper_functions.hpp"
+#include "TransformInitializers.hpp"
+#include "itkSimilarity2DTransform.h"
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc != 5 )
@@ -61,21 +63,50 @@ int main (int argc, char const *argv[]) {
     registrationParameters["LoResOffset"][i] >> LoResOffset[i];
   }
   
-  // Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings);
   Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings , LoResSize, LoResOffset);
   Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), HiResSpacings );
   
   if (LoResStack.GetSize() != HiResStack.GetSize()) { cerr << "LoRes and HiRes stacks are different sizes!" << endl;}
   
-	// perform 2-D registration
-  Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
-  cout << "framework2DRat.StartRegistration(...);" << endl;
-  framework2DRat.StartRegistration( outputDir + "/output2D.txt" );
-  cout << "finished framework2DRat.StartRegistration(...);" << endl;
+  // initialize stacks' transforms so that 2D images line up at their centres.
+  InitializeStackTransforms::ToCommonCentre( LoResStack );
+  InitializeStackTransforms::ToCommonCentre( HiResStack );
   
-  cout << "starting volume update...";
+  LoResStack.updateVolumes();
   HiResStack.updateVolumes();
-  cout << "done" << endl;
+  
+  Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
+  
+  // Set optimizer scales for CenteredRigid2DTransform
+  double translationScale;
+  registrationParameters["optimizerTranslationScale"] >> translationScale;
+	Framework2DRat::OptimizerType::ScalesType rigidOptimizerScales( 5 );
+  rigidOptimizerScales[0] = 1.0;
+  rigidOptimizerScales[1] = translationScale;
+  rigidOptimizerScales[2] = translationScale;
+  rigidOptimizerScales[3] = translationScale;
+  rigidOptimizerScales[4] = translationScale;
+  framework2DRat.GetOptimizer()->SetScales( rigidOptimizerScales );
+  	
+	// perform centered rigid 2D registration
+  framework2DRat.StartRegistration( outputDir + "/output1.txt" );  
+  
+  HiResStack.updateVolumes();
+  
+  InitializeStackTransforms::FromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
+  
+  // Set optimizer scales for Similarity2DTransform
+	Framework2DRat::OptimizerType::ScalesType similarityOptimizerScales( 4 );
+  similarityOptimizerScales[0] = 1.0;
+  similarityOptimizerScales[1] = 1.0;
+  similarityOptimizerScales[2] = translationScale;
+  similarityOptimizerScales[3] = translationScale;
+  framework2DRat.GetOptimizer()->SetScales( similarityOptimizerScales );
+  
+  framework2DRat.StartRegistration( outputDir + "/output2.txt" );
+  
+  HiResStack.updateVolumes();
+  
   // Write final transform to file
   // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "/finalParameters3D.transform" );
   
@@ -91,3 +122,4 @@ int main (int argc, char const *argv[]) {
 		
   return EXIT_SUCCESS;
 }
+

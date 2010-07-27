@@ -53,7 +53,7 @@ public:
   YAML::Node& registrationParameters;
 	
 	
-	Framework3D(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
+	explicit Framework3D(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
 	stack(inputStack),
 	mriVolume(inputMriVolume),
 	registrationParameters(parameters) {

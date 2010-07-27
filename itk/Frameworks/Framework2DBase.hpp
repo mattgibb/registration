@@ -19,7 +19,6 @@
 
 class Framework2DBase {
 public:
-  // typedef itk::CenteredRigid2DTransform< double > TransformType;
   typedef itk::RegularStepGradientDescentOptimizer OptimizerType;
 	typedef itk::MattesMutualInformationImageToImageMetric< MRI::SliceType, Stack::SliceType > MetricType;
   typedef itk::LinearInterpolateImageFunction< Stack::SliceType, double > LinearInterpolatorType;
@@ -37,7 +36,7 @@ public:
 	ofstream observerOutput;
 	YAML::Node& registrationParameters;
   
-  Framework2DBase(YAML::Node& parameters):
+  explicit Framework2DBase(YAML::Node& parameters):
   registrationParameters(parameters) {
     initializeRegistrationComponents();
     wireUpRegistrationComponents();
@@ -77,25 +76,8 @@ public:
 		metric->SetNumberOfSpatialSamples( numberOfSpatialSamples );
 		metric->SetNumberOfHistogramBins( numberOfHistogramBins );
 		
-    setOptimizerTranslationScale();
-    
   }
   
-	void setOptimizerTranslationScale() {
-	  double translationScale;
-    registrationParameters["optimizerTranslationScale"] >> translationScale;
-
-		OptimizerType::ScalesType optimizerScales( 5 );
-    
-	  optimizerScales[0] = 1.0;
-	  optimizerScales[1] = translationScale;
-	  optimizerScales[2] = translationScale;
-	  optimizerScales[3] = translationScale;
-	  optimizerScales[4] = translationScale;
-    
-	  optimizer->SetScales( optimizerScales );
-	}
-	
   void setUpObservers() {
     // Create the command observers
 		stdOutObserver = StdOutObserverType::New();
@@ -108,6 +90,10 @@ public:
 	  // add output to fileObserver
 		fileObserver->SetOfstream( &observerOutput );
 		
+	}
+	
+	OptimizerType::Pointer GetOptimizer() {
+    return optimizer;
 	}
 	
 	// explicitly declare virtual destructor,

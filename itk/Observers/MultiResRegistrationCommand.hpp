@@ -9,7 +9,7 @@ template <typename RegistrationType, typename OptimizerType, typename MetricType
 class MultiResRegistrationCommand : public itk::Command
 {
 protected:
-  MultiResRegistrationCommand() {};
+  explicit MultiResRegistrationCommand() {};
   itk::Array<unsigned int> maxIterations, spatialSamples;
   itk::Array<double> maxStepLengths, minStepLengths;
   unsigned int histogramBins;
