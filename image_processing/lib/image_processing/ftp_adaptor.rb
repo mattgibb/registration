@@ -6,10 +6,13 @@ module ImageProcessing
     include FileUtils
     
     def initialize(config)
-      # set up the ftp connection
       @host, @user, @password = config.host, config.user, config.password
-      @ftp = Net::FTP.new(@host, @user, @password)
-      @ftp.passive = true
+      setup_ftp
+    end
+    
+    def initialize(host, user, password)
+      @host, @user, @password = host, user, password
+      setup_ftp
     end
     
     def list(dir)
@@ -27,7 +30,7 @@ module ImageProcessing
       mv temp_destination, destination
       puts "done.\n\n"
     end
-  
+    
     def upload_file(source, destination)
       temp_destination = destination + ".part"
       print "Uploading #{File.basename(source)}..."
@@ -55,6 +58,11 @@ module ImageProcessing
         @ftp.login(@user, @password)
         puts "done\n\n"
       end
+    end
+    
+    def setup_ftp
+      @ftp = Net::FTP.new(@host, @user, @password)
+      @ftp.passive = true
     end
     
   end
