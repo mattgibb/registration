@@ -63,6 +63,7 @@ module ImageProcessing
     def setup_ftp
       @ftp = Net::FTP.new(@host, @user, @password)
       @ftp.passive = true
+      @ftp.resume = true
     end
     
   end
