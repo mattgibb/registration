@@ -24,6 +24,7 @@ public:
   typedef short PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
 	typedef itk::Image< unsigned char, 2 > MaskSliceType;
+	typedef itk::ImageRegionIterator< MaskSliceType > MaskSliceIteratorType;
 	typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
 	typedef vector< SliceType::Pointer > SliceVectorType;
@@ -67,12 +68,13 @@ private:
 	MaskTileFilterType::Pointer maskTileFilter;
 	ZScaleType::Pointer zScaler;
 	MaskZScaleType::Pointer maskZScaler;
+  vector< unsigned int > numberOfTimesTooBig;
 	
 public:
 	explicit Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings):
 	spacings(inputSpacings) {
     readImages(fileNames);
-	  
+    
 		// scale slices and initialise volume and mask
     offset.Fill(0);
     resamplerSize.Fill(0);
@@ -116,6 +118,9 @@ protected:
         originalImages.push_back( SliceType::New() );
 		  }
 		}
+		
+		// initialise numberOfTimesTooBig once the number of images is available
+		numberOfTimesTooBig = vector< unsigned int >( GetSize(), 0 );
   }
   
 	void scaleOriginalSlices() {
@@ -351,6 +356,43 @@ public:
 	
   void SetTransforms(const TransformVectorType& inputTransforms) {
     transforms = inputTransforms;
+  }
+  
+  void ShrinkSliceMask(unsigned int slice_number) {
+    // increment numberOfTimesTooBig
+    numberOfTimesTooBig[slice_number]++;
+    		
+    
+    // initialise and allocate new mask image
+    MaskSliceType::ConstPointer oldMaskSlice = resampled2DMasks[slice_number]->GetImage();
+    MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
+    MaskSliceType::Pointer newMaskSlice = MaskSliceType::New();
+    newMaskSlice->SetRegions( region );
+    newMaskSlice->CopyInformation( oldMaskSlice );
+    newMaskSlice->Allocate();
+    
+    // make smaller image region
+    MaskSliceType::RegionType::SizeType size;
+    MaskSliceType::RegionType::IndexType index;
+    unsigned int factor = pow(2.0, (int)numberOfTimesTooBig[slice_number]);
+    
+    for(unsigned int i=0; i<2; i++) {
+      size[i] = region.GetSize()[i] / factor;
+      index[i] = region.GetIndex()[i] * ( 1 - factor ) / 2;
+    }
+    
+    region.SetSize( size );
+    region.SetIndex( index );
+    
+    // set pixels outside region to black and inside region to white
+    newMaskSlice->FillBuffer( 0 );
+    MaskSliceIteratorType it(newMaskSlice, region);
+    for (it.GoToBegin(); !it.IsAtEnd(); ++it ) {
+      it.Set(255);
+    }
+	  
+	  // attach new image to mask
+    resampled2DMasks[slice_number]->SetImage( newMaskSlice );
   }
 	
 protected:
