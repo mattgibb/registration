@@ -15,8 +15,6 @@
 			<string>CMakeLists.txt</string>
 			<key>lastUsed</key>
 			<date>2010-07-28T13:57:20Z</date>
-			<key>selected</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -82,13 +80,15 @@
 			<key>filename</key>
 			<string>Stack.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-07-27T14:47:27Z</date>
+			<date>2010-07-31T13:54:32Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test.cpp</string>
 			<key>lastUsed</key>
-			<date>2010-07-26T18:57:02Z</date>
+			<date>2010-07-31T13:54:34Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -119,6 +119,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{4, 4}, {944, 1174}}</string>
+	<string>{{7, 4}, {944, 1174}}</string>
 </dict>
 </plist>

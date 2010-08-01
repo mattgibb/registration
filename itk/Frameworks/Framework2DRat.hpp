@@ -28,14 +28,12 @@ public:
     observerOutput.open( outputFileName.c_str() );
     
     unsigned int number_of_slices = LoResStack->GetSize();
-            
+    
     for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
-      cout << "slice_number: " << slice_number << endl;
+      cout << "slice number: " << slice_number << endl;
+      cout << "file name: " << LoResStack->GetFileName(slice_number) << endl;
       
-      bool bothImagesExist = (LoResStack->GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0] &&
-                              HiResStack->GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0] );
-            
-      if( bothImagesExist ) {
+      if( bothImagesExist(slice_number) ) {
         cout << "Performing registration...";
         registration->SetFixedImage( LoResStack->GetResampledSlice(slice_number) );
         registration->SetMovingImage( HiResStack->GetOriginalImage(slice_number) );
@@ -46,23 +44,18 @@ public:
         
         metric->SetFixedImageMask( LoResStack->GetResampled2DMask(slice_number) );
         metric->SetMovingImageMask( HiResStack->GetOriginal2DMask(slice_number) );
-
+        
         registration->SetTransform( HiResStack->GetTransform(slice_number) );
         registration->SetInitialTransformParameters( HiResStack->GetTransform(slice_number)->GetParameters() );
         
-        try {
-          registration->StartRegistration();
-          cout << "Optimizer stop condition: "
-               << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
-        }
-        catch( itk::ExceptionObject & err ) {
-          cerr << "ExceptionObject caught !" << endl;
-          cerr << err << endl;
-          cerr << err.GetNameOfClass() << endl;
-          exit(EXIT_FAILURE);
+        // halve the width and height of the LoRes mask for each slice
+        // until Mattes mutual information stops throwing errors
+        
+        while( !tryRegistration() ) {
+          LoResStack->ShrinkSliceMask(slice_number);
+          writeImage< Stack::MaskSliceType >( LoResStack->GetResampled2DMask(slice_number)->GetImage(), "/Users/matthewgibb/Desktop/TestSliceAfter.mhd" );
         }
         
-        cout << "done!" << endl;
       }
     }
     
@@ -70,5 +63,24 @@ public:
 	}
 	
 protected:
+  bool bothImagesExist(unsigned int slice_number) {
+    return (LoResStack->ImageExists(slice_number) &&
+            HiResStack->ImageExists(slice_number) );
+  }
+  
+	bool tryRegistration() {
+    try {
+      registration->StartRegistration();
+      cout << "Optimizer stop condition: "
+           << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
+      return true;
+    }
+    catch( itk::ExceptionObject & err ) {
+      cerr << "ExceptionObject caught !" << endl;
+      cerr << err << endl;
+      cerr << err.GetNameOfClass() << endl;
+      return false;
+    }
+	}
 };
 #endif

@@ -17,8 +17,18 @@
 
 using namespace std;
 
+void throw_error() {
+  ::itk::ExceptionObject e_(__FILE__, __LINE__, "Hey!",ITK_LOCATION);
+  throw e_;
+}
+
 int main(int argc, char* argv[]) {
-  typedef itk::Image< short, 2 > ImageType;
-  ImageType::Pointer image = ImageType::New();
-  cout << "image: " << image << endl;
+  try{
+    throw_error();
+  }
+  
+  catch (itk::ExceptionObject e) {
+    cout << "Caught!\n";
+    cout << e;
+  }
 }

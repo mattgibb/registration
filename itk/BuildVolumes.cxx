@@ -39,7 +39,7 @@ void checkUsage(int argc, char const *argv[]) {
   
 }
 
-int main (int argc, char const *argv[]) {
+int main(int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line and apply meaningful names to each
 	checkUsage(argc, argv);
   string LoResDir(argv[1]), HiResDir(argv[2]), registrationParamsFile(argv[3]), outputDir(argv[4]);
@@ -87,7 +87,7 @@ int main (int argc, char const *argv[]) {
   rigidOptimizerScales[3] = translationScale;
   rigidOptimizerScales[4] = translationScale;
   framework2DRat.GetOptimizer()->SetScales( rigidOptimizerScales );
-  	
+  
 	// perform centered rigid 2D registration
   framework2DRat.StartRegistration( outputDir + "/output1.txt" );  
   
@@ -105,6 +105,8 @@ int main (int argc, char const *argv[]) {
   
   framework2DRat.StartRegistration( outputDir + "/output2.txt" );
   
+  // Update LoRes as the masks might have shrunk, HiRes as the transforms have changed
+  LoResStack.updateVolumes();
   HiResStack.updateVolumes();
   
   // Write final transform to file
@@ -119,7 +121,7 @@ int main (int argc, char const *argv[]) {
   writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "/LoResMask.mhd" );
 	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "/HiResStack.mhd" );
   writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "/HiResMask.mhd" );
-		
+	
   return EXIT_SUCCESS;
 }
 

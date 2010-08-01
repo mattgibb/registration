@@ -47,6 +47,7 @@ public:
 	typedef vector< MaskType2D::Pointer > MaskVectorType2D;
 	
 private:
+  const vector< string > fileNames;
 	SliceVectorType originalImages;
 	XYScaleType::Pointer xyScaler;
   SliceVectorType slices;
@@ -71,36 +72,39 @@ private:
   vector< unsigned int > numberOfTimesTooBig;
 	
 public:
-	explicit Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings):
-	spacings(inputSpacings) {
-    readImages(fileNames);
-    
+	explicit Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings):
+	fileNames(inputFileNames),
+  spacings(inputSpacings) {
+    readImages();
+    initializeVectors();
 		// scale slices and initialise volume and mask
     offset.Fill(0);
     resamplerSize.Fill(0);
     scaleOriginalSlices();
     buildOriginalMaskSlices();
+    
     calculateMaxSize();
     setResamplerSizeToMaxSize();
-    initialiseFilters();
+    initializeFilters();
   }
 	
 	// constructor to specify size and offset
-	explicit Stack(const vector< string >& fileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
+	explicit Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
+	fileNames(inputFileNames),
 	resamplerSize(inputSize),
   offset(inputOffset),
 	spacings(inputSpacings) {
-    readImages(fileNames);
-	  
+    readImages();
+    initializeVectors();
 		// scale slices and initialise volume and mask
     scaleOriginalSlices();
     buildOriginalMaskSlices();
     calculateMaxSize();
-    initialiseFilters();
+    initializeFilters();
   }
 	
 protected:
-  void readImages(const vector< string >& fileNames) {
+  void readImages() {
     originalImages.clear();
     ReaderType::Pointer reader;
 		
@@ -119,8 +123,17 @@ protected:
 		  }
 		}
 		
-		// initialise numberOfTimesTooBig once the number of images is available
+  }
+  
+  void initializeVectors() {
+		// initialise various data members once the number of images is available
 		numberOfTimesTooBig = vector< unsigned int >( GetSize(), 0 );
+    for(unsigned int slice_number = 0; slice_number < GetSize(); slice_number++) {
+      slices.push_back( SliceType::New() );
+      original2DMasks.push_back( MaskType2D::New() );
+      resampled2DMasks.push_back( MaskType2D::New() );
+    }
+    
   }
   
 	void scaleOriginalSlices() {
@@ -130,33 +143,32 @@ protected:
 	  }
 	  
 	  // rescale original images
-		for(unsigned int i=0; i<originalImages.size(); i++) {
+		for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 		  xyScaler = XYScaleType::New();
   		xyScaler->ChangeSpacingOn();
   		xyScaler->SetOutputSpacing( spacings2D );
-      xyScaler->SetInput( originalImages[i] );
+      xyScaler->SetInput( originalImages[slice_number] );
       xyScaler->Update();
-      originalImages[i] = xyScaler->GetOutput();
-      originalImages[i]->DisconnectPipeline();
+      originalImages[slice_number] = xyScaler->GetOutput();
+      originalImages[slice_number]->DisconnectPipeline();
 		}
 	}
 	
 	void buildOriginalMaskSlices() {
 		// build a vector of mask slices
-		for(unsigned int i=0; i<originalImages.size(); i++) {
+		for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 			// make new maskSlice and make it all white
 			MaskSliceType::RegionType region;
-			region.SetSize( originalImages[i]->GetLargestPossibleRegion().GetSize() );
+			region.SetSize( originalImages[slice_number]->GetLargestPossibleRegion().GetSize() );
 		  
 			MaskSliceType::Pointer maskSlice = MaskSliceType::New();
 			maskSlice->SetRegions( region );
-			maskSlice->CopyInformation( originalImages[i] );
+			maskSlice->CopyInformation( originalImages[slice_number] );
 		  maskSlice->Allocate();
 			maskSlice->FillBuffer( 255 );
 		  
-      // make new 2D masks and assign mask slices to them
-      original2DMasks.push_back( MaskType2D::New() );
-      original2DMasks.back()->SetImage( maskSlice );
+      // assign mask slices to masks
+      original2DMasks[slice_number]->SetImage( maskSlice );
       
 	  }
 	}
@@ -166,12 +178,12 @@ protected:
 		maxSize.Fill(0);
 		unsigned int dimension = size.GetSizeDimension();
     
-		for(unsigned int i=0; i<originalImages.size(); i++) {
-			size = originalImages[i]->GetLargestPossibleRegion().GetSize();
+		for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
+			size = originalImages[slice_number]->GetLargestPossibleRegion().GetSize();
 
-			for(unsigned int j=0; j<dimension; j++)
+			for(unsigned int i=0; i<dimension; i++)
 			{
-				if(maxSize[j] < size[j]) { maxSize[j] = size[j]; }
+				if(maxSize[i] < size[i]) { maxSize[i] = size[i]; }
 			}
 		}
 	}
@@ -182,7 +194,7 @@ protected:
     }
 	}
   
-	void initialiseFilters() {
+	void initializeFilters() {
 		// resamplers
 		linearInterpolator = LinearInterpolatorType::New();
 		nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
@@ -222,17 +234,15 @@ public:
 	
 protected:
 	void buildSlices() {
-    slices.clear();
-    
-	  for(unsigned int i=0; i<originalImages.size(); i++) {
+	  for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 			// resample transformed image
-			resampler->SetInput( originalImages[i] );
-			resampler->SetTransform( transforms[i] );
+			resampler->SetInput( originalImages[slice_number] );
+			resampler->SetTransform( transforms[slice_number] );
 			resampler->Update();
-      slices.push_back( resampler->GetOutput() );
+      slices[slice_number] = resampler->GetOutput();
 			
 			// necessary to force resampler to make new pointer when updated
-			slices.back()->DisconnectPipeline();
+			slices[slice_number]->DisconnectPipeline();
 		}
 	
 	}
@@ -253,23 +263,25 @@ protected:
 	}
 	
 	void buildMaskSlices() {
-    resampled2DMasks.clear();
-	  
 		// make new 2D masks and assign mask slices to them      
-		for(unsigned int i=0; i<originalImages.size(); i++)
+		for(unsigned int slice_number=0; slice_number<GetSize(); slice_number++)
 		{
-		  // generate mask slice
-			maskResampler->SetInput( original2DMasks[i]->GetImage() );
-			maskResampler->SetTransform( transforms[i] );
-			maskResampler->Update();
-			
-			// append mask to mask vector
-      resampled2DMasks.push_back( MaskType2D::New() );
-      resampled2DMasks.back()->SetImage( maskResampler->GetOutput() );
-			// necessary to force resampler to make new pointer when updated
-      maskResampler->GetOutput()->DisconnectPipeline();
+      buildMaskSlice(slice_number);
 		}
 		
+	}
+	
+	void buildMaskSlice(unsigned int slice_number) {
+	  // generate mask slice
+		maskResampler->SetInput( original2DMasks[slice_number]->GetImage() );
+		maskResampler->SetTransform( transforms[slice_number] );
+		maskResampler->Update();
+		
+		// append mask to mask vector
+    resampled2DMasks[slice_number]->SetImage( maskResampler->GetOutput() );
+		// necessary to force resampler to make new pointer when updated
+    maskResampler->GetOutput()->DisconnectPipeline();
+    
 	}
 	
 	void buildMaskVolume() {
@@ -288,7 +300,7 @@ protected:
 		mask3D->SetImage( maskZScaler->GetOutput() );
 	}
 	
-	void checkSliceNumber(unsigned int slice_number) {
+	void checkSliceNumber(unsigned int slice_number) const {
 	  if( slice_number >= this->GetSize() ) {
       cerr << "Wait a minute, trying to access slice number bigger than this stack!" << endl;
       exit(EXIT_FAILURE);
@@ -296,10 +308,15 @@ protected:
 	}
 	
 public:
-	// Getter methods
-  unsigned short GetSize() const {
-    return originalImages.size();
-  }
+  // Getter methods
+    const string& GetFileName(unsigned int slice_number) const {
+      checkSliceNumber(slice_number);
+      return fileNames[slice_number];
+    }
+    
+    unsigned short GetSize() const {
+      return originalImages.size();
+    }
   
   const SliceType::SizeType& GetMaxSize() const {
     return maxSize;
@@ -358,13 +375,16 @@ public:
     transforms = inputTransforms;
   }
   
+  bool ImageExists(unsigned int slice_number) {
+    return GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0];
+  }
+  
   void ShrinkSliceMask(unsigned int slice_number) {
     // increment numberOfTimesTooBig
     numberOfTimesTooBig[slice_number]++;
-    		
     
     // initialise and allocate new mask image
-    MaskSliceType::ConstPointer oldMaskSlice = resampled2DMasks[slice_number]->GetImage();
+    MaskSliceType::ConstPointer oldMaskSlice = original2DMasks[slice_number]->GetImage();
     MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
     MaskSliceType::Pointer newMaskSlice = MaskSliceType::New();
     newMaskSlice->SetRegions( region );
@@ -377,8 +397,8 @@ public:
     unsigned int factor = pow(2.0, (int)numberOfTimesTooBig[slice_number]);
     
     for(unsigned int i=0; i<2; i++) {
-      size[i] = region.GetSize()[i] / factor;
-      index[i] = region.GetIndex()[i] * ( 1 - factor ) / 2;
+      size[i] = resamplerSize[i] / factor;
+      index[i] = (offset[i] / spacings[i]) + resamplerSize[i] * ( 1.0 - ( 1.0/factor ) ) / 2;
     }
     
     region.SetSize( size );
@@ -392,14 +412,15 @@ public:
     }
 	  
 	  // attach new image to mask
-    resampled2DMasks[slice_number]->SetImage( newMaskSlice );
+    original2DMasks[slice_number]->SetImage( newMaskSlice );
+    buildMaskSlice(slice_number);
   }
 	
 protected:
   static bool fileExists(const string& strFilename) { 
     struct stat stFileInfo; 
     bool blnReturn; 
-    int intStat; 
+    int intStat;
 
     // Attempt to get the file attributes 
     intStat = stat(strFilename.c_str(),&stFileInfo); 

@@ -4,7 +4,7 @@
 
 using namespace std;
 
-vector< string > getFileNames(string directory, const string& fileList) {
+vector< string > getFileNames(const string& directory, const string& fileList) {
   vector< string > fileNames;
   string fileName;
   fileNames.clear();
