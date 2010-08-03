@@ -14,7 +14,10 @@ module ImageProcessing
       local_files = Dir.chdir(@local_dir) { Dir['*'] }
       files_remaining = remote_files - local_files
       
-      files_remaining.each {|file| @ftp.download_file(@remote_dir + file, @local_dir + file) }
+      files_remaining.each do |file|
+        puts "Files left to download:", files_remaining, "\n"
+        @ftp.download_file(@remote_dir + file, @local_dir + file)
+      end
       
       puts "All available files have been uploaded!"
     end
