@@ -1,0 +1,9 @@
+require 'image_processing/directory_synchroniser'
+
+host = 'nas-mef3.physiol.ox.ac.uk'
+remote_dir = 'NAS-MEF3/Rat/024/MRI/DTMRI/'
+local_dir = '/Users/matthewgibb/Code/imaging/images/Rat24/MRI/DTMRI/'
+
+sync = ImageProcessing::DirectorySynchroniser.new(host, remote_dir, local_dir)
+
+sync.download
