@@ -12,13 +12,21 @@ module ImageProcessing
     end
     
     def download      
-      until files_to_download.empty?
-        puts "Files left to download:", files_to_download, "\n"
-        file = files_to_download.first
-        @ftp.download_file(@remote_dir + file, @local_dir + file)
+      dirs = []
+      until (files_to_download - dirs).empty?
+        puts "Files left to download:", (files_to_download - dirs), "\n"
+        file = (files_to_download - dirs).first
+        begin
+          @ftp.download_file(@remote_dir + file, @local_dir + file)
+        rescue Net::FTPPermError => e
+          raise unless e.message =~ /550/ # only handle exception if file is not a regular file
+          puts e
+          puts "#{file} is not a proper file, skipping..."
+          dirs << file
+        end
       end
       
-      puts "All available files have been uploaded!\n\n"
+      puts "All available files have been downloaded!\n\n"
     end
     
   private
