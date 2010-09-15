@@ -24,15 +24,15 @@ namespace :push do
   
   desc "push to heart server"
   task :heart do
-    `cd #{local_dir}; git push -f heart`
+    system "cd #{local_dir}; git push -f heart"
     run " cd #{remote_dir}; git reset --hard"
   end
   
   desc "push to clpc404"
   task :work do
-    `cd #{local_dir}; git push -f heart`
-    run " cd #{remote_dir}; git reset --hard"
-  end  
+    system "cd #{local_dir}; git push -f heart"
+    run "cd #{remote_dir}; git reset --hard"
+  end
   
 end
 

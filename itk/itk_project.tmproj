@@ -48,7 +48,7 @@
 			<key>filename</key>
 			<string>MRI.hpp</string>
 			<key>lastUsed</key>
-			<date>2010-07-23T13:10:05Z</date>
+			<date>2010-08-28T10:06:34Z</date>
 		</dict>
 		<dict>
 			<key>expanded</key>
@@ -64,7 +64,9 @@
 			<key>filename</key>
 			<string>Register.cxx</string>
 			<key>lastUsed</key>
-			<date>2010-06-18T15:33:10Z</date>
+			<date>2010-08-28T10:06:35Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -87,8 +89,6 @@
 			<string>test.cpp</string>
 			<key>lastUsed</key>
 			<date>2010-07-31T13:54:34Z</date>
-			<key>selected</key>
-			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -100,22 +100,7 @@
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>288</integer>
 	<key>metaData</key>
-	<dict>
-		<key>MRI.hpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>10</integer>
-				<key>line</key>
-				<integer>69</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>37</integer>
-		</dict>
-	</dict>
+	<dict/>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
