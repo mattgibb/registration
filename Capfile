@@ -9,7 +9,7 @@ role :servers, "heart"
 role :clpcs, "work"
 
 set :remote_dir, "/users/matg/imaging/registration"
-set :local_dir, "/Users/matthewgibb/Documents/DPhil/code/imaging/registration"
+set :local_dir, "/Users/matthewgibb/Code/imaging/registration"
 
 desc "Compile all the itk programs on the servers"
 task :compile do
