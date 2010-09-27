@@ -12,27 +12,29 @@ FIND_LIBRARY(YAML_LIBRARY
 
 # MESSAGE( STATUS "HOME: $ENV{HOME}" )
   
+SET(ITKLibs ITKCommon ITKBasicFilters ITKIO ITKNumerics)
+  
 INCLUDE(${ITK_USE_FILE})
 # INCLUDE( CMakePrintSystemInformation )
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Frameworks ${PROJECT_SOURCE_DIR}/Observers /usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
 
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
-TARGET_LINK_LIBRARIES(ShrinkImage ITKCommon ITKBasicFilters ITKIO)
+TARGET_LINK_LIBRARIES(ShrinkImage ${ITKLibs})
 
 ADD_EXECUTABLE(Register Register.cxx )
-TARGET_LINK_LIBRARIES(Register ITKCommon ITKBasicFilters ITKIO ITKNumerics ${YAML_LIBRARY})
+TARGET_LINK_LIBRARIES(Register ${ITKLibs} ${YAML_LIBRARY})
 
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
-TARGET_LINK_LIBRARIES(FlipImage ITKCommon ITKBasicFilters ITKIO)
+TARGET_LINK_LIBRARIES(FlipImage ${ITKLibs})
 
 ADD_EXECUTABLE(RotateImage RotateImage.cxx )
-TARGET_LINK_LIBRARIES(RotateImage ITKCommon ITKBasicFilters ITKIO)
+TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
-TARGET_LINK_LIBRARIES(BuildVolumes ITKCommon ITKBasicFilters ITKIO ITKNumerics ${YAML_LIBRARY})
+TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY})
 
 ADD_EXECUTABLE(test test.cpp )
-TARGET_LINK_LIBRARIES(test ITKCommon ITKBasicFilters ITKIO)
+TARGET_LINK_LIBRARIES(test ${ITKLibs})
 
 # GET_TARGET_PROPERTY(LINK_FLAGS REGISTER LINK_FLAGS)
