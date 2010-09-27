@@ -4,18 +4,18 @@ include FileUtils::Verbose
 
 task :default => [:test_refactor]
 
-test_dir = "../images/test_results"
-refactor_dir = "../images/refactored_results"
+test_dir = "images/test_results"
+refactor_dir = "images/refactored_results"
 
 def register_64(dir)
-  sh "itk/Register ../images/downsamples_64/ config/downsample_64x64x16_files.txt " +
-     "../images/mri/heart_bin.mhd config/registration_parameters_64.yml " +
+  sh "itk/Register images/downsamples_64/ config/downsample_64x64x16_files.txt " +
+     "images/mri/heart_bin.mhd config/registration_parameters_64.yml " +
      "#{dir} "
 end
 
 def register_128(dir)
-  sh "itk/Register ../images/downsamples_128/ config/downsample_128x128x32_files.txt " +
-     "../images/mri/heart_bin.mhd config/registration_parameters_128.yml " +
+  sh "itk/Register images/downsamples_128/ config/downsample_128x128x32_files.txt " +
+     "images/mri/heart_bin.mhd config/registration_parameters_128.yml " +
      "#{dir} "
 end
 
