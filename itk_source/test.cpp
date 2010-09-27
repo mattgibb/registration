@@ -14,7 +14,7 @@
 // #include "itkLinearInterpolateImageFunction.h"
 // #include "itkRegularStepGradientDescentOptimizer.h"
 // #include "itkImageRegistrationMethod.h"
-
+#include "Dirs.hpp"
 using namespace std;
 
 void throw_error() {
@@ -23,12 +23,16 @@ void throw_error() {
 }
 
 int main(int argc, char* argv[]) {
-  try{
-    throw_error();
-  }
+  Dirs::SetDataSet("Rat24");
   
-  catch (itk::ExceptionObject e) {
-    cout << "Caught!\n";
-    cout << e;
-  }
+  Dirs* dirs = Dirs::Instance();
+  cout << dirs->ResultsDir();
+  // try{
+  //   throw_error();
+  // }
+  // 
+  // catch (itk::ExceptionObject e) {
+  //   cout << "Caught!\n";
+  //   cout << e;
+  // }
 }
