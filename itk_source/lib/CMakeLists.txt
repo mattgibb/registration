@@ -1,1 +1,1 @@
-ADD_LIBRARY(lib Dirs.cxx)
+ADD_LIBRARY(Dirs Dirs.cxx)

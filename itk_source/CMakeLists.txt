@@ -2,24 +2,30 @@ cmake_minimum_required(VERSION 2.6)
 
 PROJECT(REGISTRATION)
 
-# Find ITK.
+# ITK
 FIND_PACKAGE(ITK REQUIRED)
+INCLUDE(${ITK_USE_FILE})
+SET(ITKLibs ITKCommon ITKBasicFilters ITKIO ITKNumerics)  
 
+# Boost
+FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+
+# YAML
 FIND_LIBRARY(YAML_LIBRARY
   NAMES libyaml-cpp.dylib libyaml-cpp.so
   PATHS /usr/local/lib $ENV{HOME}/lib
   )
+INCLUDE_DIRECTORIES(/usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
 
-# MESSAGE( STATUS "HOME: $ENV{HOME}" )
+# Project tree
 ADD_SUBDIRECTORY(lib)
-  
-SET(ITKLibs ITKCommon ITKBasicFilters ITKIO ITKNumerics)
-  
-INCLUDE(${ITK_USE_FILE})
-# INCLUDE( CMakePrintSystemInformation )
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
+                    Frameworks
+                    Observers
+                    lib)
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Frameworks ${PROJECT_SOURCE_DIR}/Observers /usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp ${PROJECT_SOURCE_DIR}/lib)
-
+# Targets
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ${ITKLibs})
 
@@ -33,9 +39,7 @@ ADD_EXECUTABLE(RotateImage RotateImage.cxx )
 TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
-TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} lib)
+TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES} Dirs)
 
 ADD_EXECUTABLE(test test.cpp )
-TARGET_LINK_LIBRARIES(test ${ITKLibs} lib)
-
-# GET_TARGET_PROPERTY(LINK_FLAGS REGISTER LINK_FLAGS)
+TARGET_LINK_LIBRARIES(test ${ITKLibs} Dirs)
