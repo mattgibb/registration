@@ -48,6 +48,12 @@ string Dirs::ResultsDir()
   return ProjectRootDir() + "results/" + _dataSet + "/segmentation/";
 }
 
+string Dirs::ParamsFile()
+{
+  return ProjectRootDir() + "config/registration_parameters.yml";
+}
+
+
 // Constructor
 Dirs::Dirs() {}
 #endif

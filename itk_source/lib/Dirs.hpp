@@ -25,6 +25,8 @@ public:
   
   string ResultsDir();
   
+  string ParamsFile();
+  
 protected:
   Dirs();
   
