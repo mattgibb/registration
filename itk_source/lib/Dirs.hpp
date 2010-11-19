@@ -19,13 +19,13 @@ public:
   
   static Dirs* Instance();
   
-  string ProjectRootDir();
+  static string ProjectRootDir();
   
-  string DTMRIDir();
+  static string DTMRIDir();
   
-  string ResultsDir();
+  static string ResultsDir();
   
-  string ParamsFile();
+  static string ParamsFile();
   
 protected:
   Dirs();

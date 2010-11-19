@@ -2,7 +2,7 @@ require 'rake'
 require 'fileutils'
 include FileUtils::Verbose
 
-task :default => [:test_refactor]
+task :default => [:make]
 
 test_dir = "images/test_results"
 refactor_dir = "images/refactored_results"
@@ -17,6 +17,11 @@ def register_128(dir)
   sh "itk/Register images/downsamples_128/ config/downsample_128x128x32_files.txt " +
      "images/mri/heart_bin.mhd config/registration_parameters_128.yml " +
      "#{dir} "
+end
+
+desc "Build C++ source"
+task :make do
+  system "cd itk_build && make"
 end
 
 desc "Run Register and save results in #{test_dir}"
@@ -46,6 +51,14 @@ task :test do
     puts diff_output
    `say refactoring failed`
   end
+end
+
+desc "Build registered rat volumes from 2D histology and block face images"
+task :build_volumes => [:make] do
+  sh "itk_build/BuildVolumes " +
+     "images/Rat24/LoRes/downsamples_8/ " +
+     "images/Rat24/HiRes/downsamples_64/ " +
+     "results/Rat24/LoRes/downsamples_8/deleteme"
 end
 
 desc "Generate graph movies of registration iteration data"

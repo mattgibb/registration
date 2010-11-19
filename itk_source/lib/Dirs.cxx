@@ -50,7 +50,7 @@ string Dirs::ResultsDir()
 
 string Dirs::ParamsFile()
 {
-  return ProjectRootDir() + "config/registration_parameters.yml";
+  return ProjectRootDir() + "../config/registration_parameters.yml";
 }
 
 

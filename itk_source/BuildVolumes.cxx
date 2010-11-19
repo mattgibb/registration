@@ -28,12 +28,13 @@
 #include "helper_functions.hpp"
 #include "TransformInitializers.hpp"
 #include "itkSimilarity2DTransform.h"
+#include "Dirs.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
-  if( argc != 5 )
+  if( argc != 4 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " LoResDir HiResDir registrationParamsFile outputDir\n\n";
+    cerr << argv[0] << " LoResDir HiResDir outputDir\n\n";
     exit(EXIT_FAILURE);
   }
   
@@ -42,13 +43,12 @@ void checkUsage(int argc, char const *argv[]) {
 int main(int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line and apply meaningful names to each
 	checkUsage(argc, argv);
-  string LoResDir(argv[1]), HiResDir(argv[2]), registrationParamsFile(argv[3]), outputDir(argv[4]);
-	
+  string LoResDir(argv[1]), HiResDir(argv[2]), outputDir(argv[3]);
 	
 	// read registration parameters
   YAML::Node registrationParameters;
-  readRegistrationParameters(registrationParameters, registrationParamsFile);
-	
+  readRegistrationParameters(registrationParameters, Dirs::ParamsFile());
+  cout << Dirs::ParamsFile() << endl;
 	
 	// initialise stack objects
   Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
@@ -93,21 +93,21 @@ int main(int argc, char const *argv[]) {
   
   HiResStack.updateVolumes();
   
-  InitializeStackTransforms::FromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
-  
-  // Set optimizer scales for Similarity2DTransform
-	Framework2DRat::OptimizerType::ScalesType similarityOptimizerScales( 4 );
-  similarityOptimizerScales[0] = 1.0;
-  similarityOptimizerScales[1] = 1.0;
-  similarityOptimizerScales[2] = translationScale;
-  similarityOptimizerScales[3] = translationScale;
-  framework2DRat.GetOptimizer()->SetScales( similarityOptimizerScales );
-  
-  framework2DRat.StartRegistration( outputDir + "/output2.txt" );
-  
-  // Update LoRes as the masks might have shrunk, HiRes as the transforms have changed
-  LoResStack.updateVolumes();
-  HiResStack.updateVolumes();
+  //   InitializeStackTransforms::FromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
+  //   
+  //   // Set optimizer scales for Similarity2DTransform
+  // Framework2DRat::OptimizerType::ScalesType similarityOptimizerScales( 4 );
+  //   similarityOptimizerScales[0] = 1.0;
+  //   similarityOptimizerScales[1] = 1.0;
+  //   similarityOptimizerScales[2] = translationScale;
+  //   similarityOptimizerScales[3] = translationScale;
+  //   framework2DRat.GetOptimizer()->SetScales( similarityOptimizerScales );
+  //   
+  //   framework2DRat.StartRegistration( outputDir + "/output2.txt" );
+  //   
+  //   // Update LoRes as the masks might have shrunk, HiRes as the transforms have changed
+  //   LoResStack.updateVolumes();
+  //   HiResStack.updateVolumes();
   
   // Write final transform to file
   // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "/finalParameters3D.transform" );

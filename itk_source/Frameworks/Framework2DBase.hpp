@@ -61,6 +61,7 @@ public:
     // declare local variables
     unsigned int maxIterations, numberOfSpatialSamples, numberOfHistogramBins;
     double maxStepLength, minStepLength;
+    bool maximizeOn;
     
     // extract parameter values
     registrationParameters["maxIterations"]  >> maxIterations;
@@ -68,11 +69,21 @@ public:
     registrationParameters["minStepLength"]  >> minStepLength;
     registrationParameters["numberOfSpatialSamples"]  >> numberOfSpatialSamples;
     registrationParameters["numberOfHistogramBins"]  >> numberOfHistogramBins;
+    registrationParameters["maximizeOn"]  >> maximizeOn;
     
     // set parameters
     optimizer->SetNumberOfIterations( maxIterations );
     optimizer->SetMaximumStepLength( maxStepLength );
     optimizer->SetMinimumStepLength( minStepLength );
+    if(maximizeOn)
+    {
+      cout << "Optimizer set to maximize.";
+      optimizer->MaximizeOn();
+    }
+    else
+    {
+      cout << "Optimizer set to minimize.";
+    }
 		metric->SetNumberOfSpatialSamples( numberOfSpatialSamples );
 		metric->SetNumberOfHistogramBins( numberOfHistogramBins );
 		
