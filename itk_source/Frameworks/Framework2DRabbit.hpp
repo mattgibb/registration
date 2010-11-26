@@ -15,7 +15,7 @@ public:
 	Stack *stack;
 	MRI *mriVolume;  
 	
-	explicit Framework2DRabbit(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
+	Framework2DRabbit(Stack *inputStack, MRI *inputMriVolume, YAML::Node& parameters):
 	Framework2DBase(parameters),
 	stack(inputStack),
 	mriVolume(inputMriVolume) {

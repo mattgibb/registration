@@ -19,10 +19,10 @@ int main( int argc, char * argv[] )
   typedef itk::Image< PixelType,  2 >   ImageType;
   typedef itk::ImageFileReader< ImageType >  ReaderType;
   typedef itk::ImageFileWriter< ImageType >  WriterType;
-
+  
   ReaderType::Pointer reader = ReaderType::New();
   WriterType::Pointer writer = WriterType::New();
-
+  
   reader->SetFileName( argv[1] );
   writer->SetFileName( argv[2] );
 

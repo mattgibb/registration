@@ -72,7 +72,7 @@ private:
   vector< unsigned int > numberOfTimesTooBig;
 	
 public:
-	explicit Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings):
+	Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings):
 	fileNames(inputFileNames),
   spacings(inputSpacings) {
     readImages();
@@ -89,7 +89,7 @@ public:
   }
 	
 	// constructor to specify size and offset
-	explicit Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
+	Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
 	fileNames(inputFileNames),
 	resamplerSize(inputSize),
   offset(inputOffset),

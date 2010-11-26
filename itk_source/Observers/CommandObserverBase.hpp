@@ -9,7 +9,7 @@ template<typename OptimizerType>
 class CommandObserverBase : public itk::Command
 {
 protected:
-  explicit CommandObserverBase() {}
+  CommandObserverBase() {}
 
 public:
   typedef CommandObserverBase      Self;

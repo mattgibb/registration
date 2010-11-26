@@ -67,7 +67,7 @@ public:
   MaskSliceExtractorType::Pointer maskSliceExtractor;
   
 	
-	explicit MRI(char const *inputFileName, VolumeType::SpacingType spacing, VolumeType::SizeType size, double initialResizeFactor):
+	MRI(char const *inputFileName, VolumeType::SpacingType spacing, VolumeType::SizeType size, double initialResizeFactor):
 	  resamplerSpacing(spacing),
 	  resamplerSize(size) {
 		readFile(inputFileName);
