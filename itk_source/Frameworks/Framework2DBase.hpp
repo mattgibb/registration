@@ -60,13 +60,14 @@ public:
   void configureRegistrationComponents() {
     // declare local variables
     unsigned int maxIterations, numberOfSpatialSamples, numberOfHistogramBins;
-    double maxStepLength, minStepLength;
+    double maxStepLength, minStepLength, relaxationFactor;
     bool maximizeOn;
     
     // extract parameter values
     registrationParameters["maxIterations"]  >> maxIterations;
     registrationParameters["maxStepLength"]  >> maxStepLength;
     registrationParameters["minStepLength"]  >> minStepLength;
+    registrationParameters["relaxationFactor"]  >> relaxationFactor;
     registrationParameters["numberOfSpatialSamples"]  >> numberOfSpatialSamples;
     registrationParameters["numberOfHistogramBins"]  >> numberOfHistogramBins;
     registrationParameters["maximizeOn"]  >> maximizeOn;
@@ -75,14 +76,16 @@ public:
     optimizer->SetNumberOfIterations( maxIterations );
     optimizer->SetMaximumStepLength( maxStepLength );
     optimizer->SetMinimumStepLength( minStepLength );
+    optimizer->SetRelaxationFactor( relaxationFactor );
+    cout << "optimizer->GetRelaxationFactor(): " << optimizer->GetRelaxationFactor() << endl;
     if(maximizeOn)
     {
-      cout << "Optimizer set to maximize.";
+      cout << "Optimizer set to maximize." << endl;
       optimizer->MaximizeOn();
     }
     else
     {
-      cout << "Optimizer set to minimize.";
+      cout << "Optimizer set to minimize." << endl;
     }
 		metric->SetNumberOfSpatialSamples( numberOfSpatialSamples );
 		metric->SetNumberOfHistogramBins( numberOfHistogramBins );

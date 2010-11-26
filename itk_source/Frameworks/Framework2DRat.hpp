@@ -34,7 +34,7 @@ public:
       cout << "file name: " << LoResStack->GetFileName(slice_number) << endl;
       
       if( bothImagesExist(slice_number) ) {
-        cout << "Performing registration...";
+        cout << "Performing registration...\n";
         registration->SetFixedImage( LoResStack->GetResampledSlice(slice_number) );
         registration->SetMovingImage( HiResStack->GetOriginalImage(slice_number) );
         
@@ -76,7 +76,7 @@ protected:
       return true;
     }
     catch( itk::ExceptionObject & err ) {
-      cerr << "ExceptionObject caught !" << endl;
+      cerr << "ExceptionObject caught, halving block image width and height." << endl;
       cerr << err << endl;
       cerr << err.GetNameOfClass() << endl;
       return false;
