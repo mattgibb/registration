@@ -1,6 +1,7 @@
 #ifndef TRANSFORMINITIALIZERS_HPP_
 #define TRANSFORMINITIALIZERS_HPP_
 
+#include "itkCenteredRigid2DTransform.h"
 #include "Stack.hpp"
 
 using namespace std;

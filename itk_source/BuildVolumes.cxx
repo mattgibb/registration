@@ -4,7 +4,6 @@
 // ITK includes
 #include "itkImage.h"
 #include "itkImageRegistrationMethod.h"
-#include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkImage.h"
 #include "itkResampleImageFilter.h"
@@ -23,22 +22,17 @@
 #include "FileIterationUpdate.hpp"
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
-#include "Framework3D.hpp"
 #include "Framework2DRat.hpp"
 #include "helper_functions.hpp"
 #include "TransformInitializers.hpp"
 #include "itkSimilarity2DTransform.h"
 #include "Dirs.hpp"
 
-void checkUsage(int argc, char const *argv[]) {
-  if( argc != 4 )
-  {
-    cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " LoResDir HiResDir outputDir\n\n";
-    exit(EXIT_FAILURE);
-  }
-  
-}
+// TEMP
+#include "itkTransformFileWriter.h"
+// TEMP
+
+void checkUsage(int argc, char const *argv[]);
 
 int main(int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line and apply meaningful names to each
@@ -63,8 +57,24 @@ int main(int argc, char const *argv[]) {
     registrationParameters["LoResOffset"][i] >> LoResOffset[i];
   }
   
-  Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings , LoResSize, LoResOffset);
-  Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), HiResSpacings );
+  // Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings , LoResSize, LoResOffset);
+  // Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), HiResSpacings );
+  // TEMP
+  HiResSpacings[0] = 1;
+  HiResSpacings[1] = 1;
+  HiResSpacings[2] = 1;
+  LoResSpacings[0] = 1;
+  LoResSpacings[1] = 1;
+  LoResSpacings[2] = 1;
+  
+  vector< string > brain, rotatedBrain;
+  brain.push_back(LoResDir + "10000.png");
+  rotatedBrain.push_back(HiResDir + "10000.png");
+  Stack LoResStack( brain, LoResSpacings );
+  Stack HiResStack( rotatedBrain, HiResSpacings );
+  
+  // TEMP
+  
   
   if (LoResStack.GetSize() != HiResStack.GetSize()) { cerr << "LoRes and HiRes stacks are different sizes!" << endl;}
   
@@ -79,8 +89,8 @@ int main(int argc, char const *argv[]) {
   
   // Set optimizer scales for CenteredRigid2DTransform
   double translationScale;
-  registrationParameters["optimizerTranslationScale"] >> translationScale;
-	Framework2DRat::OptimizerType::ScalesType rigidOptimizerScales( 5 );
+  registrationParameters["optimizer"]["translationScale"] >> translationScale;
+	itk::Array< double > rigidOptimizerScales( 5 );
   rigidOptimizerScales[0] = 1.0;
   rigidOptimizerScales[1] = translationScale;
   rigidOptimizerScales[2] = translationScale;
@@ -89,9 +99,34 @@ int main(int argc, char const *argv[]) {
   framework2DRat.GetOptimizer()->SetScales( rigidOptimizerScales );
   
 	// perform centered rigid 2D registration
-  framework2DRat.StartRegistration( outputDir + "/output1.txt" );  
+  framework2DRat.StartRegistration();
   
   HiResStack.updateVolumes();
+  
+  
+  // TEMP
+  // write transform
+  itk::TransformFileWriter::Pointer writer;
+  writer = itk::TransformFileWriter::New();
+  
+  writer->SetFileName( "Transforms.meta" );
+  writer->AddTransform( HiResStack.GetTransform(0) );
+  
+  // Software Guide : EndCodeSnippet
+  try
+    {
+    // Software Guide : BeginCodeSnippet
+    writer->Update();
+    // Software Guide : EndCodeSnippet
+    }
+  catch( itk::ExceptionObject & excp )
+    {
+    std::cerr << "Error while saving the transforms" << std::endl;
+    std::cerr << excp << std::endl;
+    return 0;
+    }
+  
+  // TEMP
   
   //   InitializeStackTransforms::FromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   
@@ -117,11 +152,19 @@ int main(int argc, char const *argv[]) {
 	// update HiRes slices
   // HiResStack.updateVolumes();
 	// write volume and mask to disk
-	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "/LoResStack.mhd" );
-  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "/LoResMask.mhd" );
-	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "/HiResStack.mhd" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "/HiResMask.mhd" );
+	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "/LoResStack.mha" );
+  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "/LoResMask.mha" );
+	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "/HiResStack.mha" );
+  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "/HiResMask.mha" );
 	
   return EXIT_SUCCESS;
 }
 
+void checkUsage(int argc, char const *argv[]) {
+  if( argc != 4 )
+  {
+    cerr << "\nUsage: " << endl;
+    cerr << argv[0] << " LoResDir HiResDir outputDir\n\n";
+    exit(EXIT_FAILURE);
+  }
+}

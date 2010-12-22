@@ -9,7 +9,7 @@
 #include "itkImageFileReader.h"
 #include "itkTileImageFilter.h"
 #include "itkResampleImageFilter.h"
-#include "itkCenteredRigid2DTransform.h"
+#include "itkTransform.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkChangeInformationImageFilter.h"
@@ -240,6 +240,19 @@ protected:
 			resampler->SetTransform( transforms[slice_number] );
 			resampler->Update();
       slices[slice_number] = resampler->GetOutput();
+      
+      // TEMP
+      resampler->SetSize(    originalImages[slice_number]->GetLargestPossibleRegion().GetSize() );
+      resampler->SetOutputOrigin(  originalImages[slice_number]->GetOrigin() );
+      resampler->SetOutputSpacing( originalImages[slice_number]->GetSpacing() );
+      resampler->SetOutputDirection( originalImages[slice_number]->GetDirection() );
+      // TEMP
+      
+      // REMOVE
+      // finalTransform->SetParameters( finalParameters );
+      // finalTransform->SetFixedParameters( transform->GetFixedParameters() );
+      // REMOVE
+      
 			
 			// necessary to force resampler to make new pointer when updated
 			slices[slice_number]->DisconnectPipeline();

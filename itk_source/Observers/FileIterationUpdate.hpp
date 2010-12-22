@@ -1,16 +1,18 @@
 #ifndef FILEITERATIONUPDATE_HPP_
 #define FILEITERATIONUPDATE_HPP_
 
+#include <fstream>
+
 #include "CommandObserverBase.hpp"
 
 using namespace std;
 
 template<typename OptimizerType>
-class FileIterationUpdate : public CommandObserverBase< OptimizerType >
+class FileIterationUpdate : public CommandObserverBase
 {
 public:
   typedef FileIterationUpdate                  Self;
-  typedef CommandObserverBase< OptimizerType > Superclass;
+  typedef CommandObserverBase                  Superclass;
   typedef itk::SmartPointer<Self>              Pointer;
   typedef const OptimizerType*                 OptimizerPointer;
   
@@ -27,28 +29,24 @@ public:
 		
 		typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
 		
-		// (*output) << registration->GetCurrentLevel() << " ";
-    (*output) << optimizer->GetCurrentIteration() << " ";
-    (*output) << optimizer->GetValue();
+		// output << registration->GetCurrentLevel() << " ";
+    output << optimizer->GetCurrentIteration() << " ";
+    output << optimizer->GetValue();
 		for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
 		{
-			(*output) << " " << params[i];
+			output << " " << params[i];
 		}
-    (*output) << endl;
+    output << endl;
   }
 
-	void SetOfstream(ofstream *stream)
+	void SetFilename(const string& fileName)
 	{
-		output = stream;
-	}
-	
-	ofstream * GetOfstream()
-	{
-		return output;
+    output.close();
+		output.open(fileName.c_str());
 	}
 	
 protected:
-	ofstream *output;
-
+	ofstream output;
+  
 };
 #endif

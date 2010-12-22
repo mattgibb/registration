@@ -24,9 +24,7 @@ public:
 	HiResStack(HiRes) {
 	}
 	
-	void StartRegistration(const string& outputFileName) {
-    observerOutput.open( outputFileName.c_str() );
-    
+	void StartRegistration() {
     unsigned int number_of_slices = LoResStack->GetSize();
     
     for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
@@ -34,7 +32,6 @@ public:
       cout << "file name: " << LoResStack->GetFileName(slice_number) << endl;
       
       if( bothImagesExist(slice_number) ) {
-        cout << "Performing registration...\n";
         registration->SetFixedImage( LoResStack->GetResampledSlice(slice_number) );
         registration->SetMovingImage( HiResStack->GetOriginalImage(slice_number) );
         
@@ -50,16 +47,14 @@ public:
         
         // halve the width and height of the LoRes mask for each slice
         // until Mattes mutual information stops throwing errors
-        
+        cout << "Trying registration..." << endl;
         while( !tryRegistration() ) {
           LoResStack->ShrinkSliceMask(slice_number);
           writeImage< Stack::MaskSliceType >( LoResStack->GetResampled2DMask(slice_number)->GetImage(), "/Users/matthewgibb/Desktop/TestSliceAfter.mhd" );
         }
-        
       }
     }
-    
-    observerOutput.close();
+    cout << "Finished registration." << endl;
 	}
 	
 protected:

@@ -5,7 +5,6 @@
 
 using namespace std;
 
-template<typename OptimizerType>
 class CommandObserverBase : public itk::Command
 {
 protected:
@@ -15,7 +14,6 @@ public:
   typedef CommandObserverBase      Self;
   typedef itk::Command             Superclass;
   typedef itk::SmartPointer<Self>  Pointer;
-  typedef const OptimizerType*     OptimizerPointer;
 	
   void Execute(itk::Object *caller, const itk::EventObject & event)
   {

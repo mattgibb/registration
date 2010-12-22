@@ -1,0 +1,5 @@
+SET(FRAMEWORKS_SRCS
+  Framework2DBase.cxx
+)
+
+ADD_LIBRARY(Frameworks ${FRAMEWORKS_SRCS})

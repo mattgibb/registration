@@ -23,6 +23,14 @@ task :movies do
   sh "graphing/registration_graphs.py #{test_dir}"
 end
 
+desc "Run ImageRegistration5 example"
+task :example => [:make] do |variable|
+  sh "itk_build/ImageRegistration5 " +
+     "images/Rat24/LoRes/downsamples_8/10000.png " +
+     "images/Rat24/HiRes/downsamples_64/10000.png " +
+     "results/Rat24/LoRes/downsamples_8/deleteme/ImageRegistration5.png"
+end
+
 # desc "Run refactored code and test output against original output"
 # task :run_refactor do
 #   register_128(refactor_dir)

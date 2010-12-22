@@ -19,18 +19,19 @@ FIND_LIBRARY(YAML_LIBRARY
 INCLUDE_DIRECTORIES(/usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
 
 # Project tree
-ADD_SUBDIRECTORY(lib)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
                     Frameworks
                     Observers
                     lib)
+ADD_SUBDIRECTORY(lib)
+ADD_SUBDIRECTORY(Frameworks)
 
 # Targets
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
 TARGET_LINK_LIBRARIES(ShrinkImage ${ITKLibs})
 
-ADD_EXECUTABLE(Register Register.cxx )
-TARGET_LINK_LIBRARIES(Register ${ITKLibs} ${YAML_LIBRARY})
+# ADD_EXECUTABLE(Register Register.cxx )
+# TARGET_LINK_LIBRARIES(Register ${ITKLibs} ${YAML_LIBRARY})
 
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
 TARGET_LINK_LIBRARIES(FlipImage ${ITKLibs})
@@ -39,7 +40,11 @@ ADD_EXECUTABLE(RotateImage RotateImage.cxx )
 TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
-TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES} Dirs)
+TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES} Dirs Frameworks)
 
 ADD_EXECUTABLE(test test.cpp )
 TARGET_LINK_LIBRARIES(test ${ITKLibs} Dirs)
+
+ADD_EXECUTABLE(ImageRegistration5 ImageRegistration5.cxx )
+TARGET_LINK_LIBRARIES(ImageRegistration5 ${ITKLibs})
+

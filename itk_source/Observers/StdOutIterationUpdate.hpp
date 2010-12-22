@@ -6,11 +6,11 @@
 using namespace std;
 
 template<typename OptimizerType>
-class StdOutIterationUpdate : public CommandObserverBase< OptimizerType >
+class StdOutIterationUpdate : public CommandObserverBase
 {
 public:
   typedef StdOutIterationUpdate                Self;
-  typedef CommandObserverBase< OptimizerType > Superclass;
+  typedef CommandObserverBase                  Superclass;
   typedef itk::SmartPointer<Self>              Pointer;
   typedef const OptimizerType*                 OptimizerPointer;
 
