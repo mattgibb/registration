@@ -29,25 +29,19 @@ task :example => [:make] do |variable|
 end
 
 desc "Run refactored code and test output against original output"
-task :run_refactor do
-  register_128(refactor_dir)
-  Rake::Task[:test].invoke
-  cp 'config/registration_parameters_128.yml', refactor_dir
+task :test_refactor do
+  sh "itk_build/BuildVolumes Rat24 BuildVolumes_refactor"
+  diff_output = `diff -r -x .DS_Store results/Rat24/BuildVolumes{,_refactor}`
+  if $?.success?
+    `echo The refactoring worked\! | growlnotify Success\!`
+    puts "\nrefactoring successful!"
+    `say refactoring successful!`
+  else
+    `echo '#{diff_output}' | growlnotify The refactoring fucked something\.`
+    puts "\nDifferences:"
+    puts diff_output
+   `say refactoring failed`
+  end
 end
-
-# desc "Test refactored output against original output"
-# task :test do
-#   diff_output = `diff -r -x .DS_Store #{test_dir} #{refactor_dir}`
-#   if $?.success?
-#     `echo The refactoring worked\! | growlnotify Success\!`
-#     puts "\nrefactoring successful!"
-#     `say refactoring successful!`
-#   else
-#     `echo '#{diff_output}' | growlnotify The refactoring fucked something\.`
-#     puts "\nDifferences:"
-#     puts diff_output
-#    `say refactoring failed`
-#   end
-# end
 
 # String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
