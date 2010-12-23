@@ -30,6 +30,7 @@ end
 
 desc "Run refactored code and test output against original output"
 task :test_refactor do
+  rm Dir['results/Rat24/BuildVolumes_refactor/*']
   sh "itk_build/BuildVolumes Rat24 BuildVolumes_refactor"
   diff_output = `diff -r -x .DS_Store results/Rat24/BuildVolumes{,_refactor}`
   if $?.success?
