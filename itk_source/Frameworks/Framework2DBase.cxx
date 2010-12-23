@@ -2,10 +2,11 @@
 #define FRAMEWORK2DBASE_CXX_
 
 #include "Framework2dBase.hpp"
+#include "RegistrationParameters.hpp"
 
 
-Framework2DBase::Framework2DBase(YAML::Node& parameters):
-registrationParameters(parameters) {
+Framework2DBase::Framework2DBase()
+{
   buildRegistrationComponents();
   wireUpRegistrationComponents();
 	setUpObservers();
@@ -19,7 +20,7 @@ void Framework2DBase::buildRegistrationComponents() {
 }
 
 void Framework2DBase::buildMetric() {
-  const YAML::Node& metricParameters = registrationParameters["metric"];
+  const YAML::Node& metricParameters = registrationParameters()["metric"];
   
   // ensure metric will be built
   if(
@@ -57,7 +58,7 @@ void Framework2DBase::buildMetric() {
 }
 
 void Framework2DBase::buildOptimizer() {
-  const YAML::Node& optimizerParameters = registrationParameters["optimizer"];
+  const YAML::Node& optimizerParameters = registrationParameters()["optimizer"];
   
   // ensure optimizer will be built
   if(
@@ -112,7 +113,36 @@ void Framework2DBase::wireUpRegistrationComponents() {
   registration->SetInterpolator( interpolator );
 }
 
+// implementation of Framework2DBase::SetUpObservers()
+template< typename OptimizerType >
+void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+{
+  typedef StdOutIterationUpdate< OptimizerType > StdOutObserverType;
+	typedef FileIterationUpdate< OptimizerType > FileObserverType;
+  
+  // instantiate observers
+  typename StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
+	typename FileObserverType::Pointer fileObserver = FileObserverType::New();
+  
+	// register the observers
+  optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
+  optimizer->AddObserver( itk::IterationEvent(), fileObserver );
+  
+}
 
+void Framework2DBase::setUpObservers() {
+  const YAML::Node& optimizerParameters = registrationParameters()["optimizer"];
+  
+  // declare observer types
+  if(optimizerParameters.FindValue("gradientDescent"))
+  {
+    doSetUpObservers< itk::GradientDescentOptimizer >(optimizer);
+  }
+  if(optimizerParameters.FindValue("regularStepGradientDescent"))
+  {
+    doSetUpObservers< itk::RegularStepGradientDescentOptimizer >(optimizer);
+  }
+}
 
 Framework2DBase::~Framework2DBase() {}
 

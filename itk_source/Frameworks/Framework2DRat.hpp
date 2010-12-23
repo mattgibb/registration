@@ -18,8 +18,8 @@ public:
 	
 	Stack *LoResStack, *HiResStack;
 	
-	Framework2DRat(Stack *LoRes, Stack *HiRes, YAML::Node &parameters):
-	Framework2DBase(parameters),
+	Framework2DRat(Stack *LoRes, Stack *HiRes):
+	Framework2DBase(),
 	LoResStack(LoRes),
 	HiResStack(HiRes) {
 	}

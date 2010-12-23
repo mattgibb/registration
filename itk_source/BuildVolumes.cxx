@@ -16,6 +16,7 @@
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 #include "itkTransformFactory.h"
+#include "itkSimilarity2DTransform.h"
 
 // my files
 #include "StdOutIterationUpdate.hpp"
@@ -25,8 +26,8 @@
 #include "Framework2DRat.hpp"
 #include "helper_functions.hpp"
 #include "TransformInitializers.hpp"
-#include "itkSimilarity2DTransform.h"
 #include "Dirs.hpp"
+#include "RegistrationParameters.hpp"
 
 // TEMP
 #include "itkTransformFileWriter.h"
@@ -47,22 +48,17 @@ int main(int argc, char const *argv[]) {
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2]);
 	
-	// read registration parameters
-  YAML::Node registrationParameters;
-  readRegistrationParameters(registrationParameters, Dirs::ParamsFile());
-  cout << Dirs::ParamsFile() << endl;
-	
 	// initialise stack objects
   Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
 	for(unsigned int i=0; i<3; i++) {
-    registrationParameters["LoResSpacings"][i] >> LoResSpacings[i];
-    registrationParameters["HiResSpacings"][i] >> HiResSpacings[i];
+    registrationParameters()["LoResSpacings"][i] >> LoResSpacings[i];
+    registrationParameters()["HiResSpacings"][i] >> HiResSpacings[i];
   }
   
   Stack::SliceType::SizeType LoResSize, LoResOffset;
   for(unsigned int i=0; i<2; i++) {
-    registrationParameters["LoResSize"][i] >> LoResSize[i];
-    registrationParameters["LoResOffset"][i] >> LoResOffset[i];
+    registrationParameters()["LoResSize"][i] >> LoResSize[i];
+    registrationParameters()["LoResOffset"][i] >> LoResOffset[i];
   }
   
   // Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile), LoResSpacings , LoResSize, LoResOffset);
@@ -93,11 +89,11 @@ int main(int argc, char const *argv[]) {
   LoResStack.updateVolumes();
   HiResStack.updateVolumes();
   
-  Framework2DRat framework2DRat(&LoResStack, &HiResStack, registrationParameters);
+  Framework2DRat framework2DRat(&LoResStack, &HiResStack);
   
   // Set optimizer scales for CenteredRigid2DTransform
   double translationScale;
-  registrationParameters["optimizer"]["translationScale"] >> translationScale;
+  registrationParameters()["optimizer"]["translationScale"] >> translationScale;
 	itk::Array< double > rigidOptimizerScales( 5 );
   rigidOptimizerScales[0] = 1.0;
   rigidOptimizerScales[1] = translationScale;
