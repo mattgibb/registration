@@ -15,19 +15,6 @@ task :build_volumes => [:make] do
   sh "say done"
 end
 
-desc "Generate graph movies of registration iteration data"
-task :movies do
-  sh "graphing/registration_graphs.py #{test_dir}"
-end
-
-desc "Run ImageRegistration5 example"
-task :example => [:make] do |variable|
-  sh "itk_build/ImageRegistration5 " +
-     "images/Rat24/LoRes/downsamples_8/10000.png " +
-     "images/Rat24/HiRes/downsamples_64/10000.png " +
-     "results/Rat24/LoRes/downsamples_8/deleteme/ImageRegistration5.png"
-end
-
 desc "Run refactored code and test output against original output"
 task :test_refactor => [:make] do
   rm Dir['results/Rat24/BuildVolumes_refactor/*']
@@ -43,6 +30,19 @@ task :test_refactor => [:make] do
     puts diff_output
    `say refactoring failed`
   end
+end
+
+desc "Generate graph movies of registration iteration data"
+task :movies do
+  sh "graphing/registration_graphs.py #{test_dir}"
+end
+
+desc "Run ImageRegistration5 example"
+task :example => [:make] do |variable|
+  sh "itk_build/ImageRegistration5 " +
+     "images/Rat24/LoRes/downsamples_8/10000.png " +
+     "images/Rat24/HiRes/downsamples_64/10000.png " +
+     "results/Rat24/LoRes/downsamples_8/deleteme/ImageRegistration5.png"
 end
 
 # String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
