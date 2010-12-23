@@ -57,8 +57,8 @@ int main(int argc, char const *argv[]) {
     registrationParameters["LoResOffset"][i] >> LoResOffset[i];
   }
   
-  // Stack LoResStack( getFileNames(LoResDir, outputDir + "/picked_files.txt"), LoResSpacings , LoResSize, LoResOffset);
-  // Stack HiResStack( getFileNames(HiResDir, outputDir + "/picked_files.txt"), HiResSpacings );
+  // Stack LoResStack( getFileNames(LoResDir, Dirs::SliceFile), LoResSpacings , LoResSize, LoResOffset);
+  // Stack HiResStack( getFileNames(HiResDir, Dirs::SliceFile), HiResSpacings );
   // TEMP
   HiResSpacings[0] = 1;
   HiResSpacings[1] = 1;

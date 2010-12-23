@@ -25,7 +25,11 @@ public:
   
   static string ResultsDir();
   
+  static string ConfigDir();
+  
   static string ParamsFile();
+  
+  static string SliceFile();
   
 protected:
   Dirs();

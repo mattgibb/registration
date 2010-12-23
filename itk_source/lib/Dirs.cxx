@@ -34,7 +34,7 @@ void Dirs::CheckDataSet()
 string Dirs::ProjectRootDir()
 {
   char projectRootDir[1000], FILE[1000] = __FILE__;
-  realpath(strcat(FILE, "/../.."), projectRootDir);
+  realpath(strcat(FILE, "/../../.."), projectRootDir);
   return string(projectRootDir) + "/";
 }
 
@@ -48,9 +48,19 @@ string Dirs::ResultsDir()
   return ProjectRootDir() + "results/" + _dataSet + "/segmentation/";
 }
 
+string Dirs::ConfigDir()
+{
+  return ProjectRootDir() + "config/";
+}
+
 string Dirs::ParamsFile()
 {
-  return ProjectRootDir() + "../config/registration_parameters.yml";
+  return ConfigDir() + "registration_parameters.yml";
+}
+
+string Dirs::SliceFile()
+{
+  return ConfigDir() + "picked_files.txt";
 }
 
 
