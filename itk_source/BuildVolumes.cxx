@@ -32,12 +32,20 @@
 #include "itkTransformFileWriter.h"
 // TEMP
 
-void checkUsage(int argc, char const *argv[]);
+void checkUsage(int argc, char const *argv[]) {
+  if( argc != 3 )
+  {
+    cerr << "\nUsage: " << endl;
+    cerr << argv[0] << " dataSet outputDir\n\n";
+    exit(EXIT_FAILURE);
+  }
+}
 
 int main(int argc, char const *argv[]) {
-	// Verify the number of parameters in the command line and apply meaningful names to each
+	// Verify the number of parameters in the command line and set meaningful names
 	checkUsage(argc, argv);
-  string LoResDir(argv[1]), HiResDir(argv[2]), outputDir(argv[3]);
+  Dirs::SetDataSet(argv[1]);
+  string outputDir(Dirs::ResultsDir() + argv[2]);
 	
 	// read registration parameters
   YAML::Node registrationParameters;
@@ -57,8 +65,8 @@ int main(int argc, char const *argv[]) {
     registrationParameters["LoResOffset"][i] >> LoResOffset[i];
   }
   
-  // Stack LoResStack( getFileNames(LoResDir, Dirs::SliceFile), LoResSpacings , LoResSize, LoResOffset);
-  // Stack HiResStack( getFileNames(HiResDir, Dirs::SliceFile), HiResSpacings );
+  // Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile), LoResSpacings , LoResSize, LoResOffset);
+  // Stack HiResStack( getFileNames(Dirs::SliceDir(), Dirs::SliceFile), HiResSpacings );
   // TEMP
   HiResSpacings[0] = 1;
   HiResSpacings[1] = 1;
@@ -68,8 +76,8 @@ int main(int argc, char const *argv[]) {
   LoResSpacings[2] = 1;
   
   vector< string > brain, rotatedBrain;
-  brain.push_back(LoResDir + "10000.png");
-  rotatedBrain.push_back(HiResDir + "10000.png");
+  brain.push_back(Dirs::BlockDir() + "10000.png");
+  rotatedBrain.push_back(Dirs::SliceDir() + "10000.png");
   Stack LoResStack( brain, LoResSpacings );
   Stack HiResStack( rotatedBrain, HiResSpacings );
   
@@ -158,13 +166,4 @@ int main(int argc, char const *argv[]) {
   writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "/HiResMask.mha" );
 	
   return EXIT_SUCCESS;
-}
-
-void checkUsage(int argc, char const *argv[]) {
-  if( argc != 4 )
-  {
-    cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " LoResDir HiResDir outputDir\n\n";
-    exit(EXIT_FAILURE);
-  }
 }

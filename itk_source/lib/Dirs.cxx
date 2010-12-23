@@ -38,14 +38,36 @@ string Dirs::ProjectRootDir()
   return string(projectRootDir) + "/";
 }
 
-string Dirs::DTMRIDir()
+string Dirs::ImagesDir()
 {
-  return ProjectRootDir() + "images/" + _dataSet + "/MRI/DTMRI/";
+  CheckDataSet();
+  return ProjectRootDir() + "images/" + _dataSet + "/";
 }
 
 string Dirs::ResultsDir()
 {
-  return ProjectRootDir() + "results/" + _dataSet + "/segmentation/";
+  CheckDataSet();
+  return ProjectRootDir() + "results/" + _dataSet + "/";
+}
+
+string Dirs::DTMRIDir()
+{
+  return ImagesDir() + "MRI/DTMRI/";
+}
+
+string Dirs::BlockDir()
+{
+  return ImagesDir() + "LoRes/downsamples_8/";
+}
+
+string Dirs::SliceDir()
+{
+  return ImagesDir() + "HiRes/downsamples_64/";
+}
+
+string Dirs::SegmentationDir()
+{
+  return ResultsDir() + "segmentation/";
 }
 
 string Dirs::ConfigDir()

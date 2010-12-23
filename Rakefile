@@ -11,10 +11,7 @@ end
 
 desc "Build registered rat volumes from 2D histology and block face images"
 task :build_volumes => [:make] do
-  sh "itk_build/BuildVolumes " +
-     "images/Rat24/LoRes/downsamples_8/ " +
-     "images/Rat24/HiRes/downsamples_64/ " +
-     "results/Rat24/LoRes/downsamples_8/deleteme"
+  sh "itk_build/BuildVolumes Rat24 BuildVolumes"
   sh "say done"
 end
 
@@ -31,13 +28,13 @@ task :example => [:make] do |variable|
      "results/Rat24/LoRes/downsamples_8/deleteme/ImageRegistration5.png"
 end
 
-# desc "Run refactored code and test output against original output"
-# task :run_refactor do
-#   register_128(refactor_dir)
-#   Rake::Task[:test].invoke
-#   cp 'config/registration_parameters_128.yml', refactor_dir
-# end
-# 
+desc "Run refactored code and test output against original output"
+task :run_refactor do
+  register_128(refactor_dir)
+  Rake::Task[:test].invoke
+  cp 'config/registration_parameters_128.yml', refactor_dir
+end
+
 # desc "Test refactored output against original output"
 # task :test do
 #   diff_output = `diff -r -x .DS_Store #{test_dir} #{refactor_dir}`

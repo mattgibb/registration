@@ -9,7 +9,10 @@
 
 using namespace std;
 
-class Dirs {  
+class Dirs {
+  static string _dataSet;
+  static Dirs* _instance;
+  
 public:
   static void SetDataSet(string dataSet);
   
@@ -21,9 +24,17 @@ public:
   
   static string ProjectRootDir();
   
-  static string DTMRIDir();
+  static string ImagesDir();
   
   static string ResultsDir();
+  
+  static string DTMRIDir();
+  
+  static string BlockDir();
+  
+  static string SliceDir();
+  
+  static string SegmentationDir();
   
   static string ConfigDir();
   
@@ -34,9 +45,7 @@ public:
 protected:
   Dirs();
   
-private:
-  static string _dataSet;
-  static Dirs* _instance;
 };
 
 #endif
+
