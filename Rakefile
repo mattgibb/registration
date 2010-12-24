@@ -42,7 +42,7 @@ task :example => [:make] do |variable|
   sh "itk_build/ImageRegistration5 " +
      "images/Rat24/LoRes/downsamples_8/10000.png " +
      "images/Rat24/HiRes/downsamples_64/10000.png " +
-     "results/Rat24/LoRes/downsamples_8/deleteme/ImageRegistration5.png"
+     "results/ImageRegistration5/ImageRegistration5.png"
 end
 
 # String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")

@@ -43,8 +43,10 @@ void checkUsage(int argc, char const *argv[]) {
 }
 
 int main(int argc, char const *argv[]) {
-	// Verify the number of parameters in the command line and set meaningful names
+	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
+	
+	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2]);
 	
@@ -78,7 +80,6 @@ int main(int argc, char const *argv[]) {
   Stack HiResStack( rotatedBrain, HiResSpacings );
   
   // TEMP
-  
   
   if (LoResStack.GetSize() != HiResStack.GetSize()) { cerr << "LoRes and HiRes stacks are different sizes!" << endl;}
   

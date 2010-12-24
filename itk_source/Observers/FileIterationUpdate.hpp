@@ -20,18 +20,18 @@ public:
   
   void Execute(const itk::Object * object, const itk::EventObject & event)
   {
-    OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
-		
     if( ! itk::IterationEvent().CheckEvent( &event ) )
     {
       return;
     }
 		
-		typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
+    OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
 		
 		// output << registration->GetCurrentLevel() << " ";
     output << optimizer->GetCurrentIteration() << " ";
     output << optimizer->GetValue();
+		
+		typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
 		for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
 		{
 			output << " " << params[i];

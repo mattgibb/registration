@@ -7,7 +7,7 @@ LoResOffset: [17000, 2200]
 
 optimizer:
   translationScale: 0.001 # What is an appropriate 2D translation scale?
-  maxIterations: 20 # Dubious numbers
+  maxIterations: 400 # Dubious numbers
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.99
@@ -18,8 +18,8 @@ optimizer:
     # learningRate: 10
 
 metric:
-  # meanSquares: 1
-  mattesMutualInformation:
+  meanSquares:
+  # mattesMutualInformation:
     # numberOfSpatialSamples: 24000
-    numberOfSpatialSamples: 10000
-    numberOfHistogramBins: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
+    # numberOfSpatialSamples: 10000
+    # numberOfHistogramBins: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
