@@ -41,7 +41,7 @@ TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
-                                   Dirs RegistrationParameters Frameworks)
+                                   Dirs RegistrationParameters Frameworks Stack)
 
 ADD_EXECUTABLE(test test.cpp )
 TARGET_LINK_LIBRARIES(test ${ITKLibs} Dirs)
