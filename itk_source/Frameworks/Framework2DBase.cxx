@@ -37,6 +37,8 @@ void Framework2DBase::buildMetric() {
     cout << "Using mean squares image metric.\n";
     typedef itk::MeanSquaresImageToImageMetric< SliceType, SliceType > MetricType;
     MetricType::Pointer specificMetric = MetricType::New();
+    
+    metric = specificMetric;
   }
   
   if(metricParameters.FindValue("mattesMutualInformation")) {

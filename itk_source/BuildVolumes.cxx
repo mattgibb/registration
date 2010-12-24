@@ -5,13 +5,11 @@
 #include "itkImage.h"
 #include "itkImageRegistrationMethod.h"
 #include "itkLinearInterpolateImageFunction.h"
-#include "itkImage.h"
 #include "itkResampleImageFilter.h"
 #include "itkCastImageFilter.h"
 #include "itkImageMaskSpatialObject.h"
 
 // File IO
-#include "itkRegularExpressionSeriesFileNames.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
