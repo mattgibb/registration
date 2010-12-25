@@ -46,7 +46,7 @@ int main(int argc, char const *argv[]) {
 	
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
-  string outputDir(Dirs::ResultsDir() + argv[2]);
+  string outputDir(Dirs::ResultsDir() + argv[2] + "/");
 	
 	// initialise stack objects
   Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
@@ -111,16 +111,12 @@ int main(int argc, char const *argv[]) {
   // write transform
   itk::TransformFileWriter::Pointer writer;
   writer = itk::TransformFileWriter::New();
-  
-  writer->SetFileName( "Transforms.meta" );
+  writer->SetFileName( outputDir + "Transforms.meta" );
   writer->AddTransform( HiResStack.GetTransform(0) );
   
-  // Software Guide : EndCodeSnippet
   try
     {
-    // Software Guide : BeginCodeSnippet
     writer->Update();
-    // Software Guide : EndCodeSnippet
     }
   catch( itk::ExceptionObject & excp )
     {
@@ -141,24 +137,24 @@ int main(int argc, char const *argv[]) {
   //   similarityOptimizerScales[3] = translationScale;
   //   framework2DRat.GetOptimizer()->SetScales( similarityOptimizerScales );
   //   
-  //   framework2DRat.StartRegistration( outputDir + "/output2.txt" );
+  //   framework2DRat.StartRegistration( outputDir + "output2.txt" );
   //   
   //   // Update LoRes as the masks might have shrunk, HiRes as the transforms have changed
   //   LoResStack.updateVolumes();
   //   HiResStack.updateVolumes();
   
   // Write final transform to file
-  // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "/finalParameters3D.transform" );
+  // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "finalParameters3D.transform" );
   
 	// perform non-rigid registration
 	// check out itkMultiResolutionPDEDeformableRegistration
 	// update HiRes slices
   // HiResStack.updateVolumes();
 	// write volume and mask to disk
-	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "/LoResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "/LoResMask.mha" );
-	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "/HiResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "/HiResMask.mha" );
+	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
+	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
+  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
 	
   return EXIT_SUCCESS;
 }
