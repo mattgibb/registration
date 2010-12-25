@@ -5,33 +5,6 @@
 #ifndef STACK_HPP_
 #define STACK_HPP_
 
-// TEMP
-// YAML config reader
-#include "yaml.h"
-
-// ITK includes
-#include "itkImage.h"
-#include "itkImageRegistrationMethod.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkResampleImageFilter.h"
-#include "itkCastImageFilter.h"
-#include "itkImageMaskSpatialObject.h"
-
-// File IO
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
-#include "itkTransformFileWriter.h"
-#include "itkTransformFactory.h"
-#include "itkSimilarity2DTransform.h"
-
-// my files
-#include "StdOutIterationUpdate.hpp"
-#include "FileIterationUpdate.hpp"
-#include "MultiResRegistrationCommand.hpp"
-// TEMP
-
-
-
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkTileImageFilter.h"
@@ -43,6 +16,8 @@
 #include "itkImageMaskSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
+
+using namespace std;
 
 class Stack {
 public:
@@ -97,10 +72,10 @@ private:
   vector< unsigned int > numberOfTimesTooBig;
 	
 public:
-  Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings);
+  Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings);
 
 	// constructor to specify size and offset
-  Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings,
+  Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
         const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset);
 	
 protected:

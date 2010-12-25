@@ -5,7 +5,7 @@
 #include "Stack.hpp"
 
 
-Stack::Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings):
+Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings):
 fileNames(inputFileNames),
 spacings(inputSpacings) {
   readImages();
@@ -22,7 +22,7 @@ spacings(inputSpacings) {
 }
 	
 // constructor to specify size and offset
-Stack::Stack(const vector< string >& inputFileNames, VolumeType::SpacingType inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
+Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
 fileNames(inputFileNames),
 resamplerSize(inputSize),
 offset(inputOffset),

@@ -2,6 +2,7 @@
 #define MULTIRESREGISTRATIONCOMMAND_HPP_
 
 #include "itkCommand.h"
+#include "RegistrationParameters.hpp"
 
 using namespace std;
 
@@ -63,7 +64,7 @@ public:
 		return;
 	}
 	  
-  void configure(YAML::Node& parameters) {
+  void configure() {
     // initialise arrays
     maxIterations = itk::Array< unsigned int >(4);
     spatialSamples = itk::Array< unsigned int >(4);
@@ -71,13 +72,13 @@ public:
     minStepLengths = itk::Array< double >(4);
     
     // assign values
-    parameters["histogramBins3D"] >> histogramBins;
+    registrationParameters()["histogramBins3D"] >> histogramBins;
     
-    for(unsigned int i = 0; i<parameters["maxIterations3D"].size();i++) {
-      parameters["maxIterations3D"][i]  >> maxIterations[i];
-      parameters["spatialSamples3D"][i] >> spatialSamples[i];
-      parameters["maxStepLengths3D"][i] >> maxStepLengths[i];
-      parameters["minStepLengths3D"][i] >> minStepLengths[i];
+    for(unsigned int i = 0; i<registrationParameters()["maxIterations3D"].size();i++) {
+      registrationParameters()["maxIterations3D"][i]  >> maxIterations[i];
+      registrationParameters()["spatialSamples3D"][i] >> spatialSamples[i];
+      registrationParameters()["maxStepLengths3D"][i] >> maxStepLengths[i];
+      registrationParameters()["minStepLengths3D"][i] >> minStepLengths[i];
     }
   }
   
