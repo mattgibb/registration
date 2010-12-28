@@ -16,15 +16,12 @@ FIND_LIBRARY(YAML_LIBRARY
   NAMES libyaml-cpp.dylib libyaml-cpp.so
   PATHS /usr/local/lib $ENV{HOME}/lib
   )
+
 INCLUDE_DIRECTORIES(/usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
 
 # Project tree
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
-                    Frameworks
-                    Observers
-                    lib)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} lib lib/Frameworks lib/Observers)
 ADD_SUBDIRECTORY(lib)
-ADD_SUBDIRECTORY(Frameworks)
 
 # Targets
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
@@ -46,6 +43,4 @@ TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
 ADD_EXECUTABLE(test test.cpp )
 TARGET_LINK_LIBRARIES(test ${ITKLibs} Dirs)
 
-ADD_EXECUTABLE(ImageRegistration5 ImageRegistration5.cxx )
-TARGET_LINK_LIBRARIES(ImageRegistration5 ${ITKLibs})
-
+ADD_SUBDIRECTORY(examples)
