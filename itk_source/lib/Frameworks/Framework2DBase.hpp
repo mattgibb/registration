@@ -8,7 +8,6 @@
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkLinearInterpolateImageFunction.h"
-// #include "itkImageMaskSpatialObject.h"
 
 // my files
 #include "StdOutIterationUpdate.hpp"
@@ -47,11 +46,13 @@ public:
 	
 	// explicitly declare virtual destructor,
   // so that base pointers to derived classes will be destroyed fully
+  // Made pure virtual to make class abstract
   virtual ~Framework2DBase()=0;
   
 private:
-  // Copy constructor and copy assignment operator deliberately not implemented
-  // Made private so that nobody can use them
+  // Copy constructor and copy assignment operator Made private
+  // so that no subclasses or clients can use them,
+  // deliberately not implemented so not even class methods can use them
   Framework2DBase(const Framework2DBase&);
   Framework2DBase& operator=(const Framework2DBase&);
 	

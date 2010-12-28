@@ -15,12 +15,11 @@ spacings(inputSpacings) {
   resamplerSize.Fill(0);
   scaleOriginalSlices();
   buildOriginalMaskSlices();
-  
   calculateMaxSize();
   setResamplerSizeToMaxSize();
   initializeFilters();
 }
-	
+
 // constructor to specify size and offset
 Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
 fileNames(inputFileNames),
@@ -172,7 +171,7 @@ void Stack::buildSlices() {
     slices[slice_number] = resampler->GetOutput();
     
     // TEMP
-    resampler->SetSize(    originalImages[slice_number]->GetLargestPossibleRegion().GetSize() );
+    resampler->SetSize( originalImages[slice_number]->GetLargestPossibleRegion().GetSize() );
     resampler->SetOutputOrigin(  originalImages[slice_number]->GetOrigin() );
     resampler->SetOutputSpacing( originalImages[slice_number]->GetSpacing() );
     resampler->SetOutputDirection( originalImages[slice_number]->GetDirection() );
@@ -187,7 +186,7 @@ void Stack::buildSlices() {
 		// necessary to force resampler to make new pointer when updated
 		slices[slice_number]->DisconnectPipeline();
 	}
-
+  
 }
 
 void Stack::buildVolume() {
@@ -248,76 +247,6 @@ void Stack::checkSliceNumber(unsigned int slice_number) const {
     cerr << "Wait a minute, trying to access slice number bigger than this stack!" << endl;
     exit(EXIT_FAILURE);
   }
-}
-
-const string& Stack::GetFileName(unsigned int slice_number) const {
-  checkSliceNumber(slice_number);
-  return fileNames[slice_number];
-}
-  
-unsigned short Stack::GetSize() const {
-  return originalImages.size();
-}
-  
-const Stack::SliceType::SizeType& Stack::GetMaxSize() const {
-  return maxSize;
-}
-
-const Stack::SliceType::SizeType& Stack::GetResamplerSize() const {
-  return resamplerSize;
-}
-
-const Stack::SliceType::SizeType& Stack::GetOffset() const {
-  return offset;
-}
-
-const Stack::VolumeType::SpacingType& Stack::GetSpacings() const {
-  return spacings;
-}
-    
-Stack::SliceType::Pointer Stack::GetOriginalImage(unsigned int slice_number) {
-  checkSliceNumber(slice_number);
-	return originalImages[slice_number];
-}
-
-Stack::MaskType2D::Pointer Stack::GetOriginal2DMask(unsigned int slice_number) {
-	checkSliceNumber(slice_number);
-  return original2DMasks[slice_number];
-}
-
-Stack::SliceType::Pointer Stack::GetResampledSlice(unsigned int slice_number) {
-  checkSliceNumber(slice_number);
-  return slices[slice_number];
-}
-
-Stack::MaskType2D::Pointer Stack::GetResampled2DMask(unsigned int slice_number) {
-  checkSliceNumber(slice_number);
-  return resampled2DMasks[slice_number];
-}
-
-Stack::VolumeType::Pointer Stack::GetVolume() {
-  return volume;
-}
-
-Stack::MaskType3D::Pointer Stack::Get3DMask() {
-  return mask3D;
-}
-
-Stack::TransformType::Pointer Stack::GetTransform(unsigned int slice_number) {
-  checkSliceNumber(slice_number);
-  return transforms[slice_number];
-}
-
-const Stack::TransformVectorType& Stack::GetTransforms() const {
-    return transforms;
-}
-
-void Stack::SetTransforms(const TransformVectorType& inputTransforms) {
-  transforms = inputTransforms;
-}
-
-bool Stack::ImageExists(unsigned int slice_number) {
-  return GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0];
 }
   
 void Stack::ShrinkSliceMask(unsigned int slice_number) {

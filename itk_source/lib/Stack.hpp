@@ -111,37 +111,57 @@ protected:
 	
 public:
   // Getter methods
-  const string& GetFileName(unsigned int slice_number) const;
+  const string& GetFileName(unsigned int slice_number) const {
+    checkSliceNumber(slice_number);
+    return fileNames[slice_number];
+  }
     
-  unsigned short GetSize() const;
+  unsigned short GetSize() const { return originalImages.size(); }
   
-  const SliceType::SizeType& GetMaxSize() const;
+  const SliceType::SizeType& GetMaxSize() const { return maxSize; }
 
-  const SliceType::SizeType& GetResamplerSize() const;
+  const SliceType::SizeType& GetResamplerSize() const { return resamplerSize; }
   
-  const SliceType::SizeType& GetOffset() const;
+  const SliceType::SizeType& GetOffset() const { return offset; }
   
-  const VolumeType::SpacingType& GetSpacings() const;
+  const VolumeType::SpacingType& GetSpacings() const { return spacings; }
       
-  SliceType::Pointer GetOriginalImage(unsigned int slice_number);
+  SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
+  	return originalImages[slice_number];
+  }
 	
-  MaskType2D::Pointer GetOriginal2DMask(unsigned int slice_number);
+  MaskType2D::Pointer GetOriginal2DMask(unsigned int slice_number) {
+  	checkSliceNumber(slice_number);
+    return original2DMasks[slice_number];
+  }
 	
-  SliceType::Pointer GetResampledSlice(unsigned int slice_number);
+  SliceType::Pointer GetResampledSlice(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
+    return slices[slice_number];
+  }
   
-  MaskType2D::Pointer GetResampled2DMask(unsigned int slice_number);
+  MaskType2D::Pointer GetResampled2DMask(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
+    return resampled2DMasks[slice_number];
+  }
   
-  VolumeType::Pointer GetVolume();
+  VolumeType::Pointer GetVolume() { return volume; }
 	
-  MaskType3D::Pointer Get3DMask();
+  MaskType3D::Pointer Get3DMask() { return mask3D; }
 	
-  TransformType::Pointer GetTransform(unsigned int slice_number);
+  TransformType::Pointer GetTransform(unsigned int slice_number) {
+    checkSliceNumber(slice_number);
+    return transforms[slice_number];
+  }
 	
-  const TransformVectorType& GetTransforms() const;
+  const TransformVectorType& GetTransforms() { return transforms; }
 	
-  void SetTransforms(const TransformVectorType& inputTransforms);
+  void SetTransforms(const TransformVectorType& inputTransforms) { transforms = inputTransforms; }
   
-  bool ImageExists(unsigned int slice_number);
+  bool ImageExists(unsigned int slice_number) {
+    return GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0];
+  }
   
   void ShrinkSliceMask(unsigned int slice_number);
 	
