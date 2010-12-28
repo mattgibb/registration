@@ -168,6 +168,12 @@ public:
 protected:
   static bool fileExists(const string& strFilename);
   
+  SliceType::SpacingType spacings2D() {
+    SliceType::SpacingType spacings2D;
+    for(unsigned int i=0; i<2; i++) { spacings2D[i] = spacings[i]; }
+    return spacings2D;
+  }
+  
 private:
   // Copy constructor and copy assignment operator deliberately not implemented
   // Made private so that nobody can use them

@@ -64,20 +64,14 @@ void Stack::initializeVectors() {
     original2DMasks.push_back( MaskType2D::New() );
     resampled2DMasks.push_back( MaskType2D::New() );
   }
-  
 }
   
 void Stack::scaleOriginalSlices() {
-  SliceType::SpacingType spacings2D;
-	for(unsigned int i=0; i<2; i++) {
-    spacings2D[i] = spacings[i];
-  }
-  
   // rescale original images
 	for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 	  xyScaler = XYScaleType::New();
 		xyScaler->ChangeSpacingOn();
-		xyScaler->SetOutputSpacing( spacings2D );
+		xyScaler->SetOutputSpacing( spacings2D() );
     xyScaler->SetInput( originalImages[slice_number] );
     xyScaler->Update();
     originalImages[slice_number] = xyScaler->GetOutput();
@@ -132,7 +126,9 @@ void Stack::initializeFilters() {
 	resampler = ResamplerType::New();
 	resampler->SetInterpolator( linearInterpolator );
 	resampler->SetSize( resamplerSize );
-	resampler->SetOutputSpacing( originalImages[0]->GetSpacing() );
+  // resampler->SetOutputOrigin( toSomeSensibleValue );
+  // resampler->SetOutputDirection( originalImages[slice_number]->GetDirection() );
+	resampler->SetOutputSpacing( spacings2D() );
 	maskResampler = MaskResamplerType::New();
 	maskResampler->SetInterpolator( nearestNeighborInterpolator );
 	maskResampler->SetSize( resamplerSize );
@@ -168,25 +164,11 @@ void Stack::buildSlices() {
 		resampler->SetInput( originalImages[slice_number] );
 		resampler->SetTransform( transforms[slice_number] );
 		resampler->Update();
-    slices[slice_number] = resampler->GetOutput();
-    
-    // TEMP
-    resampler->SetSize( originalImages[slice_number]->GetLargestPossibleRegion().GetSize() );
-    resampler->SetOutputOrigin(  originalImages[slice_number]->GetOrigin() );
-    resampler->SetOutputSpacing( originalImages[slice_number]->GetSpacing() );
-    resampler->SetOutputDirection( originalImages[slice_number]->GetDirection() );
-    // TEMP
-    
-    // REMOVE
-    // finalTransform->SetParameters( finalParameters );
-    // finalTransform->SetFixedParameters( transform->GetFixedParameters() );
-    // REMOVE
-    
 		
-		// necessary to force resampler to make new pointer when updated
+		// save output
+    slices[slice_number] = resampler->GetOutput();
 		slices[slice_number]->DisconnectPipeline();
 	}
-  
 }
 
 void Stack::buildVolume() {
@@ -210,7 +192,6 @@ void Stack::buildMaskSlices() {
 	{
     buildMaskSlice(slice_number);
 	}
-	
 }
 
 void Stack::buildMaskSlice(unsigned int slice_number) {
