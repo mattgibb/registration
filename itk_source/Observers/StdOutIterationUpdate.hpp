@@ -16,7 +16,7 @@ public:
 
   itkNewMacro( Self );
 
-  void Execute(const itk::Object * object, const itk::EventObject & event)
+  virtual void Execute(const itk::Object * object, const itk::EventObject & event)
   {
     OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
 		

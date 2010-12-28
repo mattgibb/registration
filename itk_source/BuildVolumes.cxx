@@ -2,7 +2,6 @@
 #include "yaml.h"
 
 // ITK includes
-#include "itkImage.h"
 #include "itkImageRegistrationMethod.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkResampleImageFilter.h"
@@ -11,7 +10,6 @@
 
 // File IO
 #include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 #include "itkTransformFactory.h"
 #include "itkSimilarity2DTransform.h"
@@ -79,7 +77,11 @@ int main(int argc, char const *argv[]) {
   
   // TEMP
   
-  if (LoResStack.GetSize() != HiResStack.GetSize()) { cerr << "LoRes and HiRes stacks are different sizes!" << endl;}
+  if (LoResStack.GetSize() != HiResStack.GetSize())
+  {
+    cerr << "LoRes and HiRes stacks are different sizes!" << endl;
+    std::abort();
+  }
   
   // initialize stacks' transforms so that 2D images line up at their centres.
   InitializeStackTransforms::ToCommonCentre( LoResStack );

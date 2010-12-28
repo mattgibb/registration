@@ -1,14 +1,18 @@
 #ifndef HELPER_FUNCTIONS_HPP_
 #define HELPER_FUNCTIONS_HPP_
 
+#include "itkImage.h"
+#include "itkImageFileWriter.h"
+#include "itkTransformFileWriter.h"
+
 
 using namespace std;
 
-vector< string > getFileNames(const string& directory, const string& fileList) {
+inline vector< string > getFileNames(const string& directory, const string& fileList) {
   vector< string > fileNames;
-  string fileName;
   fileNames.clear();
   ifstream infile(fileList.c_str(), ios_base::in);
+  string fileName;
   while (getline(infile, fileName)) {
     fileNames.push_back(directory + fileName);
   }
@@ -16,9 +20,10 @@ vector< string > getFileNames(const string& directory, const string& fileList) {
   return fileNames;
 }
 
+// Writer helpers
+// const Data
 template<typename WriterType, typename DataType>
 void writeData(const typename DataType::ConstPointer data, const string& fileName) {
-  // typedef itkTransformFileWriter WriterType;
   typename WriterType::Pointer writer = WriterType::New();
 	
 	writer->SetInput( data );
@@ -36,16 +41,19 @@ void writeData(const typename DataType::ConstPointer data, const string& fileNam
 	}
 }
 
+// Data
 template<typename WriterType, typename DataType>
 void writeData(const typename DataType::Pointer data, const string& fileName) {
   writeData< WriterType, DataType >( (typename DataType::ConstPointer) data, fileName);
 }
 
+// Const Image
 template<typename ImageType>
 void writeImage(const typename ImageType::ConstPointer image, const string& fileName) {
   writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
 }
 
+// Image
 template<typename ImageType>
 void writeImage(const typename ImageType::Pointer image, const string& fileName) {
   writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
