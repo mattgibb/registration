@@ -9,33 +9,34 @@ using namespace std;
 namespace InitializeStackTransforms {
   void ToCommonCentre(Stack& stack) {
     typedef itk::CenteredRigid2DTransform< double > TransformType;
-    Stack::SliceType::SizeType size;
     Stack::TransformVectorType newTransforms;
     TransformType::ParametersType parameters(5);
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-			// calculate parameters
-			size = stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize();
+			const Stack::SliceType::SizeType &size( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
+			                                 &maxSize( stack.GetMaxSize() ),
+                                       &offset( stack.GetOffset() ),
+                                       &resamperSize( stack.GetResamplerSize() );
+      const Stack::VolumeType::SpacingType &spacings( stack.GetSpacings() );
+      
 			
 			// rotation in radians
 			parameters[0] = 0;
 			// translation, applied after rotation.
-			parameters[3] = (long)stack.GetOffset()[0] - stack.GetSpacings()[0] * ( (long)stack.GetMaxSize()[0] - (long)size[0] ) / 2.0;
-			parameters[4] = (long)stack.GetOffset()[1] - stack.GetSpacings()[1] * ( (long)stack.GetMaxSize()[1] - (long)size[1] ) / 2.0;
+			parameters[3] = (double)offset[0] - spacings[0] * ( (double)maxSize[0] - (double)size[0] ) / 2.0;
+			parameters[4] = (double)offset[1] - spacings[1] * ( (double)maxSize[1] - (double)size[1] ) / 2.0;
 			// centre of rotation, before translation is applied.
-      parameters[1] = parameters[3] + ( stack.GetSpacings()[0] * stack.GetResamplerSize()[0] ) / 2.0;
-			parameters[2] = parameters[4] + ( stack.GetSpacings()[1] * stack.GetResamplerSize()[1] ) / 2.0;
-			
+      parameters[1] = parameters[3] + ( spacings[0] * resamperSize[0] ) / 2.0;
+			parameters[2] = parameters[4] + ( spacings[1] * resamperSize[1] ) / 2.0;
 			
 			// set them to new transform
       Stack::TransformType::Pointer transform( TransformType::New() );
-      transform->SetParameters( parameters );
+      transform->SetParametersByValue( parameters );
       newTransforms.push_back( transform );
 		}
 		
     stack.SetTransforms(newTransforms);
-    
   }
   
   
