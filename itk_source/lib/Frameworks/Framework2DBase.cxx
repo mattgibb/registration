@@ -1,7 +1,7 @@
 #ifndef FRAMEWORK2DBASE_CXX_
 #define FRAMEWORK2DBASE_CXX_
 
-#include "Framework2dBase.hpp"
+#include "Framework2DBase.hpp"
 #include "RegistrationParameters.hpp"
 
 
