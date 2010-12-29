@@ -77,6 +77,7 @@ int main(int argc, char const *argv[]) {
   
   // TEMP
   
+  // Assert stacks have the same number of slices
   if (LoResStack.GetSize() != HiResStack.GetSize())
   {
     cerr << "LoRes and HiRes stacks are different sizes!" << endl;
@@ -90,7 +91,7 @@ int main(int argc, char const *argv[]) {
   LoResStack.updateVolumes();
   HiResStack.updateVolumes();
   
-  Framework2DRat framework2DRat(&LoResStack, &HiResStack);
+  Framework2DRat framework2DRat(LoResStack, HiResStack);
   
   // Set optimizer scales for CenteredRigid2DTransform
   double translationScale;

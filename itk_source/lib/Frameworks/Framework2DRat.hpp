@@ -12,12 +12,9 @@
 class Framework2DRat : public Framework2DBase {
 public:
 	
-	Stack *LoResStack, *HiResStack;
+	Stack &LoResStack, &HiResStack;
 	
-	Framework2DRat(Stack *LoRes, Stack *HiRes):
-	Framework2DBase(),
-	LoResStack(LoRes),
-	HiResStack(HiRes) {}
+  Framework2DRat(Stack &LoRes, Stack &HiRes);
 	
 void StartRegistration();
 	

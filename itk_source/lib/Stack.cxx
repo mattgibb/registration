@@ -132,7 +132,7 @@ void Stack::initializeFilters() {
 	maskResampler = MaskResamplerType::New();
 	maskResampler->SetInterpolator( nearestNeighborInterpolator );
 	maskResampler->SetSize( resamplerSize );
-	maskResampler->SetOutputSpacing( originalImages[0]->GetSpacing() );
+	maskResampler->SetOutputSpacing( spacings2D() );
 	
 	// z scalers
 	zScaler     = ZScaleType::New();
@@ -204,7 +204,6 @@ void Stack::buildMaskSlice(unsigned int slice_number) {
   resampled2DMasks[slice_number]->SetImage( maskResampler->GetOutput() );
 	// necessary to force resampler to make new pointer when updated
   maskResampler->GetOutput()->DisconnectPipeline();
-  
 }
 	
 void Stack::buildMaskVolume() {
