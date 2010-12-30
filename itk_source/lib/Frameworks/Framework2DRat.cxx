@@ -35,7 +35,6 @@ void Framework2DRat::StartRegistration() {
       cout << "Trying registration..." << endl;
       while( !tryRegistration() ) {
         LoResStack.ShrinkSliceMask(slice_number);
-        writeImage< Stack::MaskSliceType >( LoResStack.GetResampled2DMask(slice_number)->GetImage(), "/Users/matthewgibb/Desktop/TestSliceAfter.mhd" );
       }
     }
   }
