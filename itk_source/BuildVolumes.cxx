@@ -21,7 +21,7 @@
 #include "Stack.hpp"
 #include "Framework2DRat.hpp"
 #include "helper_functions.hpp"
-#include "TransformInitializers.hpp"
+#include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "RegistrationParameters.hpp"
 
@@ -98,8 +98,8 @@ int main(int argc, char const *argv[]) {
   }
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  InitializeStackTransforms::ToCommonCentre( LoResStack );
-  InitializeStackTransforms::ToCommonCentre( HiResStack );
+  StackTransforms::InitializeToCommonCentre( LoResStack );
+  StackTransforms::InitializeToCommonCentre( HiResStack );
   
   LoResStack.updateVolumes();
   HiResStack.updateVolumes();
@@ -119,7 +119,7 @@ int main(int argc, char const *argv[]) {
     (HiResStack.GetTransform(0), outputDir + "Transforms.meta");
   // TEMP
   
-  //   InitializeStackTransforms::FromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
+  //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   
   //   // Set optimizer scales for Similarity2DTransform
   // Framework2DRat::OptimizerType::ScalesType similarityOptimizerScales( 4 );

@@ -1,13 +1,13 @@
-#ifndef TRANSFORMINITIALIZERS_HPP_
-#define TRANSFORMINITIALIZERS_HPP_
+#ifndef STACKTRANSFORMS_HPP_
+#define STACKTRANSFORMS_HPP_
 
 #include "itkCenteredRigid2DTransform.h"
 #include "Stack.hpp"
 
 using namespace std;
 
-namespace InitializeStackTransforms {
-  void ToCommonCentre(Stack& stack) {
+namespace StackTransforms {
+  void InitializeToCommonCentre(Stack& stack) {
     typedef itk::CenteredRigid2DTransform< double > TransformType;
     Stack::TransformVectorType newTransforms;
     TransformType::ParametersType parameters(5);
@@ -41,7 +41,7 @@ namespace InitializeStackTransforms {
   
   
   template< typename NewTransformType >
-  void FromCurrentTransforms(Stack& stack) {
+  void InitializeFromCurrentTransforms(Stack& stack) {
     Stack::TransformVectorType newTransforms;
     
     for(unsigned int i=0; i<stack.GetSize(); i++) {
