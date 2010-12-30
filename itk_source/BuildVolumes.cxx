@@ -106,7 +106,6 @@ int main(int argc, char const *argv[]) {
   
   Framework2DRat framework2DRat(LoResStack, HiResStack);
   
-  // Set optimizer scales for CenteredRigid2DTransform
   setScalesForCenteredRigid2DTransform(framework2DRat);
   
 	// perform centered rigid 2D registration
@@ -116,22 +115,8 @@ int main(int argc, char const *argv[]) {
   
   // TEMP
   // write transform
-  itk::TransformFileWriter::Pointer writer;
-  writer = itk::TransformFileWriter::New();
-  writer->SetFileName( outputDir + "Transforms.meta" );
-  writer->AddTransform( HiResStack.GetTransform(0) );
-  
-  try
-    {
-    writer->Update();
-    }
-  catch( itk::ExceptionObject & excp )
-    {
-    std::cerr << "Error while saving the transforms" << std::endl;
-    std::cerr << excp << std::endl;
-    return 0;
-    }
-  
+  writeData< itk::TransformFileWriter, Stack::TransformType >
+    (HiResStack.GetTransform(0), outputDir + "Transforms.meta");
   // TEMP
   
   //   InitializeStackTransforms::FromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
