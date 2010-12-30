@@ -1,6 +1,8 @@
 #ifndef STACKTRANSFORMS_HPP_
 #define STACKTRANSFORMS_HPP_
 
+#include "itkTransformFileReader.h"
+#include "itkTransformFileWriter.h"
 #include "itkCenteredRigid2DTransform.h"
 #include "Stack.hpp"
 
@@ -59,6 +61,83 @@ namespace StackTransforms {
     // set stack's transforms to newTransforms and update volumes
     stack.SetTransforms(newTransforms);
     
+  }
+  
+  void Save(Stack& stack, const string& fileName)
+  {
+    typedef itk::TransformFileWriter WriterType;
+    WriterType::Pointer writer = WriterType::New();
+
+    writer->SetFileName( fileName.c_str() );
+  	
+    for(int i=0; i < stack.GetSize(); i++)
+  	{
+      writer->AddTransform( stack.GetTransform(i) );
+    }
+    
+    try
+    {
+    	writer->Update();
+    }
+  	catch( itk::ExceptionObject & err )
+  	{
+      cerr << "ExceptionObject caught while saving transforms." << endl;
+      cerr << err << endl;
+  		std::abort();
+  	}
+    
+  }
+  
+  
+  void Load(Stack& stack, const string& fileName)
+  {
+    typedef itk::TransformFileReader ReaderType;
+    ReaderType::Pointer reader = ReaderType::New();
+    // Software Guide : EndCodeSnippet
+
+    // Some transforms (like the BSpline transform) might not be registered
+    // with the factory so we add them manually.
+    // itk::TransformFactory<BSplineTransformType>::RegisterTransform();
+
+    reader->SetFileName( fileName.c_str() );
+
+    try
+    {
+      reader->Update();
+    }
+    catch( itk::ExceptionObject & err )
+    {
+      std::cerr << "ExceptionObject caught while reading transforms." << std::endl;
+      cerr << err << endl;
+  		std::abort();
+    }
+
+    // The transform reader is not template and therefore it returns a list
+    // of Transform. However, the reader instantiate the appropriate
+    // transform class when reading the file but it is up to the user to
+    // do the approriate cast.
+    typedef ReaderType::TransformListType TransformListType;
+    TransformListType * transforms = reader->GetTransformList();
+    std::cout << "Number of transforms read = " << transforms->size() << std::endl;
+
+    // Cast each transform
+    for(TransformListType::const_iterator it = transforms->begin();
+        it != transforms->end(); it++)
+    {
+      // FROM TransformReadWrite.cxx
+      // if(!strcmp((*it)->GetNameOfClass(),"AffineTransform"))
+      // {
+      //   AffineTransformType::Pointer affine_read = static_cast<AffineTransformType*>((*it).GetPointer());
+      //   affine_read->Print(std::cout);
+      // }
+      // 
+      // if(!strcmp((*it)->GetNameOfClass(),"BSplineDeformableTransform"))
+      // {
+      //   BSplineTransformType::Pointer bspline_read = static_cast<BSplineTransformType*>((*it).GetPointer());
+      //   bspline_read->Print(std::cout);
+      // }
+      // FROM TransformReadWrite.cxx
+    }
   }
   
 }
