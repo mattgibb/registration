@@ -38,6 +38,19 @@ void checkUsage(int argc, char const *argv[]) {
   }
 }
 
+void setScalesForCenteredRigid2DTransform(Framework2DRat &framework2DRat)
+{
+  double translationScale;
+  registrationParameters()["optimizer"]["translationScale"] >> translationScale;
+	itk::Array< double > scales( 5 );
+  scales[0] = 1.0;
+  scales[1] = translationScale;
+  scales[2] = translationScale;
+  scales[3] = translationScale;
+  scales[4] = translationScale;
+  framework2DRat.GetOptimizer()->SetScales( scales );
+}
+
 int main(int argc, char const *argv[]) {
 	// Verify the number of parameters in the command line
 	checkUsage(argc, argv);
@@ -94,21 +107,12 @@ int main(int argc, char const *argv[]) {
   Framework2DRat framework2DRat(LoResStack, HiResStack);
   
   // Set optimizer scales for CenteredRigid2DTransform
-  double translationScale;
-  registrationParameters()["optimizer"]["translationScale"] >> translationScale;
-	itk::Array< double > rigidOptimizerScales( 5 );
-  rigidOptimizerScales[0] = 1.0;
-  rigidOptimizerScales[1] = translationScale;
-  rigidOptimizerScales[2] = translationScale;
-  rigidOptimizerScales[3] = translationScale;
-  rigidOptimizerScales[4] = translationScale;
-  framework2DRat.GetOptimizer()->SetScales( rigidOptimizerScales );
+  setScalesForCenteredRigid2DTransform(framework2DRat);
   
 	// perform centered rigid 2D registration
   framework2DRat.StartRegistration();
   
   HiResStack.updateVolumes();
-  
   
   // TEMP
   // write transform
