@@ -48,7 +48,7 @@ bool Framework2DRat::bothImagesExist(unsigned int slice_number) {
 
 bool Framework2DRat::tryRegistration() {
   try {
-    registration->StartRegistration();
+    registration->Update();
     cout << "Optimizer stop condition: "
          << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
     return true;
