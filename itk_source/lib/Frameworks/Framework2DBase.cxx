@@ -104,7 +104,7 @@ void Framework2DBase::buildOptimizer() {
     specificOptimizer->SetNumberOfIterations( maxIterations );
     specificOptimizer->SetMaximumStepLength( maxStepLength );
     specificOptimizer->SetMinimumStepLength( minStepLength );
-
+    
     optimizer = specificOptimizer;
   }
 }

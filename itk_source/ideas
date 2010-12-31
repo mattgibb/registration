@@ -7,5 +7,3 @@ I could either subclass the initialiser and override the method for calculating 
 Extract all parameters from MultiResRegistrationCommand into config.
 
 Check out RegionOfInterestImageFilter
-
-If need to see the full set of transform params, or to read a transform file without knowing the type of transform in the file, check out TransformReadWrite.cxx in the examples.

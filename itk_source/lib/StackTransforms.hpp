@@ -19,9 +19,8 @@ namespace StackTransforms {
 			const Stack::SliceType::SizeType &size( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
 			                                 &maxSize( stack.GetMaxSize() ),
                                        &offset( stack.GetOffset() ),
-                                       &resamperSize( stack.GetResamplerSize() );
+                                       &resamplerSize( stack.GetResamplerSize() );
       const Stack::VolumeType::SpacingType &spacings( stack.GetSpacings() );
-      
 			
 			// rotation in radians
 			parameters[0] = 0;
@@ -29,8 +28,8 @@ namespace StackTransforms {
 			parameters[3] = (double)offset[0] - spacings[0] * ( (double)maxSize[0] - (double)size[0] ) / 2.0;
 			parameters[4] = (double)offset[1] - spacings[1] * ( (double)maxSize[1] - (double)size[1] ) / 2.0;
 			// centre of rotation, before translation is applied.
-      parameters[1] = parameters[3] + ( spacings[0] * resamperSize[0] ) / 2.0;
-			parameters[2] = parameters[4] + ( spacings[1] * resamperSize[1] ) / 2.0;
+      // parameters[1] = parameters[3] + ( spacings[0] * resamplerSize[0] ) / 2.0;
+      // parameters[2] = parameters[4] + ( spacings[1] * resamplerSize[1] ) / 2.0;
 			
 			// set them to new transform
       Stack::TransformType::Pointer transform( TransformType::New() );
@@ -41,6 +40,29 @@ namespace StackTransforms {
     stack.SetTransforms(newTransforms);
   }
   
+  void InitializeFixedStackWithMovingStack( Stack& fixedStack, Stack& movingStack )
+  {
+    const Stack::TransformVectorType& movingTransforms = movingStack.GetTransforms();
+    
+    // set the moving slices' centre of rotation to the centre of the fixed image
+    for(unsigned int i=0; i<movingStack.GetSize(); i++)
+    {
+      Stack::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
+     
+      const Stack::SliceType::SizeType &size( fixedStack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
+			                                 &maxSize( fixedStack.GetMaxSize() ),
+                                       &offset( fixedStack.GetOffset() ),
+                                       &resamplerSize( fixedStack.GetResamplerSize() );
+      const Stack::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
+      
+      // centre of rotation, before translation is applied
+      params[1] = (double)offset[0] + spacings[0] * ( (double)size[0] + resamplerSize[0] - (double)maxSize[0] ) / 2.0;
+      params[2] = (double)offset[1] + spacings[1] * ( (double)size[1] + resamplerSize[1] - (double)maxSize[1] ) / 2.0;
+      
+      movingTransforms[i]->SetParameters(params);
+    }
+    
+  }
   
   template< typename NewTransformType >
   void InitializeFromCurrentTransforms(Stack& stack) {

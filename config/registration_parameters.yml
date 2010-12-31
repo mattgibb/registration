@@ -7,10 +7,10 @@ LoResOffset: [17000, 2200]
 
 optimizer:
   translationScale: 0.001 # What is an appropriate 2D translation scale?
-  maxIterations: 20 # 400
+  maxIterations: 200 # 400
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
-    relaxationFactor: 0.99
+    relaxationFactor: 0.6
     maxStepLength: 0.3 # Dubious numbers
     minStepLength: 0.001 # Dubious numbers
   # gradientDescent:
