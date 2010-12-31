@@ -13,6 +13,7 @@ spacings(inputSpacings) {
 	// scale slices and initialise volume and mask
   offset.Fill(0);
   resamplerSize.Fill(0);
+  for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
   scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();
@@ -29,6 +30,7 @@ spacings(inputSpacings) {
   readImages();
   initializeVectors();
 	// scale slices and initialise volume and mask
+	for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
   scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();
@@ -71,7 +73,7 @@ void Stack::scaleOriginalSlices() {
 	for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 	  xyScaler = XYScaleType::New();
 		xyScaler->ChangeSpacingOn();
-		xyScaler->SetOutputSpacing( spacings2D() );
+		xyScaler->SetOutputSpacing( originalSpacings );
     xyScaler->SetInput( originalImages[slice_number] );
     xyScaler->Update();
     originalImages[slice_number] = xyScaler->GetOutput();

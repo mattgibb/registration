@@ -10,9 +10,9 @@ optimizer:
   maxIterations: 200 # 400
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
-    relaxationFactor: 0.6
-    maxStepLength: 0.3 # Dubious numbers
-    minStepLength: 0.001 # Dubious numbers
+    relaxationFactor: 0.5
+    maxStepLength: 1.0 # Dubious numbers
+    minStepLength: 0.01 # Dubious numbers
   # gradientDescent:
     # gradually increase learning rate from low value until it becomes unstable
     # learningRate: 10

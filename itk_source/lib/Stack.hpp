@@ -55,6 +55,7 @@ private:
   SliceType::SizeType maxSize;
 	SliceType::SizeType resamplerSize;
 	SliceType::SizeType offset;
+	SliceType::SpacingType originalSpacings;
 	VolumeType::SpacingType spacings;
 	MaskType3D::Pointer mask3D;
 	MaskVectorType2D original2DMasks;
@@ -125,7 +126,7 @@ public:
   const SliceType::SizeType& GetOffset() const { return offset; }
   
   const VolumeType::SpacingType& GetSpacings() const { return spacings; }
-      
+        
   SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
     checkSliceNumber(slice_number);
   	return originalImages[slice_number];
@@ -170,7 +171,7 @@ protected:
   
   SliceType::SpacingType spacings2D() {
     SliceType::SpacingType spacings2D;
-    for(unsigned int i=0; i<2; i++) { spacings2D[i] = spacings[i]; }
+    for(unsigned int i=0; i<2; i++) spacings2D[i] = spacings[i];
     return spacings2D;
   }
   
