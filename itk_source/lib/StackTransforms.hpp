@@ -18,8 +18,8 @@ namespace StackTransforms {
 		{
 			const Stack::SliceType::SizeType &size( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
 			                                 &maxSize( stack.GetMaxSize() ),
-                                       &offset( stack.GetOffset() ),
                                        &resamplerSize( stack.GetResamplerSize() );
+      const Stack::SliceType::OffsetType &offset( stack.GetOffset() );
       const Stack::VolumeType::SpacingType &spacings( stack.GetSpacings() );
 			
 			// rotation in radians
@@ -51,8 +51,8 @@ namespace StackTransforms {
      
       const Stack::SliceType::SizeType &size( fixedStack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
 			                                 &maxSize( fixedStack.GetMaxSize() ),
-                                       &offset( fixedStack.GetOffset() ),
                                        &resamplerSize( fixedStack.GetResamplerSize() );
+      const Stack::SliceType::OffsetType &offset( fixedStack.GetOffset() );
       const Stack::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
       
       // centre of rotation, before translation is applied

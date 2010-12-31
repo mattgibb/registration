@@ -66,7 +66,8 @@ int main(int argc, char const *argv[]) {
     registrationParameters()["HiResSpacings"][i] >> HiResSpacings[i];
   }
   
-  Stack::SliceType::SizeType LoResSize, LoResOffset;
+  Stack::SliceType::SizeType LoResSize;
+  Stack::SliceType::OffsetType LoResOffset;
   for(unsigned int i=0; i<2; i++) {
     registrationParameters()["LoResSize"][i] >> LoResSize[i];
     registrationParameters()["LoResOffset"][i] >> LoResOffset[i];

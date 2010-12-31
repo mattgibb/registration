@@ -22,7 +22,7 @@ spacings(inputSpacings) {
 }
 
 // constructor to specify size and offset
-Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset):
+Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize, const SliceType::OffsetType& inputOffset):
 fileNames(inputFileNames),
 resamplerSize(inputSize),
 offset(inputOffset),
