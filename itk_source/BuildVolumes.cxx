@@ -108,7 +108,7 @@ int main(int argc, char const *argv[]) {
   // initialize stacks' transforms so that 2D images line up at their centres.
   StackTransforms::InitializeToCommonCentre( LoResStack );
   StackTransforms::InitializeToCommonCentre( HiResStack );
-  StackTransforms::InitializeFixedStackWithMovingStack( LoResStack, HiResStack );
+  StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
   
   cout << "transform:" << endl << endl << HiResStack.GetTransform(0) << endl << endl;
   
