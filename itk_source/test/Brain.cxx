@@ -19,8 +19,6 @@ int main(int argc, char const *argv[]) {
     LoResSpacings[i] = HiResSpacings[i] = 1;
   }
   
-  cout << "LoResSpacings: " << LoResSpacings << endl;
-  
   vector< string > original, rotated;
   original.push_back(Dirs::TestDir() + "data/images/original.png");
   rotated.push_back(Dirs::TestDir() + "data/images/rotated.png");
