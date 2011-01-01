@@ -22,10 +22,11 @@ public:
   typedef itk::LinearInterpolateImageFunction< SliceType, double > LinearInterpolatorType;
 	typedef itk::ImageRegistrationMethod< SliceType, SliceType > RegistrationType;
 	typedef itk::ImageMaskSpatialObject< 2 > MaskType;
+  typedef itk::SingleValuedNonLinearOptimizer OptimizerType;
 	
 	RegistrationType::Pointer registration;
 	itk::ImageToImageMetric< SliceType, SliceType >::Pointer metric;
-	itk::SingleValuedNonLinearOptimizer::Pointer optimizer;
+	OptimizerType::Pointer optimizer;
 	LinearInterpolatorType::Pointer interpolator;
   
   Framework2DBase();

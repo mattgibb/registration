@@ -4,6 +4,7 @@
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
 #include "itkCenteredRigid2DTransform.h"
+#include "itkSingleValuedNonLinearOptimizer.h"
 #include "Stack.hpp"
 
 using namespace std;
@@ -79,6 +80,19 @@ namespace StackTransforms {
     // set stack's transforms to newTransforms and update volumes
     stack.SetTransforms(newTransforms);
     
+  }
+  
+  void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  {
+    double translationScale;
+    registrationParameters()["optimizer"]["translationScale"] >> translationScale;
+  	itk::Array< double > scales( 5 );
+    scales[0] = 1.0;
+    scales[1] = translationScale;
+    scales[2] = translationScale;
+    scales[3] = translationScale;
+    scales[4] = translationScale;
+    optimizer->SetScales( scales );
   }
   
   void Save(Stack& stack, const string& fileName)
