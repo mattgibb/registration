@@ -21,8 +21,8 @@ spacings(inputSpacings) {
   initializeFilters();
 }
 
-// constructor to specify size and offset
-Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize, const SliceType::OffsetType& inputOffset):
+Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
+             const SliceType::SizeType& inputSize, const SliceType::OffsetType& inputOffset):
 fileNames(inputFileNames),
 resamplerSize(inputSize),
 offset(inputOffset),
@@ -31,6 +31,22 @@ spacings(inputSpacings) {
   initializeVectors();
 	// scale slices and initialise volume and mask
 	for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
+  scaleOriginalSlices();
+  buildOriginalMaskSlices();
+  calculateMaxSize();
+  initializeFilters();
+}
+
+Stack::Stack(const vector< string >& inputFileNames, const SliceType::SpacingType& inputOriginalSpacings,
+      const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize):
+fileNames(inputFileNames),
+resamplerSize(inputSize),
+originalSpacings(inputOriginalSpacings),
+spacings(inputSpacings) {
+  readImages();
+  initializeVectors();
+ // scale slices and initialise volume and mask
+  offset.Fill(0);
   scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();

@@ -81,8 +81,8 @@ public:
         const SliceType::SizeType& inputSize, const SliceType::OffsetType& inputOffset);
 	
 	// constructor to specify stack size and spacing, and spacing of original images
-  // Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
-  //       const SliceType::SizeType& inputSize, const SliceType::SizeType& inputOffset);
+  Stack(const vector< string >& inputFileNames, const SliceType::SpacingType& inputOriginalSpacings,
+        const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize);
 	
 protected:
   void readImages();
