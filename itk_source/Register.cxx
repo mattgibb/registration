@@ -25,7 +25,7 @@
 #include "Stack.hpp"
 #include "Framework3D.hpp"
 #include "Framework2DRabbit.hpp"
-#include "helper_functions.hpp"
+#include "IOHelpers.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc < 6 )

@@ -1,5 +1,5 @@
-#ifndef HELPER_FUNCTIONS_HPP_
-#define HELPER_FUNCTIONS_HPP_
+#ifndef IO_HELPERS_HPP_
+#define IO_HELPERS_HPP_
 
 #include "itkImage.h"
 #include "itkImageFileWriter.h"

@@ -2,7 +2,7 @@
 #define __FRAMEWORK2DRAT_CXX_
 
 #include "Framework2DRat.hpp"
-#include "helper_functions.hpp"
+#include "IOHelpers.hpp"
 
 Framework2DRat::Framework2DRat(Stack &LoRes, Stack &HiRes): Framework2DBase(),
                                                             LoResStack(LoRes),

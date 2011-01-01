@@ -4,7 +4,7 @@
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 #include "Framework2DRat.hpp"
-#include "helper_functions.hpp"
+#include "IOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "RegistrationParameters.hpp"
