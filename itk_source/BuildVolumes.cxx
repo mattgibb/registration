@@ -87,7 +87,14 @@ int main(int argc, char const *argv[]) {
   brain.push_back(Dirs::BlockDir() + "10000.png");
   rotatedBrain.push_back(Dirs::SliceDir() + "10000.png");
   Stack LoResStack( brain, LoResSpacings );
-  Stack HiResStack( rotatedBrain, HiResSpacings );
+  
+  // make 2D version of LoResSpacings
+  Stack::SliceType::SpacingType HiResOriginalSpacings;
+  for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
+  
+  // Stack HiResStack( rotatedBrain, HiResSpacings );
+  Stack HiResStack(rotatedBrain, HiResOriginalSpacings,
+        LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
   // TEMP
   
