@@ -2,6 +2,7 @@
 #define MULTIRESREGISTRATIONCOMMAND_HPP_
 
 #include "itkCommand.h"
+#include "itkArray.h"
 #include "RegistrationParameters.hpp"
 
 using namespace std;

@@ -1,19 +1,3 @@
-// YAML config reader
-#include "yaml.h"
-
-// ITK includes
-#include "itkImageRegistrationMethod.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkResampleImageFilter.h"
-#include "itkCastImageFilter.h"
-#include "itkImageMaskSpatialObject.h"
-
-// File IO
-#include "itkImageFileReader.h"
-#include "itkTransformFileWriter.h"
-#include "itkTransformFactory.h"
-#include "itkSimilarity2DTransform.h"
-
 // my files
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
@@ -24,10 +8,6 @@
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "RegistrationParameters.hpp"
-
-// TEMP
-#include "itkTransformFileWriter.h"
-// TEMP
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc != 3 )
