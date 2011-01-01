@@ -11,10 +11,13 @@ using namespace std;
 
 class Dirs {
   static string _dataSet;
+  static string _paramsFile;
   static Dirs* _instance;
   
 public:
   static void SetDataSet(string dataSet);
+  
+  static void SetParamsFile(string paramsFile);
   
   // makes sure DataSet has been set
   // before returning dependent path strings
@@ -41,6 +44,8 @@ public:
   static string ParamsFile();
   
   static string SliceFile();
+  
+  static string TestDir();
   
 protected:
   Dirs();

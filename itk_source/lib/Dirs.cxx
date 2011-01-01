@@ -5,11 +5,17 @@
 
 
 string Dirs::_dataSet = "";
+string Dirs::_paramsFile = ConfigDir() + "registration_parameters.yml";
 Dirs* Dirs::_instance = 0;
 
 void Dirs::SetDataSet(string dataSet)
 {
   _dataSet = dataSet;
+}
+
+void Dirs::SetParamsFile(string paramsFile)
+{
+  _paramsFile = paramsFile;
 }
 
 Dirs* Dirs::Instance()
@@ -77,7 +83,7 @@ string Dirs::ConfigDir()
 
 string Dirs::ParamsFile()
 {
-  return ConfigDir() + "registration_parameters.yml";
+  return _paramsFile;
 }
 
 string Dirs::SliceFile()
@@ -85,6 +91,10 @@ string Dirs::SliceFile()
   return ConfigDir() + "picked_files.txt";
 }
 
+string Dirs::TestDir()
+{
+  return ProjectRootDir() + "itk_source/test/";
+}
 
 // Constructor
 Dirs::Dirs() {}

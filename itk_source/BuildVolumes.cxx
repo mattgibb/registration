@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
   rotatedBrain.push_back(Dirs::SliceDir() + "10000.png");
   Stack LoResStack( brain, LoResSpacings );
   
-  // make 2D version of LoResSpacings
+  // make 2D version of HiResSpacings
   Stack::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
   
