@@ -46,10 +46,10 @@ spacings(inputSpacings) {
   readImages();
   initializeVectors();
  // scale slices and initialise volume and mask
-  offset.Fill(0);
   scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();
+  centerResampler();
   initializeFilters();
 }
 	
@@ -134,6 +134,12 @@ void Stack::calculateMaxSize() {
 void Stack::setResamplerSizeToMaxSize() {
   for(unsigned int i=0; i<2; i++) {
     resamplerSize[i] = maxSize[i];
+  }
+}
+
+void Stack::centerResampler() {
+  for(unsigned int i=0; i<2; i++) {
+    offset[i] = spacings[i] * ((double)maxSize[i] - (double)resamplerSize[i]) / 2.0;
   }
 }
 

@@ -17,6 +17,9 @@ void Framework2DRat::StartRegistration() {
     cout << "file name: " << LoResStack.GetFileName(slice_number) << endl;
     
     if( bothImagesExist(slice_number) ) {
+      // Could change this to register against original fixed image and fixed image masks,
+      // by applying the inverse fixed transform to the moving one, registering, then
+      // applying the fixed transform back again afterwards.
       registration->SetFixedImage( LoResStack.GetResampledSlice(slice_number) );
       registration->SetMovingImage( HiResStack.GetOriginalImage(slice_number) );
       

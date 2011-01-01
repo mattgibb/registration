@@ -95,7 +95,11 @@ protected:
 	
   void calculateMaxSize();
 	
+	// Stack is just big enough to fit the longest and widest slices in
   void setResamplerSizeToMaxSize();
+  
+  // Slices are centered around a constructor-specified size
+  void centerResampler();
   
   void initializeFilters();
 	
