@@ -40,30 +40,13 @@ int main(int argc, char const *argv[]) {
     registrationParameters()["LoResOffset"][i] >> LoResOffset[i];
   }
   
-  // Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile), LoResSpacings , LoResSize, LoResOffset);
-  // Stack HiResStack( getFileNames(Dirs::SliceDir(), Dirs::SliceFile), HiResSpacings );
-  // TEMP
-  HiResSpacings[0] = 1;
-  HiResSpacings[1] = 1;
-  HiResSpacings[2] = 1;
-  LoResSpacings[0] = 1;
-  LoResSpacings[1] = 1;
-  LoResSpacings[2] = 1;
+  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize, LoResOffset);
   
-  vector< string > brain, rotatedBrain;
-  brain.push_back(Dirs::BlockDir() + "10000.png");
-  rotatedBrain.push_back(Dirs::SliceDir() + "10000.png");
-  Stack LoResStack( brain, LoResSpacings );
-  
-  // make 2D version of HiResSpacings
   Stack::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
   
-  // Stack HiResStack( rotatedBrain, HiResSpacings );
-  Stack HiResStack(rotatedBrain, HiResOriginalSpacings,
+  Stack HiResStack(getFileNames(Dirs::SliceDir(), Dirs::SliceFile()), HiResOriginalSpacings,
         LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
-  
-  // TEMP
   
   // Assert stacks have the same number of slices
   if (LoResStack.GetSize() != HiResStack.GetSize())
@@ -76,9 +59,8 @@ int main(int argc, char const *argv[]) {
   StackTransforms::InitializeToCommonCentre( LoResStack );
   StackTransforms::InitializeToCommonCentre( HiResStack );
   StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
-  
-  cout << "transform:" << endl << endl << HiResStack.GetTransform(0) << endl << endl;
-  
+
+  // Check whether both of these need to be updated
   LoResStack.updateVolumes();
   HiResStack.updateVolumes();
   
@@ -91,12 +73,6 @@ int main(int argc, char const *argv[]) {
   framework2DRat.StartRegistration();
   
   HiResStack.updateVolumes();
-  
-  // TEMP
-  // write transform
-  writeData< itk::TransformFileWriter, Stack::TransformType >
-    (HiResStack.GetTransform(0), outputDir + "Transforms.meta");
-  // TEMP
   
   //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   

@@ -18,15 +18,16 @@ namespace StackTransforms {
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
 			const Stack::SliceType::SizeType &size( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
-                                       &maxSize( stack.GetMaxSize() );
+                                       &resamplerSize( stack.GetResamplerSize() );
       const Stack::SliceType::OffsetType &offset( stack.GetOffset() );
+      const Stack::SliceType::SpacingType &originalSpacings( stack.GetOriginalSpacings() );
       const Stack::VolumeType::SpacingType &spacings( stack.GetSpacings() );
 			
 			// rotation in radians
 			parameters[0] = 0;
 			// translation, applied after rotation.
-			parameters[3] = (double)offset[0] - spacings[0] * ( (double)maxSize[0] - (double)size[0] ) / 2.0;
-			parameters[4] = (double)offset[1] - spacings[1] * ( (double)maxSize[1] - (double)size[1] ) / 2.0;
+			parameters[3] = (double)offset[0] + ( originalSpacings[0] * (double)size[0] - spacings[0] * (double)resamplerSize[0] ) / 2.0;
+			parameters[4] = (double)offset[1] + ( originalSpacings[1] * (double)size[1] - spacings[1] * (double)resamplerSize[1] ) / 2.0;
 			
 			// set them to new transform
       Stack::TransformType::Pointer transform( TransformType::New() );
@@ -46,15 +47,12 @@ namespace StackTransforms {
     {
       Stack::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
      
-      const Stack::SliceType::SizeType &size( fixedStack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
-			                                 &maxSize( fixedStack.GetMaxSize() ),
-                                       &resamplerSize( fixedStack.GetResamplerSize() );
-      const Stack::SliceType::OffsetType &offset( fixedStack.GetOffset() );
+      const Stack::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
       const Stack::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
       
       // centre of rotation, before translation is applied
-      params[1] = (double)offset[0] + spacings[0] * ( (double)size[0] + resamplerSize[0] - (double)maxSize[0] ) / 2.0;
-      params[2] = (double)offset[1] + spacings[1] * ( (double)size[1] + resamplerSize[1] - (double)maxSize[1] ) / 2.0;
+      params[1] = spacings[0] * (double)resamplerSize[0] / 2.0;
+      params[2] = spacings[1] * (double)resamplerSize[1] / 2.0;
       
       movingTransforms[i]->SetParameters(params);
     }

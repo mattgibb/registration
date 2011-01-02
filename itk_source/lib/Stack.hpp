@@ -98,9 +98,6 @@ protected:
 	// Stack is just big enough to fit the longest and widest slices in
   void setResamplerSizeToMaxSize();
   
-  // Slices are centered around a constructor-specified size
-  void centerResampler();
-  
   void initializeFilters();
 	
 public:	
@@ -135,6 +132,8 @@ public:
   const SliceType::OffsetType& GetOffset() const { return offset; }
   
   const VolumeType::SpacingType& GetSpacings() const { return spacings; }
+
+  const SliceType::SpacingType& GetOriginalSpacings() const { return originalSpacings; }
           
   SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
     checkSliceNumber(slice_number);

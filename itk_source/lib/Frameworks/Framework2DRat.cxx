@@ -2,7 +2,7 @@
 #define __FRAMEWORK2DRAT_CXX_
 
 #include "Framework2DRat.hpp"
-#include "IOHelpers.hpp"
+
 
 Framework2DRat::Framework2DRat(Stack &LoRes, Stack &HiRes): Framework2DBase(),
                                                             LoResStack(LoRes),
@@ -34,13 +34,15 @@ void Framework2DRat::StartRegistration() {
       registration->SetInitialTransformParameters( HiResStack.GetTransform(slice_number)->GetParameters() );
       
       // halve the width and height of the LoRes mask for each slice
-      // until Mattes mutual information stops throwing errors
+      // until optimiser stops throwing errors
       cout << "Trying registration..." << endl;
+      
       while( !tryRegistration() ) {
         LoResStack.ShrinkSliceMask(slice_number);
       }
     }
   }
+  
   cout << "Finished registration." << endl;
 }
 
@@ -57,9 +59,8 @@ bool Framework2DRat::tryRegistration() {
     return true;
   }
   catch( itk::ExceptionObject & err ) {
-    cerr << "ExceptionObject caught, halving block image width and height." << endl;
+    cerr << err.GetNameOfClass() << " caught, halving block image width and height." << endl;
     cerr << err << endl;
-    cerr << err.GetNameOfClass() << endl;
     return false;
   }
 }

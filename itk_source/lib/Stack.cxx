@@ -49,7 +49,6 @@ spacings(inputSpacings) {
   scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();
-  centerResampler();
   initializeFilters();
 }
 	
@@ -139,7 +138,7 @@ void Stack::setResamplerSizeToMaxSize() {
 
 void Stack::centerResampler() {
   for(unsigned int i=0; i<2; i++) {
-    offset[i] = spacings[i] * ((double)maxSize[i] - (double)resamplerSize[i]) / 2.0;
+    offset[i] = spacings[i] * ((double)resamplerSize[i] - (double)maxSize[i]) / 2.0;
   }
 }
 
@@ -256,7 +255,7 @@ void Stack::checkSliceNumber(unsigned int slice_number) const {
 void Stack::ShrinkSliceMask(unsigned int slice_number) {
   // increment numberOfTimesTooBig
   numberOfTimesTooBig[slice_number]++;
-  
+
   // initialise and allocate new mask image
   MaskSliceType::ConstPointer oldMaskSlice = original2DMasks[slice_number]->GetImage();
   MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
@@ -268,11 +267,11 @@ void Stack::ShrinkSliceMask(unsigned int slice_number) {
   // make smaller image region
   MaskSliceType::RegionType::SizeType size;
   MaskSliceType::RegionType::IndexType index;
-  unsigned int factor = pow(2.0, (int)numberOfTimesTooBig[slice_number]);
+  double factor = pow(0.5, (int)numberOfTimesTooBig[slice_number]);
   
   for(unsigned int i=0; i<2; i++) {
-    size[i] = resamplerSize[i] / factor;
-    index[i] = (offset[i] / spacings[i]) + resamplerSize[i] * ( 1.0 - ( 1.0/factor ) ) / 2;
+    size[i] = resamplerSize[i] * factor;
+    index[i] = (offset[i] / spacings[i]) + resamplerSize[i] * ( 1.0 - ( 1.0 * factor ) ) / 2;
   }
   
   region.SetSize( size );
@@ -284,7 +283,7 @@ void Stack::ShrinkSliceMask(unsigned int slice_number) {
   for (it.GoToBegin(); !it.IsAtEnd(); ++it ) {
     it.Set(255);
   }
-  
+
   // attach new image to mask
   original2DMasks[slice_number]->SetImage( newMaskSlice );
   buildMaskSlice(slice_number);
