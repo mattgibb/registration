@@ -136,12 +136,6 @@ void Stack::setResamplerSizeToMaxSize() {
   }
 }
 
-void Stack::centerResampler() {
-  for(unsigned int i=0; i<2; i++) {
-    offset[i] = spacings[i] * ((double)resamplerSize[i] - (double)maxSize[i]) / 2.0;
-  }
-}
-
 void Stack::initializeFilters() {
 	// resamplers
 	linearInterpolator = LinearInterpolatorType::New();
