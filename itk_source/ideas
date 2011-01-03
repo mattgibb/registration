@@ -7,3 +7,5 @@ I could either subclass the initialiser and override the method for calculating 
 Extract all parameters from MultiResRegistrationCommand into config.
 
 Check out RegionOfInterestImageFilter
+
+Check out SimpleFilterWatcher for Command/Observer.

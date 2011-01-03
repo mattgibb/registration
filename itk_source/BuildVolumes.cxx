@@ -34,13 +34,13 @@ int main(int argc, char const *argv[]) {
   }
   
   Stack::SliceType::SizeType LoResSize;
-  Stack::SliceType::OffsetType LoResOffset;
+  Stack::SliceType::IndexType LoResStartIndex;
   for(unsigned int i=0; i<2; i++) {
     registrationParameters()["LoResSize"][i] >> LoResSize[i];
-    registrationParameters()["LoResOffset"][i] >> LoResOffset[i];
+    registrationParameters()["LoResStartIndex"][i] >> LoResStartIndex[i];
   }
   
-  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize, LoResOffset);
+  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize, LoResStartIndex);
   
   Stack::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
@@ -56,23 +56,23 @@ int main(int argc, char const *argv[]) {
   }
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeToCommonCentre( LoResStack );
+  StackTransforms::InitializeToIdentity( LoResStack );
   StackTransforms::InitializeToCommonCentre( HiResStack );
   StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
 
   // Check whether both of these need to be updated
   LoResStack.updateVolumes();
-  HiResStack.updateVolumes();
-  
-  Framework2DRat framework2DRat(LoResStack, HiResStack);
-  
-  // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
-  
-	// perform centered rigid 2D registration
-  framework2DRat.StartRegistration();
-  
-  HiResStack.updateVolumes();
+  //   HiResStack.updateVolumes();
+  //   
+  //   Framework2DRat framework2DRat(LoResStack, HiResStack);
+  //   
+  //   // Scale parameter space
+  //   StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
+  //   
+  // // perform centered rigid 2D registration
+  //   framework2DRat.StartRegistration();
+  //   
+  //   HiResStack.updateVolumes();
   
   //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   
@@ -98,10 +98,11 @@ int main(int argc, char const *argv[]) {
 	// update HiRes slices
   // HiResStack.updateVolumes();
 	// write volume and mask to disk
-	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
-	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
+	
+  writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  // writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
+  // writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
+  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
 	
   return EXIT_SUCCESS;
 }

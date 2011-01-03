@@ -54,7 +54,7 @@ private:
 	VolumeType::Pointer volume;
   SliceType::SizeType maxSize;
 	SliceType::SizeType resamplerSize;
-	SliceType::OffsetType offset;
+	SliceType::IndexType startIndex;
 	SliceType::SpacingType originalSpacings;
 	VolumeType::SpacingType spacings;
 	MaskType3D::Pointer mask3D;
@@ -76,9 +76,9 @@ public:
   // constructor to center images and size stack to fit in the longest and widest image
   Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings);
 
-	// constructor to specify size and offset explicitly
+	// constructor to specify size and start index explicitly
   Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
-        const SliceType::SizeType& inputSize, const SliceType::OffsetType& inputOffset);
+        const SliceType::SizeType& inputSize, const SliceType::IndexType& inputStartIndex);
 	
 	// constructor to specify stack size and spacing, and spacing of original images
   Stack(const vector< string >& inputFileNames, const SliceType::SpacingType& inputOriginalSpacings,
@@ -129,7 +129,7 @@ public:
 
   const SliceType::SizeType& GetResamplerSize() const { return resamplerSize; }
   
-  const SliceType::OffsetType& GetOffset() const { return offset; }
+  const SliceType::IndexType& GetStartIndex() const { return startIndex; }
   
   const VolumeType::SpacingType& GetSpacings() const { return spacings; }
 

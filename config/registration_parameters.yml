@@ -2,12 +2,12 @@ ActualLoResSpacings: [19, 19, 10] # LoRes spacings
 ActualHiResSpacings:  [0.546, 0.546, 10]
 LoResSpacings: [152, 152, 10] # LoRes spacings
 HiResSpacings:  [70.4, 70.4, 10]
-LoResSize: [89, 114]
-LoResOffset: [17000, 2200]
+LoResStartIndex: [112, 10]
+LoResSize: [89, 119]
 
 optimizer:
   translationScale: 0.001 # What is an appropriate 2D translation scale?
-  maxIterations: 200 # 400
+  maxIterations: 2 # 400
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.6

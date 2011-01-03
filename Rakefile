@@ -16,7 +16,8 @@ task :build_volumes => [:make] do
 end
 
 namespace :test do
-  task :default => [:brain, :refactor]
+  task :default => [:brain, :refactor] do; end
+  
   def test_success(diff_output)
     if $?.success?
       `echo The refactoring worked\! | growlnotify Success\!`

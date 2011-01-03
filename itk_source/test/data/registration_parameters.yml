@@ -3,7 +3,7 @@ ActualHiResSpacings:  [0.546, 0.546, 10]
 LoResSpacings: [152, 152, 10] # LoRes spacings
 HiResSpacings:  [70.4, 70.4, 10]
 LoResSize: [89, 114]
-LoResOffset: [17000, 2200]
+LoResStartIndex: [17000, 2200]
 
 optimizer:
   translationScale: 0.001 # What is an appropriate 2D translation scale?
