@@ -10,6 +10,7 @@
 #include "RegistrationParameters.hpp"
 
 int main(int argc, char const *argv[]) {
+  Dirs::SetParamsFile(Dirs::TestDir() + "data/registration_parameters.yml");
   string outputDir(Dirs::TestDir() + "data/results/");
 	
 	// initialise stack objects
