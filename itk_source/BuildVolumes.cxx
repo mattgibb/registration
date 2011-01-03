@@ -56,23 +56,23 @@ int main(int argc, char const *argv[]) {
   }
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeToIdentity( LoResStack );
+  StackTransforms::InitializeToCommonCentre( LoResStack );
   StackTransforms::InitializeToCommonCentre( HiResStack );
   StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
 
   // Check whether both of these need to be updated
   LoResStack.updateVolumes();
-  //   HiResStack.updateVolumes();
-  //   
-  //   Framework2DRat framework2DRat(LoResStack, HiResStack);
-  //   
-  //   // Scale parameter space
-  //   StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
-  //   
-  // // perform centered rigid 2D registration
-  //   framework2DRat.StartRegistration();
-  //   
-  //   HiResStack.updateVolumes();
+  HiResStack.updateVolumes();
+  
+  Framework2DRat framework2DRat(LoResStack, HiResStack);
+  
+  // Scale parameter space
+  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
+  
+  // perform centered rigid 2D registration
+  framework2DRat.StartRegistration();
+  
+  HiResStack.updateVolumes();
   
   //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   
@@ -100,9 +100,9 @@ int main(int argc, char const *argv[]) {
 	// write volume and mask to disk
 	
   writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
-  // writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
-  // writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
-  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
+  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
+  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
+  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
 	
   return EXIT_SUCCESS;
 }

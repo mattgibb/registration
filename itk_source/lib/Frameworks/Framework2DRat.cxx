@@ -20,6 +20,10 @@ void Framework2DRat::StartRegistration() {
       // Could change this to register against original fixed image and fixed image masks,
       // by applying the inverse fixed transform to the moving one, registering, then
       // applying the fixed transform back again afterwards.
+      cout << "LoResStack.GetResampledSlice(slice_number): " << LoResStack.GetResampledSlice(slice_number) << endl;
+      cout << "HiResStack.GetResampledSlice(slice_number): " << HiResStack.GetResampledSlice(slice_number) << endl;
+      cout << "LoResStack.GetOriginalImage(slice_number): " << LoResStack.GetOriginalImage(slice_number) << endl;
+      cout << "HiResStack.GetOriginalImage(slice_number): " << HiResStack.GetOriginalImage(slice_number) << endl;
       registration->SetFixedImage( LoResStack.GetResampledSlice(slice_number) );
       registration->SetMovingImage( HiResStack.GetOriginalImage(slice_number) );
       
@@ -33,6 +37,8 @@ void Framework2DRat::StartRegistration() {
       registration->SetTransform( HiResStack.GetTransform(slice_number) );
       registration->SetInitialTransformParameters( HiResStack.GetTransform(slice_number)->GetParameters() );
       
+      std::cout << "HiResStack.GetTransform(slice_number)->GetParameters(): "
+        << HiResStack.GetTransform(slice_number)->GetParameters() << std::endl;
       // halve the width and height of the LoRes mask for each slice
       // until optimiser stops throwing errors
       cout << "Trying registration..." << endl;
@@ -53,7 +59,9 @@ bool Framework2DRat::bothImagesExist(unsigned int slice_number) {
 
 bool Framework2DRat::tryRegistration() {
   try {
+    cout << "Before registration->Update()" << endl;
     registration->Update();
+    cout << "After registration->Update()" << endl;    
     cout << "Optimizer stop condition: "
          << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
     return true;
