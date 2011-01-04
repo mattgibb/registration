@@ -34,13 +34,13 @@ int main(int argc, char const *argv[]) {
   }
   
   Stack::SliceType::SizeType LoResSize;
-  Stack::SliceType::IndexType LoResStartIndex;
+  itk::Vector< double, 2 > LoResTranslation;
   for(unsigned int i=0; i<2; i++) {
     registrationParameters()["LoResSize"][i] >> LoResSize[i];
-    registrationParameters()["LoResStartIndex"][i] >> LoResStartIndex[i];
+    registrationParameters()["LoResTranslation"][i] >> LoResTranslation[i];
   }
   
-  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize, LoResStartIndex);
+  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize);
   
   Stack::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
@@ -56,7 +56,7 @@ int main(int argc, char const *argv[]) {
   }
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeToCommonCentre( LoResStack );
+  StackTransforms::InitializeWithTranslation( LoResStack, LoResTranslation );
   StackTransforms::InitializeToCommonCentre( HiResStack );
   StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
 

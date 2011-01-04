@@ -4,6 +4,7 @@
 #include "itkTransformFileReader.h"
 #include "itkTransformFileWriter.h"
 #include "itkIdentityTransform.h"
+#include "itkTranslationTransform.h"
 #include "itkCenteredRigid2DTransform.h"
 #include "itkSingleValuedNonLinearOptimizer.h"
 #include "Stack.hpp"
@@ -25,6 +26,25 @@ namespace StackTransforms {
     
   }
   
+  void InitializeWithTranslation(Stack& stack, const itk::Vector< double, 2 > &translation) {
+    typedef itk::TranslationTransform< double, 2 > TransformType;
+    Stack::TransformVectorType newTransforms;
+    TransformType::ParametersType parameters(2);
+    
+    parameters[0] = translation[0];
+    parameters[1] = translation[1];
+    
+    for(unsigned int i=0; i<stack.GetSize(); i++)
+		{
+      Stack::TransformType::Pointer transform( TransformType::New() );
+      transform->SetParametersByValue( parameters );
+      newTransforms.push_back( transform );
+		}
+		
+    stack.SetTransforms(newTransforms);
+    
+  }
+  
   void InitializeToCommonCentre(Stack& stack) {
     typedef itk::CenteredRigid2DTransform< double > TransformType;
     Stack::TransformVectorType newTransforms;
@@ -32,17 +52,16 @@ namespace StackTransforms {
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-			const Stack::SliceType::SizeType &size( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
+			const Stack::SliceType::SizeType &originalSize( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
                                        &resamplerSize( stack.GetResamplerSize() );
-      const Stack::SliceType::IndexType &startIndex( stack.GetStartIndex() );
       const Stack::SliceType::SpacingType &originalSpacings( stack.GetOriginalSpacings() );
       const Stack::VolumeType::SpacingType &spacings( stack.GetSpacings() );
 			
 			// rotation in radians
 			parameters[0] = 0;
 			// translation, applied after rotation.
-			parameters[3] = (double)startIndex[0] * spacings[0] + ( originalSpacings[0] * (double)size[0] - spacings[0] * (double)resamplerSize[0] ) / 2.0;
-			parameters[4] = (double)startIndex[1] * spacings[1] + ( originalSpacings[1] * (double)size[1] - spacings[1] * (double)resamplerSize[1] ) / 2.0;
+			parameters[3] = ( originalSpacings[0] * (double)originalSize[0] - spacings[0] * (double)resamplerSize[0] ) / 2.0;
+			parameters[4] = ( originalSpacings[1] * (double)originalSize[1] - spacings[1] * (double)resamplerSize[1] ) / 2.0;
 			
 			// set them to new transform
       Stack::TransformType::Pointer transform( TransformType::New() );

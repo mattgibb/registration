@@ -41,7 +41,6 @@ public:
   typedef itk::ChangeInformationImageFilter< SliceType > XYScaleType;
   typedef itk::ChangeInformationImageFilter< VolumeType > ZScaleType;
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
-  typedef itk::ImageRegionIterator< MaskSliceType > IteratorType;
 	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
   typedef itk::ImageMaskSpatialObject< 2 > MaskType2D;
 	typedef vector< MaskType2D::Pointer > MaskVectorType2D;
@@ -54,7 +53,6 @@ private:
 	VolumeType::Pointer volume;
   SliceType::SizeType maxSize;
 	SliceType::SizeType resamplerSize;
-	SliceType::IndexType startIndex;
 	SliceType::SpacingType originalSpacings;
 	VolumeType::SpacingType spacings;
 	MaskType3D::Pointer mask3D;
@@ -78,7 +76,7 @@ public:
 
 	// constructor to specify size and start index explicitly
   Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
-        const SliceType::SizeType& inputSize, const SliceType::IndexType& inputStartIndex);
+        const SliceType::SizeType& inputSize);
 	
 	// constructor to specify stack size and spacing, and spacing of original images
   Stack(const vector< string >& inputFileNames, const SliceType::SpacingType& inputOriginalSpacings,
@@ -128,8 +126,6 @@ public:
   const SliceType::SizeType& GetMaxSize() const { return maxSize; }
 
   const SliceType::SizeType& GetResamplerSize() const { return resamplerSize; }
-  
-  const SliceType::IndexType& GetStartIndex() const { return startIndex; }
   
   const VolumeType::SpacingType& GetSpacings() const { return spacings; }
 

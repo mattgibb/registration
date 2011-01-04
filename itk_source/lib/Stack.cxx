@@ -11,7 +11,6 @@ spacings(inputSpacings) {
   readImages();
   initializeVectors();
 	// scale slices and initialise volume and mask
-  startIndex.Fill(0);
   resamplerSize.Fill(0);
   for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
   scaleOriginalSlices();
@@ -22,10 +21,9 @@ spacings(inputSpacings) {
 }
 
 Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
-             const SliceType::SizeType& inputSize, const SliceType::IndexType& inputStartIndex):
+             const SliceType::SizeType& inputSize):
 fileNames(inputFileNames),
 resamplerSize(inputSize),
-startIndex(inputStartIndex),
 spacings(inputSpacings) {
   readImages();
   initializeVectors();
@@ -145,7 +143,7 @@ void Stack::initializeFilters() {
 	resampler->SetSize( resamplerSize );
   // resampler->SetOutputOrigin( toSomeSensibleValue );
   // resampler->SetOutputDirection( originalImages[slice_number]->GetDirection() );
-  resampler->SetOutputStartIndex ( startIndex );
+  // resampler->SetOutputStartIndex ( startIndex );
 	resampler->SetOutputSpacing( spacings2D() );
 	maskResampler = MaskResamplerType::New();
 	maskResampler->SetInterpolator( nearestNeighborInterpolator );
@@ -153,7 +151,7 @@ void Stack::initializeFilters() {
 	maskResampler->SetOutputSpacing( spacings2D() );
   // resampler->SetOutputOrigin( toSomeSensibleValue );
   // resampler->SetOutputDirection( originalImages[slice_number]->GetDirection() );
-  resampler->SetOutputStartIndex ( startIndex );
+  // resampler->SetOutputStartIndex ( startIndex );
 	
 	// z scalers
 	zScaler     = ZScaleType::New();
@@ -251,40 +249,40 @@ void Stack::checkSliceNumber(unsigned int slice_number) const {
 }
   
 void Stack::ShrinkSliceMask(unsigned int slice_number) {
-  // increment numberOfTimesTooBig
-  numberOfTimesTooBig[slice_number]++;
-
-  // initialise and allocate new mask image
-  MaskSliceType::ConstPointer oldMaskSlice = original2DMasks[slice_number]->GetImage();
+  // retrieve mask image and region
+  MaskSliceType::ConstPointer oldMaskSlice = resampled2DMasks[slice_number]->GetImage();
   MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
+
+  //  increment numberOfTimesTooBig and initialise centered subregion
+  MaskSliceType::RegionType::SizeType size;
+  MaskSliceType::RegionType::IndexType index;
+  double factor = pow(0.5, (int)++numberOfTimesTooBig[slice_number]);
+  
+  for(unsigned int i=0; i<2; i++) {
+    size[i] = region.GetSize(i) * factor;
+    index[i] = region.GetSize(i) * ( 1.0 - factor ) / 2;
+  }
+  
+  MaskSliceType::RegionType subRegion;
+  subRegion.SetSize( size );
+  subRegion.SetIndex( index );
+  
+  // initialise new mask
   MaskSliceType::Pointer newMaskSlice = MaskSliceType::New();
   newMaskSlice->SetRegions( region );
   newMaskSlice->CopyInformation( oldMaskSlice );
   newMaskSlice->Allocate();
-  
-  // make smaller image region
-  MaskSliceType::RegionType::SizeType size;
-  MaskSliceType::RegionType::IndexType index;
-  double factor = pow(0.5, (int)numberOfTimesTooBig[slice_number]);
-  
-  for(unsigned int i=0; i<2; i++) {
-    size[i] = resamplerSize[i] * factor;
-    index[i] = startIndex[i] + resamplerSize[i] * ( 1.0 - factor ) / 2;
-  }
-  
-  region.SetSize( size );
-  region.SetIndex( index );
-  
-  // set pixels outside region to black and inside region to white
   newMaskSlice->FillBuffer( 0 );
-  MaskSliceIteratorType it(newMaskSlice, region);
-  for (it.GoToBegin(); !it.IsAtEnd(); ++it ) {
-    it.Set(255);
+  
+  // set newMaskSlice in subRegion to values from oldMaskSlice 
+  itk::ImageRegionConstIterator< MaskSliceType > cit(oldMaskSlice, subRegion);
+  itk::ImageRegionIterator< MaskSliceType >       it(newMaskSlice, subRegion);
+  for (cit.GoToBegin(), it.GoToBegin(); !it.IsAtEnd(); ++cit, ++it ) {
+    it.Set( cit.Get() );
   }
 
   // attach new image to mask
-  original2DMasks[slice_number]->SetImage( newMaskSlice );
-  buildMaskSlice(slice_number);
+  resampled2DMasks[slice_number]->SetImage( newMaskSlice );
 }
 
 bool Stack::fileExists(const string& strFilename) { 
