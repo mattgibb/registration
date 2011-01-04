@@ -7,8 +7,8 @@ LoResTranslation: [17024, 1520]
 LoResSize: [89, 119]
 
 optimizer:
-  translationScale: 0.001 # What is an appropriate 2D translation scale?
-  maxIterations: 2 # 400
+  translationScale: 0.00001 # What is an appropriate 2D translation scale?
+  maxIterations: 30
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.6
@@ -19,8 +19,8 @@ optimizer:
     # learningRate: 10
 
 metric:
-  meanSquares:
-  # mattesMutualInformation:
+  # meanSquares:
+  mattesMutualInformation:
     # numberOfSpatialSamples: 24000
-    # numberOfSpatialSamples: 10000
-    # numberOfHistogramBins: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
+    numberOfSpatialSamples: 10000
+    numberOfHistogramBins: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
