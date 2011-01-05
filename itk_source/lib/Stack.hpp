@@ -168,9 +168,11 @@ public:
     return GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0];
   }
   
-  void ShrinkSliceMask(unsigned int slice_number);
-	
+  void ShrinkMaskSlice(unsigned int slice_number);
+
 protected:
+  void GenerateMaskSlice(unsigned int slice_number);
+	
   static bool fileExists(const string& strFilename);
   
   SliceType::SpacingType spacings2D() const {

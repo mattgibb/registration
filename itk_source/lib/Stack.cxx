@@ -223,6 +223,9 @@ void Stack::buildMaskSlice(unsigned int slice_number) {
   resampled2DMasks[slice_number]->SetImage( maskResampler->GetOutput() );
 	// necessary to force resampler to make new pointer when updated
   maskResampler->GetOutput()->DisconnectPipeline();
+  
+  // reduce dimensions by numberOfTimesTooBig, if necessary
+  GenerateMaskSlice(slice_number);
 }
 	
 void Stack::buildMaskVolume() {
@@ -248,15 +251,23 @@ void Stack::checkSliceNumber(unsigned int slice_number) const {
   }
 }
   
-void Stack::ShrinkSliceMask(unsigned int slice_number) {
+void Stack::ShrinkMaskSlice(unsigned int slice_number) {
+  // increment numberOfTimesTooBig
+  numberOfTimesTooBig[slice_number]++;
+  
+  // Regenerate the new smaller slice mask
+  GenerateMaskSlice(slice_number);
+}
+
+void Stack::GenerateMaskSlice(unsigned int slice_number) {
   // retrieve mask image and region
   MaskSliceType::ConstPointer oldMaskSlice = resampled2DMasks[slice_number]->GetImage();
   MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
 
-  //  increment numberOfTimesTooBig and initialise centered subregion
+  // initialise centered subregion
   MaskSliceType::RegionType::SizeType size;
   MaskSliceType::RegionType::IndexType index;
-  double factor = pow(0.5, (int)++numberOfTimesTooBig[slice_number]);
+  double factor = pow(0.5, (int)numberOfTimesTooBig[slice_number]);
   
   for(unsigned int i=0; i<2; i++) {
     size[i] = region.GetSize(i) * factor;

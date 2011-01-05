@@ -38,7 +38,7 @@ void Framework2DRat::StartRegistration() {
       cout << "Trying registration..." << endl;
       
       while( !tryRegistration() ) {
-        LoResStack.ShrinkSliceMask(slice_number);
+        LoResStack.ShrinkMaskSlice(slice_number);
       }
     }
   }
