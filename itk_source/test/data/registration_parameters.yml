@@ -5,6 +5,7 @@ HiResSpacings:  [70.4, 70.4, 10]
 LoResSize: [89, 114]
 LoResStartIndex: [17000, 2200]
 
+maskShrinkFactor: 0.5
 optimizer:
   translationScale: 0.001 # What is an appropriate 2D translation scale?
   maxIterations: 200 # 400

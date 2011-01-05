@@ -6,9 +6,10 @@ HiResSpacings:  [70.4, 70.4, 10]
 LoResTranslation: [17024, 1520]
 LoResSize: [89, 119]
 
+maskShrinkFactor: 0.5
 optimizer:
-  translationScale: 0.00001 # What is an appropriate 2D translation scale?
-  maxIterations: 30
+  translationScale: 0.001 # What is an appropriate 2D translation scale?
+  maxIterations: 300
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.6

@@ -3,7 +3,7 @@
 
 #include <sys/stat.h> // for fileExists
 #include "Stack.hpp"
-
+#include "RegistrationParameters.hpp"
 
 Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings):
 fileNames(inputFileNames),
@@ -267,11 +267,15 @@ void Stack::GenerateMaskSlice(unsigned int slice_number) {
   // initialise centered subregion
   MaskSliceType::RegionType::SizeType size;
   MaskSliceType::RegionType::IndexType index;
-  double factor = pow(0.5, (int)numberOfTimesTooBig[slice_number]);
+  
+  // calculate shrink factor
+  double maskShrinkFactor;
+  registrationParameters()["maskShrinkFactor"] >> maskShrinkFactor;
+  double totalMaskShrinkFactor = pow(maskShrinkFactor, (int)numberOfTimesTooBig[slice_number]);
   
   for(unsigned int i=0; i<2; i++) {
-    size[i] = region.GetSize(i) * factor;
-    index[i] = region.GetSize(i) * ( 1.0 - factor ) / 2;
+    size[i] = region.GetSize(i) * totalMaskShrinkFactor;
+    index[i] = region.GetSize(i) * ( 1.0 - totalMaskShrinkFactor ) / 2;
   }
   
   MaskSliceType::RegionType subRegion;
@@ -297,8 +301,8 @@ void Stack::GenerateMaskSlice(unsigned int slice_number) {
 }
 
 bool Stack::fileExists(const string& strFilename) { 
-  struct stat stFileInfo; 
-  bool blnReturn; 
+  struct stat stFileInfo;
+  bool blnReturn;
   int intStat;
 
   // Attempt to get the file attributes 
