@@ -57,9 +57,7 @@ int main( int argc, char * argv[] )
   InputImageType::ConstPointer inputImage = reader->GetOutput();
   
   typedef itk::CastImageFilter< InputImageType, InternalImageType > CastFilterType;
-	
   CastFilterType::Pointer caster = CastFilterType::New();
-
   caster->SetInput( inputImage );
 	
   typedef itk::RecursiveGaussianImageFilter< InternalImageType, InternalImageType > GaussianFilterType;
@@ -124,9 +122,10 @@ int main( int argc, char * argv[] )
 
   resampler->SetInput( smootherY->GetOutput() );
 
-  writer->SetInput( resampler->GetOutput() );
+  writer->SetInput( reader->GetOutput() );
+  // writer->SetInput( caster->GetOutput() );
+  // writer->SetInput( resampler->GetOutput() );
   
-
   try {
     writer->Update();
   }

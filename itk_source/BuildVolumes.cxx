@@ -1,3 +1,5 @@
+#include "itkCenteredSimilarity2DTransform.h"
+
 // my files
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
@@ -60,10 +62,10 @@ int main(int argc, char const *argv[]) {
   StackTransforms::InitializeToCommonCentre( HiResStack );
   StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
 
-  // Check whether both of these need to be updated
+  // Generate fixed images to register against
   LoResStack.updateVolumes();
-  HiResStack.updateVolumes();
   
+  // initialise registration framework
   Framework2DRat framework2DRat(LoResStack, HiResStack);
   
   // Scale parameter space
@@ -72,7 +74,18 @@ int main(int argc, char const *argv[]) {
   // perform centered rigid 2D registration
   framework2DRat.StartRegistration();
   
+  // TODO: Check whether this step is necessary
   HiResStack.updateVolumes();
+  
+  StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
+  
+  // Scale parameter space
+  StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( framework2DRat.GetOptimizer() );
+  
+  // perform similarity rigid 2D registration
+  framework2DRat.StartRegistration();
+  
+  
   
   //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   

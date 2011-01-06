@@ -71,7 +71,7 @@ namespace StackTransforms {
 		
     stack.SetTransforms(newTransforms);
   }
-  
+    
   void SetMovingStackCORWithFixedStack( Stack& fixedStack, Stack& movingStack )
   {
     const Stack::TransformVectorType& movingTransforms = movingStack.GetTransforms();
@@ -116,10 +116,27 @@ namespace StackTransforms {
   
   void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   {
-    double translationScale;
-    registrationParameters()["optimizer"]["translationScale"] >> translationScale;
+    double translationScale, rotationScale;
+    registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
+    registrationParameters()["optimizer"]["scale"]["rotation"] >> rotationScale;
   	itk::Array< double > scales( 5 );
     scales[0] = 1.0;
+    scales[1] = translationScale;
+    scales[2] = translationScale;
+    scales[3] = translationScale;
+    scales[4] = translationScale;
+    optimizer->SetScales( scales );
+  }
+  
+  void SetOptimizerScalesForCenteredSimilarity2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  {
+    double translationScale, rotationScale, sizeScale;
+    registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
+    registrationParameters()["optimizer"]["scale"]["rotation"] >> rotationScale;
+    registrationParameters()["optimizer"]["scale"]["size"] >> sizeScale;
+  	itk::Array< double > scales( 6 );
+    scales[0] = sizeScale;
+    scales[0] = rotationScale;
     scales[1] = translationScale;
     scales[2] = translationScale;
     scales[3] = translationScale;

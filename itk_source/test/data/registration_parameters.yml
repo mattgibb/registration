@@ -7,8 +7,10 @@ LoResStartIndex: [17000, 2200]
 
 maskShrinkFactor: 0.5
 optimizer:
-  translationScale: 0.001 # What is an appropriate 2D translation scale?
-  maxIterations: 200 # 400
+  scale:
+    translation: 0.001
+    rotation: 1
+  maxIterations: 200
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.6

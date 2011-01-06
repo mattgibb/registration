@@ -2,14 +2,16 @@ ActualLoResSpacings: [19, 19, 10] # LoRes spacings
 ActualHiResSpacings:  [0.546, 0.546, 10]
 LoResSpacings: [152, 152, 10] # LoRes spacings
 HiResSpacings:  [70.4, 70.4, 10]
-# LoResTranslation: [112, 10]
 LoResTranslation: [17024, 1520]
 LoResSize: [89, 119]
 
-maskShrinkFactor: 0.5
+maskShrinkFactor: 0.75
 optimizer:
-  translationScale: 0.001 # What is an appropriate 2D translation scale?
-  maxIterations: 300
+  scale:
+    translation: 0.001 # What is an appropriate 2D translation scale?
+    rotation: 1
+    size: 1
+  maxIterations: 15
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.6
@@ -20,6 +22,7 @@ optimizer:
     # learningRate: 10
 
 metric:
+  # uncomment name of metric you wish to use
   # meanSquares:
   mattesMutualInformation:
     # numberOfSpatialSamples: 24000
