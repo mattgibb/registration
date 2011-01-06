@@ -16,7 +16,7 @@ task :build_volumes => [:make] do
 end
 
 namespace :test do
-  task :default => [:brain, :refactor] do; end
+  task :default => [:brain, :refactor]
   
   def test_success(diff_output)
     if $?.success?

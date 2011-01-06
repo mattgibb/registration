@@ -25,7 +25,7 @@ module ImageProcessing
           sleep 10
         end
       end
-
+      
       puts "All files have been downsampled!"
     end
     

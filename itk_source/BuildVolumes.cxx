@@ -1,9 +1,6 @@
 #include "itkCenteredSimilarity2DTransform.h"
 
 // my files
-#include "StdOutIterationUpdate.hpp"
-#include "FileIterationUpdate.hpp"
-#include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
 #include "Framework2DRat.hpp"
 #include "IOHelpers.hpp"

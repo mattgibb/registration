@@ -8,6 +8,7 @@
 #include "itkCenteredRigid2DTransform.h"
 #include "itkSingleValuedNonLinearOptimizer.h"
 #include "Stack.hpp"
+#include "RegistrationParameters.hpp"
 
 using namespace std;
 

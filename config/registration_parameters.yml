@@ -8,7 +8,7 @@ LoResSize: [89, 119]
 maskShrinkFactor: 0.75
 optimizer:
   scale:
-    translation: 0.001 # What is an appropriate 2D translation scale?
+    translation: 0.0002 # What is an appropriate 2D translation scale?
     rotation: 1
     size: 1
   maxIterations: 15
