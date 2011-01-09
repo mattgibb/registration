@@ -6,6 +6,7 @@
 #include "itkIdentityTransform.h"
 #include "itkTranslationTransform.h"
 #include "itkCenteredRigid2DTransform.h"
+#include "itkCenteredAffineTransform.h"
 #include "itkSingleValuedNonLinearOptimizer.h"
 #include "Stack.hpp"
 #include "RegistrationParameters.hpp"
@@ -137,11 +138,31 @@ namespace StackTransforms {
     registrationParameters()["optimizer"]["scale"]["size"] >> sizeScale;
   	itk::Array< double > scales( 6 );
     scales[0] = sizeScale;
-    scales[0] = rotationScale;
-    scales[1] = translationScale;
+    scales[1] = rotationScale;
     scales[2] = translationScale;
     scales[3] = translationScale;
     scales[4] = translationScale;
+    scales[5] = translationScale;
+    optimizer->SetScales( scales );
+  }
+  
+  void SetOptimizerScalesForCenteredAffineTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  {
+    double translationScale, sizeScale;
+    registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
+    registrationParameters()["optimizer"]["scale"]["size"] >> sizeScale;
+  	itk::Array< double > scales( 8 );
+  	// four matrix elements
+    scales[0] = sizeScale;
+    scales[1] = sizeScale;
+    scales[2] = sizeScale;
+    scales[3] = sizeScale;
+  	// two centre coordinates
+    scales[4] = translationScale;
+    scales[5] = translationScale;
+  	// two translation coordinates
+    scales[6] = translationScale;
+    scales[7] = translationScale;
     optimizer->SetScales( scales );
   }
   

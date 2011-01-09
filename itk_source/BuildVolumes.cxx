@@ -61,7 +61,7 @@ int main(int argc, char const *argv[]) {
 
   // Generate fixed images to register against
   LoResStack.updateVolumes();
-  
+
   // initialise registration framework
   Framework2DRat framework2DRat(LoResStack, HiResStack);
   
@@ -71,8 +71,10 @@ int main(int argc, char const *argv[]) {
   // perform centered rigid 2D registration
   framework2DRat.StartRegistration();
   
-  // TODO: Check whether this step is necessary
+  // write rigid transforms
   HiResStack.updateVolumes();
+  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
+  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );  
   
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
   
@@ -82,7 +84,19 @@ int main(int argc, char const *argv[]) {
   // perform similarity rigid 2D registration
   framework2DRat.StartRegistration();
   
+  // write similarity transforms
+  HiResStack.updateVolumes();
+  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResSimilarityStack.mha" );
   
+  // repeat registration with affine transform
+  cout << HiResStack.GetTransform(0);
+  StackTransforms::InitializeFromCurrentTransforms< itk::CenteredAffineTransform< double, 2 > >(HiResStack);
+  cout << HiResStack.GetTransform(0);
+  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( framework2DRat.GetOptimizer() );
+  framework2DRat.StartRegistration();
+  HiResStack.updateVolumes();
+  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
+  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );  
   
   //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   
@@ -108,11 +122,6 @@ int main(int argc, char const *argv[]) {
 	// update HiRes slices
   // HiResStack.updateVolumes();
 	// write volume and mask to disk
-	
-  writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
 	
   return EXIT_SUCCESS;
 }
