@@ -12,6 +12,7 @@
 // my files
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
+#include "NormalizedDifferenceIterationUpdate.hpp"
 #include "Stack.hpp"
 
 

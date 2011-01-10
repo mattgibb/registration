@@ -14,7 +14,6 @@ public:
   typedef FileIterationUpdate                  Self;
   typedef CommandObserverBase                  Superclass;
   typedef itk::SmartPointer<Self>              Pointer;
-  typedef const OptimizerType*                 OptimizerPointer;
   
   itkNewMacro( Self );
   
@@ -25,7 +24,7 @@ public:
       return;
     }
 		
-    OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
+    const OptimizerType* optimizer = dynamic_cast< const OptimizerType* >( object );
 		
 		// output << registration->GetCurrentLevel() << " ";
     output << optimizer->GetCurrentIteration() << " ";
@@ -36,6 +35,7 @@ public:
 		{
 			output << " " << params[i];
 		}
+		
     output << endl;
   }
 

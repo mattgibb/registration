@@ -12,13 +12,12 @@ public:
   typedef StdOutIterationUpdate                Self;
   typedef CommandObserverBase                  Superclass;
   typedef itk::SmartPointer<Self>              Pointer;
-  typedef const OptimizerType*                 OptimizerPointer;
 
   itkNewMacro( Self );
 
   virtual void Execute(const itk::Object * object, const itk::EventObject & event)
   {
-    OptimizerPointer optimizer = dynamic_cast< OptimizerPointer >( object );
+    const OptimizerType* optimizer = dynamic_cast< const OptimizerType* >( object );
 		
     if( ! itk::IterationEvent().CheckEvent( &event ) )
       {

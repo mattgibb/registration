@@ -89,9 +89,7 @@ int main(int argc, char const *argv[]) {
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResSimilarityStack.mha" );
   
   // repeat registration with affine transform
-  cout << HiResStack.GetTransform(0);
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredAffineTransform< double, 2 > >(HiResStack);
-  cout << HiResStack.GetTransform(0);
   StackTransforms::SetOptimizerScalesForCenteredAffineTransform( framework2DRat.GetOptimizer() );
   framework2DRat.StartRegistration();
   HiResStack.updateVolumes();

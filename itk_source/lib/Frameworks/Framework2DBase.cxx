@@ -120,14 +120,17 @@ template< typename OptimizerType >
 void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
 {
   typedef StdOutIterationUpdate< OptimizerType > StdOutObserverType;
+  typedef NormalizedDifferenceIterationUpdate< OptimizerType > NormalizedDifferenceObserverType;
 	typedef FileIterationUpdate< OptimizerType > FileObserverType;
   
   // instantiate observers
   typename StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
+  typename NormalizedDifferenceObserverType::Pointer normalizedDifferenceObserver = NormalizedDifferenceObserverType::New();
 	typename FileObserverType::Pointer fileObserver = FileObserverType::New();
   
 	// register the observers
-  optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
+  // optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
+  optimizer->AddObserver( itk::IterationEvent(), normalizedDifferenceObserver );
   optimizer->AddObserver( itk::IterationEvent(), fileObserver );
   
 }
