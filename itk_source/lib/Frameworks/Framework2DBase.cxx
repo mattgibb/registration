@@ -129,8 +129,8 @@ void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
 	typename FileObserverType::Pointer fileObserver = FileObserverType::New();
   
 	// register the observers
-  // optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
-  optimizer->AddObserver( itk::IterationEvent(), normalizedDifferenceObserver );
+  optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
+  // optimizer->AddObserver( itk::IterationEvent(), normalizedDifferenceObserver );
   optimizer->AddObserver( itk::IterationEvent(), fileObserver );
   
 }
