@@ -2,6 +2,7 @@
 #define IO_HELPERS_HPP_
 
 #include "itkImage.h"
+#include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 
@@ -18,6 +19,26 @@ inline vector< string > getFileNames(const string& directory, const string& file
   }
   
   return fileNames;
+}
+
+// Reader helper
+template<typename ImageType>
+ImageType::Pointer readImage(const string& fileName) {
+  typedef itk::ImageFileReader< ImageType > ReaderType;
+  typename ReaderType::Pointer reader = ReaderType::New();
+	
+  reader->SetFileName( fileName.c_str() );
+	
+  try {
+  	reader->Update();
+  }
+	catch( itk::ExceptionObject & err ) {
+    cerr << "ExceptionObject caught !" << endl;
+    cerr << err << endl;
+		exit(EXIT_FAILURE);
+	}
+	
+  return reader->GetOutput();
 }
 
 // Writer helpers
