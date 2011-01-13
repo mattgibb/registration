@@ -23,7 +23,7 @@ inline vector< string > getFileNames(const string& directory, const string& file
 
 // Reader helper
 template<typename ImageType>
-ImageType::Pointer readImage(const string& fileName) {
+typename ImageType::Pointer readImage(const string& fileName) {
   typedef itk::ImageFileReader< ImageType > ReaderType;
   typename ReaderType::Pointer reader = ReaderType::New();
 	
