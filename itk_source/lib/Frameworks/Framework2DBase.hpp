@@ -3,16 +3,9 @@
 
 // ITK includes
 #include "itkImageRegistrationMethod.h"
-#include "itkRegularStepGradientDescentOptimizer.h"
-#include "itkGradientDescentOptimizer.h"
-#include "itkMeanSquaresImageToImageMetric.h"
-#include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkLinearInterpolateImageFunction.h"
 
 // my files
-#include "StdOutIterationUpdate.hpp"
-#include "FileIterationUpdate.hpp"
-#include "NormalizedDifferenceIterationUpdate.hpp"
 #include "Stack.hpp"
 
 

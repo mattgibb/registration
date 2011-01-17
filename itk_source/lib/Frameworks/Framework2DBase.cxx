@@ -3,6 +3,16 @@
 
 #include "Framework2DBase.hpp"
 #include "RegistrationParameters.hpp"
+#include "itkRegularStepGradientDescentOptimizer.h"
+#include "itkGradientDescentOptimizer.h"
+#include "itkMeanSquaresImageToImageMetric.h"
+#include "itkMattesMutualInformationImageToImageMetric.h"
+#include "itkNormalizedCorrelationImageToImageMetric.h"
+
+// my files
+#include "StdOutIterationUpdate.hpp"
+#include "FileIterationUpdate.hpp"
+#include "NormalizedDifferenceIterationUpdate.hpp"
 
 
 Framework2DBase::Framework2DBase()
