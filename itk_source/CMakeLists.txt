@@ -40,4 +40,8 @@ ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs RegistrationParameters Frameworks Stack)
 
+ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
+TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs)
+
 ADD_SUBDIRECTORY(test)
