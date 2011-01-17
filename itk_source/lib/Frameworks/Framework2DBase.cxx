@@ -35,7 +35,8 @@ void Framework2DBase::buildMetric() {
   // ensure metric will be built
   if(
     !metricParameters.FindValue("meanSquares") &&
-    !metricParameters.FindValue("mattesMutualInformation")
+    !metricParameters.FindValue("mattesMutualInformation") &&
+    !metricParameters.FindValue("normalizedCorrelation")
     )
   {
     cerr << "No metric specified in params file!" << endl;
@@ -46,6 +47,14 @@ void Framework2DBase::buildMetric() {
   if(metricParameters.FindValue("meanSquares")) {
     cout << "Using mean squares image metric.\n";
     typedef itk::MeanSquaresImageToImageMetric< SliceType, SliceType > MetricType;
+    MetricType::Pointer specificMetric = MetricType::New();
+    
+    metric = specificMetric;
+  }
+  
+  if(metricParameters.FindValue("normalizedCorrelation")) {
+    cout << "Using normalized correlation image metric.\n";
+    typedef itk::NormalizedCorrelationImageToImageMetric< SliceType, SliceType > MetricType;
     MetricType::Pointer specificMetric = MetricType::New();
     
     metric = specificMetric;
