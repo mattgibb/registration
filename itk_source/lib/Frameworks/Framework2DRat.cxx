@@ -27,8 +27,8 @@ void Framework2DRat::StartRegistration() {
       // registration->SetFixedImageRegion( LoResStack.GetOriginalImage(slice_number)->GetLargestPossibleRegion() );
       // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
       
-      metric->SetFixedImageMask( LoResStack.GetResampled2DMask(slice_number) );
-      metric->SetMovingImageMask( HiResStack.GetOriginal2DMask(slice_number) );
+      // metric->SetFixedImageMask( LoResStack.GetResampled2DMask(slice_number) );
+      // metric->SetMovingImageMask( HiResStack.GetOriginal2DMask(slice_number) );
       
       registration->SetTransform( HiResStack.GetTransform(slice_number) );
       registration->SetInitialTransformParameters( HiResStack.GetTransform(slice_number)->GetParameters() );

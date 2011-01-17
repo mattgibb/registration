@@ -93,8 +93,10 @@ void Framework2DBase::buildOptimizer() {
   
   // extract options
   unsigned int maxIterations;
+  bool maximize;
   
   optimizerParameters["maxIterations"]  >> maxIterations;
+  optimizerParameters["maximize"] >> maximize;
   
   // pick optimizer and set specific options
   if(optimizerParameters.FindValue("gradientDescent")) {
@@ -106,7 +108,9 @@ void Framework2DBase::buildOptimizer() {
     optimizerParameters["gradientDescent"] >> learningRate;
     specificOptimizer->SetLearningRate( learningRate );
     specificOptimizer->SetNumberOfIterations( maxIterations );
-
+    
+    specificOptimizer->SetMaximize(maximize);
+    
     optimizer = specificOptimizer;
   }
   
@@ -124,8 +128,11 @@ void Framework2DBase::buildOptimizer() {
     specificOptimizer->SetMaximumStepLength( maxStepLength );
     specificOptimizer->SetMinimumStepLength( minStepLength );
     
+    specificOptimizer->SetMaximize(maximize);
+    
     optimizer = specificOptimizer;
   }
+  
 }
 
 void Framework2DBase::wireUpRegistrationComponents() {
