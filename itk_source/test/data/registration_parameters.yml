@@ -6,6 +6,7 @@ LoResSize: [89, 114]
 LoResStartIndex: [17000, 2200]
 
 maskShrinkFactor: 0.5
+normalizeImages: false
 optimizer:
   maximize: off
   scale:

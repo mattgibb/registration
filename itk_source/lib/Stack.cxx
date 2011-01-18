@@ -9,6 +9,7 @@ Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingTy
 fileNames(inputFileNames),
 spacings(inputSpacings) {
   readImages();
+  normalizeImages();
   initializeVectors();
 	// scale slices and initialise volume and mask
   resamplerSize.Fill(0);
@@ -26,6 +27,7 @@ fileNames(inputFileNames),
 resamplerSize(inputSize),
 spacings(inputSpacings) {
   readImages();
+  normalizeImages();
   initializeVectors();
 	// scale slices and initialise volume and mask
 	for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
@@ -42,6 +44,7 @@ resamplerSize(inputSize),
 originalSpacings(inputOriginalSpacings),
 spacings(inputSpacings) {
   readImages();
+  normalizeImages();
   initializeVectors();
  // scale slices and initialise volume and mask
   scaleOriginalSlices();
@@ -69,6 +72,28 @@ void Stack::readImages() {
 	  }
 	}
 	
+}
+
+void Stack::normalizeImages() {
+  // test if configured to normalise images
+  bool normalizeImages;
+  registrationParameters()["normalizeImages"] >> normalizeImages;
+  cout << "normalizeImages: " << normalizeImages << endl;
+  
+  // apply normalisation
+  if(normalizeImages)
+  {
+    for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++)
+    {
+      normalizer = NormalizerType::New();
+      normalizer->SetInput( originalImages[slice_number] );
+      normalizer->Update();
+      originalImages[slice_number] = normalizer->GetOutput();
+      originalImages[slice_number]->DisconnectPipeline();
+    }
+  }
+  
+  cout << "finished normalising" << endl;
 }
   
 void Stack::initializeVectors() {
