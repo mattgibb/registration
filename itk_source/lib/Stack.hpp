@@ -22,7 +22,7 @@ using namespace std;
 
 class Stack {
 public:
-  typedef short PixelType;
+  typedef float PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
 	typedef itk::Image< unsigned char, 2 > MaskSliceType;
 	typedef itk::ImageRegionIterator< MaskSliceType > MaskSliceIteratorType;

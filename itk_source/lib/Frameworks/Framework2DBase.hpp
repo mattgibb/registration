@@ -11,7 +11,7 @@
 
 class Framework2DBase {
 public:
-  typedef short PixelType;
+  typedef Stack::PixelType PixelType;
   typedef itk::Image< PixelType, 2 > SliceType;
   typedef itk::LinearInterpolateImageFunction< SliceType, double > LinearInterpolatorType;
 	typedef itk::ImageRegistrationMethod< SliceType, SliceType > RegistrationType;
