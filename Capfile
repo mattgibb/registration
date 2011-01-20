@@ -5,15 +5,34 @@ set :application, "registration"
 set :repository, "git://github.com/mattgibb/registration.git"
 set :scm, :git
 
-role :servers, "heart"
-role :clpcs, "work"
+role :clpcs, "work", "heart"
+role :orac, "orac"
+role :clusters, "sal"
 
 set :remote_dir, "/users/matg/imaging/registration"
 set :local_dir, "/Users/matthewgibb/Code/imaging/registration"
 
 desc "Compile all the itk programs on the servers"
-task :compile do
-  run "cd #{remote_dir}/itk; make"
+namespace :compile do
+  task :default do
+    orac
+  end
+  
+  desc "Compile on orac"
+  task :orac, :roles => :orac do
+    run "cd registration/itk_build; make"
+  end
+end
+
+desc "Pull changes to servers"
+namespace :pull do
+  task :default do
+    orac
+  end
+  
+  task :orac, :roles => :orac do
+    run "cd registration; git pull"
+  end
 end
 
 desc "Push changes to remote servers and hard reset the remote project"
