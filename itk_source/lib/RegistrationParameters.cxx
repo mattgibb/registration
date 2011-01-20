@@ -2,7 +2,7 @@
 #define _REGISTRATIONPARAMETERS_CXX_
 
 #include <fstream>
-#include "yaml.h"
+#include "yaml-cpp/yaml.h"
 #include "Dirs.hpp"
 
 YAML::Node& registrationParameters()

@@ -3,7 +3,7 @@
 #ifndef FRAMEWORK3D_HPP_
 #define FRAMEWORK3D_HPP_
 // YAML config reader
-#include "yaml.h"
+#include "yaml-cpp/yaml.h"
 
 // 3-D registration
 #include "itkMultiResolutionImageRegistrationMethod.h"

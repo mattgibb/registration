@@ -1,5 +1,5 @@
 // YAML config reader
-#include "yaml.h"
+#include "yaml-cpp/yaml.h"
 
 // ITK includes
 #include "itkImage.h"

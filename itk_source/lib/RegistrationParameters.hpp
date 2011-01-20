@@ -3,7 +3,7 @@
 
 // Singleton YAML registration parameters object
 
-#include "yaml.h"
+#include "yaml-cpp/yaml.h"
 
 YAML::Node& registrationParameters();
 
