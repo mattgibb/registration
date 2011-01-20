@@ -40,46 +40,21 @@ int main( int argc, char * argv[] )
   itk::ImageRegionConstIterator< InputImageType > cit(inputImage, region);
   itk::ImageRegionIterator< OutputImageType >     it(outputImage, region);
   for (cit.GoToBegin(), it.GoToBegin(); !it.IsAtEnd(); ++cit, ++it ) {
-    it.Value().SetRed( cit.Value().GetRed() );
-    it.Value().SetBlue( cit.Value().GetBlue() );
-    it.Value().SetGreen( cit.Value().GetGreen() );
+    it.Value().SetRed( cit.Value().GetGreen() );
+    it.Value().SetGreen( cit.Value().GetBlue() );
+    it.Value().SetBlue( cit.Value().GetAlpha() );
     
-    // cout << cit.Value().GetAlpha() << endl;
-    // if(cit.Value().GetAlpha())
-    // {
-    //   cerr << "Non-zero alpha in input image!" << endl;
-    //   abort();
-    // }
+    // check that actual Alpha channel (even though it's interpreted as Red)
+    // contains only zeros
+    if(cit.Value().GetRed())
+    {
+      cerr << "Non-zero alpha in input image!" << endl;
+      abort();
+    }
   }
   
   // write RGB image to file
   writeImage< OutputImageType >( outputImage, outputDir + "RGB.bmp" );
-  
-  // Write individual channels by name to file.
-  #define writeChannelByName(Colour) \
-  { \
-   /* create image from named channel of input image */ \
-    typedef itk::Image< unsigned char > ChannelType; \
-    ChannelType::Pointer channel = ChannelType::New(); \
-    channel->SetRegions( region ); \
-    channel->CopyInformation( inputImage ); \
-    channel->Allocate(); \
-    \
-    itk::ImageRegionConstIterator< InputImageType > cit(inputImage, region); \
-    itk::ImageRegionIterator< ChannelType > it(channel, region); \
-    \
-    for (cit.GoToBegin(), it.GoToBegin(); !it.IsAtEnd(); ++cit, ++it ) { \
-      it.Set( cit.Value().Get ## Colour() ); \
-    } \
-    \
-   /* write channel */ \
-    writeImage< ChannelType >(channel, outputDir + #Colour + ".bmp" ); \
-  }
-  
-  writeChannelByName(Red);
-  writeChannelByName(Green);
-  writeChannelByName(Blue);
-  writeChannelByName(Alpha);
   
   return EXIT_SUCCESS;
 }
