@@ -16,8 +16,21 @@ FIND_LIBRARY(YAML_LIBRARY
   NAMES libyaml-cpp.dylib libyaml-cpp.so
   PATHS /usr/local/lib $ENV{HOME}/lib
   )
+  
+# Add platform-specific stuff
+IF($ENV{HOST})
+  SET(HOST $ENV{HOST})
+ELSE($ENV{HOST})
+  SET(HOST "unknown")
+ENDIF($ENV{HOST})
 
-INCLUDE_DIRECTORIES(/usr/local/include/yaml-cpp $ENV{HOME}/include/yaml-cpp)
+IF(orac STREQUAL ${HOST})
+  # INCLUDE_DIRECTORIES(/home/comp-card/mattgibb/orac/include)
+ELSEIF(sal STREQUAL ${HOST})
+  # INCLUDE_DIRECTORIES(/home/comp-card/mattgibb/sal/include)
+ELSE(orac STREQUAL ${HOST})
+  INCLUDE_DIRECTORIES(/usr/local/include $ENV{HOME}/include)
+ENDIF(orac STREQUAL ${HOST})
 
 # Project tree
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} lib lib/Frameworks lib/Observers)
