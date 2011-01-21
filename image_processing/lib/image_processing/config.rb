@@ -4,6 +4,7 @@ require 'yaml'
 module ImageProcessing
   class Config
     PROJECT_ROOT_DIR = File.expand_path(File.join(File.dirname(__FILE__), "../../.."))
+    ITK_DIR = File.join(PROJECT_ROOT_DIR, "itk_build")
     IMAGES_DIR = File.join(PROJECT_ROOT_DIR, "images")
     CONFIG_DIR = File.join(PROJECT_ROOT_DIR, "config")
     RESULTS_DIR = File.join(PROJECT_ROOT_DIR, "results")

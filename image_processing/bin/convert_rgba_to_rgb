@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'image_processing/converter'
+
+converter = ImageProcessing::RGBAConverter.new(ARGV)
+converter.go

@@ -9,11 +9,11 @@ int main( int argc, char * argv[] )
 {
   if( argc != 3 ) {
     cerr << "Usage: " << endl;
-    cerr << argv[0] << "  inputImageFile outputDir" << endl;
+    cerr << argv[0] << "  inputImageFile outputImageFile" << endl;
     exit(EXIT_FAILURE);
   }
   
-  string inputImageFile(argv[1]), outputDir(argv[2]);
+  string inputImageFile(argv[1]), outputImageFile(argv[2]);
   
   const     unsigned int   Dimension = 2;
   
@@ -54,7 +54,7 @@ int main( int argc, char * argv[] )
   }
   
   // write RGB image to file
-  writeImage< OutputImageType >( outputImage, outputDir + "RGB.bmp" );
+  writeImage< OutputImageType >( outputImage, outputImageFile );
   
   return EXIT_SUCCESS;
 }
