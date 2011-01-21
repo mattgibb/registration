@@ -1,3 +1,6 @@
+# Class to augment the interface of the ruby standard ftp client.
+# recovers from broken connections
+
 require 'net/ftp'
 require 'fileutils'
 

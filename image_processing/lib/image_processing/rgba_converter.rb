@@ -4,8 +4,8 @@ require 'image_processing/file_manager'
 module ImageProcessing
   class RGBAConverter
     
-    def initialize(rgba_dir, rgb_dir)
-      @rgba_dir, @rgb_dir = rgba_dir, rgb_dir
+    def initialize(argv)
+      @rgba_dir, @rgb_dir = argv
     end
     
     def go
@@ -16,15 +16,16 @@ module ImageProcessing
     end
         
     def convert_rgba(filename)
-      
+      print "Converting #{filename}..."
       command = [
         File.join(Config::ITK_DIR, "ConvertRGBAToRGB"),
-        File.join(@rgba_dir, filename)
+        File.join(@rgba_dir, filename),
         File.join(@rgb_dir, filename)
       ].join(" ")
       
       # run command
       system command
+      puts "done"
     end
     
   private
