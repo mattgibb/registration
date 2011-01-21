@@ -21,7 +21,11 @@ module ImageProcessing
     
     def list(dir)
       check_connection
-      @ftp.nlst(dir)
+      begin
+        @ftp.nlst(dir)
+      rescue Errno::ETIMEDOUT => e
+        retry
+      end
     end
     
     def download_file(source, destination)
