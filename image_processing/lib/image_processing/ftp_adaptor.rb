@@ -5,13 +5,14 @@ module ImageProcessing
   class FtpAdaptor
     include FileUtils
     
-    def initialize(config)
-      @host, @user, @password = config.host, config.user, config.password
-      setup_ftp
-    end
-    
-    def initialize(host, user, password)
-      @host, @user, @password = host, user, password
+    def initialize(*args)
+      if args.size == 1
+        # config object passed in
+        config = args[0]
+        @host, @user, @password = config.host, config.user, config.password
+      elsif args.size == 3
+        @host, @user, @password = args
+      end
       setup_ftp
     end
     
