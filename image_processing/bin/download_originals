@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'image_processing/originals_downloader'
 
+# arguments are dataset and downsample ratio
 downloader = ImageProcessing::OriginalsDownloader.new(ARGV)
 downloader.go
