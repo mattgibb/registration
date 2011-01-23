@@ -4,8 +4,8 @@ require 'image_processing/file_manager'
 module ImageProcessing
   class RGBAConverter
     
-    def initialize(argv)
-      @rgba_dir, @rgb_dir = argv
+    def initialize(rgba_dir, rgb_dir)
+      @rgba_dir, @rgb_dir = rgba_dir, rgb_dir
     end
     
     def go
