@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require 'image_processing/rgba_converter'
 
-converter = ImageProcessing::RGBAConverter.new(ARGV)
+rgba_dir, rgb_dir = ARGV
+
+converter = ImageProcessing::RGBAConverter.new(rgba_dir, rgb_dir)
 converter.go
