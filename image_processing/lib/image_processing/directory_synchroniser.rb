@@ -71,12 +71,16 @@ module ImageProcessing
       @ftp.list(@remote_dir).map {|f| File.basename f }
     end
     
+    def cached_remote_files
+      @remote_files ||= @ftp.list(@remote_dir).map {|f| File.basename f }
+    end
+    
     def local_files
       Dir.chdir(@local_dir) { Dir['*'] }
     end
     
     def files_to_download
-      remote_files - local_files
+      cached_remote_files - local_files
     end
     
     def files_to_upload
