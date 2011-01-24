@@ -7,8 +7,8 @@ module ImageProcessing
   class Downsampler
     include FileUtils
     
-    def initialize(argv)
-      @config = Config.new(argv)
+    def initialize(config)
+      @config = config
       @ftp = FtpAdaptor.new(@config)
       @file_manager = FileManager.new(@config, @ftp)
     end

@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
+require 'image_processing/config'
 require 'image_processing/downsampler'
 
-downsampler = ImageProcessing::Downsampler.new(ARGV)
+config = Config.new(ARGV)
+downsampler = ImageProcessing::Downsampler.new(config)
 downsampler.go
