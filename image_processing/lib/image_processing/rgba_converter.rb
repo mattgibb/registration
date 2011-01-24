@@ -11,6 +11,7 @@ module ImageProcessing
     def go
       until images_to_be_converted.empty?
         convert_rgba(images_to_be_converted[0])
+        puts "Converted #{rgb_images.count} of #{rgba_images.count} images."
       end
       puts "All RGBA files have been converted!"
     end
