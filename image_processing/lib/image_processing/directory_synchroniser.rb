@@ -19,7 +19,7 @@ module ImageProcessing
         puts "Files left to download:", (files_to_download - dirs).count, "\n"
         file = (files_to_download - dirs).first
         begin
-          @ftp.download_file(@remote_dir + file, @local_dir + file)
+          @ftp.download_file( File.join(@remote_dir, file), File.join(@local_dir, file) )
         rescue Net::FTPPermError => e
           raise unless e.message =~ /550/ # only handle exception if file is not a regular file
           puts e
