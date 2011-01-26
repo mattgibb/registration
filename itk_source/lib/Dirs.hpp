@@ -2,7 +2,6 @@
 #define _DIRS_HPP_
 
 #include <string>
-#include <iostream>
 // Singleton to provide directory information
 // The static string _dataSet must be set to a non-empty string
 // before the first Instance() call is received

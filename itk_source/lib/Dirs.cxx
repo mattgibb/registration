@@ -2,6 +2,8 @@
 #define _DIRS_CXX_
 
 #include "Dirs.hpp"
+#include <cstdlib>
+#include <iostream>
 
 
 string Dirs::_dataSet = "";
