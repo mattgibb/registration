@@ -66,7 +66,7 @@ string Dirs::DTMRIDir()
 
 string Dirs::BlockDir()
 {
-  return ImagesDir() + "LoRes/downsamples_8/";
+  return ImagesDir() + "LoRes_rgb/downsamples_8/";
 }
 
 string Dirs::SliceDir()
