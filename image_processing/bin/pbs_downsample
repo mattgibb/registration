@@ -51,6 +51,6 @@ module ImageProcessing
   end
 end
 
-config = Config.new(ARGV)
+config = ImageProcessing::Config.new(ARGV)
 downsampler = ImageProcessing::PbsDownsampler.new(config)
 downsampler.go
