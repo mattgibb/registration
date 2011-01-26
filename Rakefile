@@ -53,4 +53,22 @@ task :movies do
   sh "graphing/registration_graphs.py #{test_dir}"
 end
 
+namespace :output do
+  desc "Delete qsub job outputs"
+  task :clean do
+    sh "find . | egrep '\.[eo][0-9]{5}$' | xargs rm"
+  end
+  
+  desc "Print standard outputs"
+  task :stdout do
+    sh "find . | egrep '\.o[0-9]{5}$' | xargs cat"
+  end
+  
+  desc "Print standard errors"
+  task :stderr do
+    sh "find . | egrep '\.e[0-9]{5}$' | xargs cat"
+  end
+  
+end
+
 # String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
