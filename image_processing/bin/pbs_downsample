@@ -16,7 +16,7 @@ module ImageProcessing
       originals_to_be_downsampled.each do |filename|
         downsample_file(filename)
       end
-      puts "All files have been downsampled!"
+      puts "All files have been submitted!"
     end
     
   private
@@ -31,7 +31,7 @@ module ImageProcessing
       downsample = File.join(@config.local_downsamples_dir, filename)
       executable = File.join(Config::PROJECT_ROOT_DIR, "pbs_scripts/shrink_image")
       
-      print "Downsampling #{filename}..."
+      print "Submitting #{filename}..."
       `echo '#{executable} #{original} #{downsample} #{@config.downsample_ratio}' | qsub -N #{filename}`
       puts "done."
     end
