@@ -122,9 +122,7 @@ int main( int argc, char * argv[] )
 
   resampler->SetInput( smootherY->GetOutput() );
 
-  writer->SetInput( reader->GetOutput() );
-  // writer->SetInput( caster->GetOutput() );
-  // writer->SetInput( resampler->GetOutput() );
+  writer->SetInput( resampler->GetOutput() );
   
   try {
     writer->Update();
