@@ -3,6 +3,7 @@
 #PBS -l walltime=1:00:00
 #PBS -l ncpus=4
 #PBS -N default
+#PBS -p 1023
 
 # check out -l mem directive
 # 4 cores per node on orac, so take total memory usage, divide by 12GB or 24GB, then multiply by 4
@@ -10,9 +11,9 @@
 # 1TB ram on orac
 # use tracejob or date to time jobs
 cd $PBS_O_WORKDIR
-# date > dates
+# date +%s > dates
 ~/registration/itk_build/ShrinkImage $1 $2 $3
-# date >> dates
+# date +%s >> dates
 
 # from command line
 # echo "~/registration/itk_build/ShrinkImage ~/registration/images/Rat24/LoRes-rgb/originals/0443.bmp ~/registration/images/Rat24/LoRes-rgb/downsamples_8/0443.bmp 8" | qsub -l ncpus=4:walltime=1:00:00 -N test
