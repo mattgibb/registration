@@ -20,14 +20,22 @@ namespace :test do
   
   def test_success(diff_output)
     if $?.success?
-      `echo The refactoring worked\! | growlnotify Success\!`
       puts "\nrefactoring successful!"
-      `say refactoring successful!`
+      begin
+        # On mac, visual and audible notification
+        `echo The refactoring worked\! | growlnotify Success\!`
+        `say refactoring successful!`
+      rescue
+      end
     else
-      `echo '#{diff_output}' | growlnotify The refactoring fucked something\.`
+      begin
+        # On mac, visual and audible notification
+        `echo '#{diff_output}' | growlnotify The refactoring fucked something\.`
+        `say refactoring failed`
+      rescue
+      end
       puts "\nDifferences:"
       puts diff_output
-     `say refactoring failed`
     end
   end
   
