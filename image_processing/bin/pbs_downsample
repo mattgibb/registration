@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 require 'image_processing/config'
 require 'image_processing/pbs_downsampler'
-require 'fileutils'
 
 config = ImageProcessing::Config.new(ARGV)
 downsampler = ImageProcessing::PbsDownsampler.new(config)

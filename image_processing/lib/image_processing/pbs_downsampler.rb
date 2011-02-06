@@ -1,3 +1,5 @@
+require 'fileutils'
+
 module ImageProcessing
   class PbsDownsampler
     include FileUtils
