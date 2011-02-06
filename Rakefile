@@ -12,7 +12,10 @@ end
 desc "Build registered rat volumes from 2D histology and block face images"
 task :build_volumes => [:make] do
   sh "itk_build/BuildVolumes Rat24 BuildVolumes"
-  sh "say done"
+  begin
+    sh "say done"
+  rescue
+  end
 end
 
 namespace :test do
