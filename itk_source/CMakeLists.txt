@@ -8,7 +8,7 @@ INCLUDE(${ITK_USE_FILE})
 SET(ITKLibs ITKCommon ITKBasicFilters ITKIO ITKNumerics)  
 
 # Boost
-FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
+FIND_PACKAGE(Boost 1.45 COMPONENTS program_options REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 
 # YAML
@@ -54,7 +54,7 @@ TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs RegistrationParameters Frameworks Stack)
 
 ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
-TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} 
                                   Dirs)
 
 ADD_SUBDIRECTORY(test)

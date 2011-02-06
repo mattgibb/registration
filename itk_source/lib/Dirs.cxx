@@ -2,9 +2,9 @@
 #define _DIRS_CXX_
 
 #include "Dirs.hpp"
-#include <cstdlib>
-#include <cstring>
 #include <iostream>
+#include <stdlib.h>
+#include "ProjectRootDir.h"
 
 
 string Dirs::_dataSet = "";
@@ -42,9 +42,7 @@ void Dirs::CheckDataSet()
 
 string Dirs::ProjectRootDir()
 {
-  char projectRootDir[1000], FILE[1000] = __FILE__;
-  realpath(strcat(FILE, "/../../.."), projectRootDir);
-  return string(projectRootDir) + "/";
+  return PROJECT_ROOT_DIR;
 }
 
 string Dirs::ImagesDir()
