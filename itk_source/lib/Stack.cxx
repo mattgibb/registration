@@ -91,9 +91,10 @@ void Stack::normalizeImages() {
       originalImages[slice_number] = normalizer->GetOutput();
       originalImages[slice_number]->DisconnectPipeline();
     }
+    
+  cout << "finished normalising" << endl;
   }
   
-  cout << "finished normalising" << endl;
 }
   
 void Stack::initializeVectors() {
