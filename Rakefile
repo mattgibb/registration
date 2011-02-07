@@ -82,4 +82,21 @@ namespace :output do
   
 end
 
+namespace :jobs do
+  desc "display my jobs"
+  task :show do
+    sh "qstat | grep mattgibb"
+  end
+
+  desc "display the number of jobs left to complete"
+  task :count do
+    sh "qstat | grep mattgibb | wc -l"
+  end
+
+  desc "display a running number of jobs left to complete"
+  task :counting do
+    sh "while [ 1 ]; do qstat | grep mattgibb | wc -l; sleep 1; done"
+  end
+end
+
 # String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
