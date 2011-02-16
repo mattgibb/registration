@@ -61,7 +61,8 @@ int main(int argc, char const *argv[]) {
 
   // Generate fixed images to register against
   LoResStack.updateVolumes();
-
+  // writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  
   // initialise registration framework
   Framework2DRat framework2DRat(LoResStack, HiResStack);
   
@@ -74,7 +75,7 @@ int main(int argc, char const *argv[]) {
   // write rigid transforms
   HiResStack.updateVolumes();
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
-  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );  
+  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
   
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
   
@@ -94,7 +95,7 @@ int main(int argc, char const *argv[]) {
   framework2DRat.StartRegistration();
   HiResStack.updateVolumes();
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
-  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );  
+  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
   
   //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
   //   
