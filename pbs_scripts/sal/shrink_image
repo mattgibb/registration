@@ -11,6 +11,6 @@ cd $PBS_O_WORKDIR
 echo "input: " $1
 echo "output: " $2
 echo "downsample_ratio: " $3
-~/registration/itk_build/ShrinkImage $1 $2 $3
+~/registration/itk_build_sal/ShrinkImage $1 $2 $3
 echo "finished."
 # date +%s >> dates
