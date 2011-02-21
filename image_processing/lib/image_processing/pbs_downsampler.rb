@@ -27,7 +27,7 @@ module ImageProcessing
     def downsample_file(filename)
       original   = File.join(@config.local_originals_dir,   filename)
       downsample = File.join(@config.local_downsamples_dir, filename)
-      executable = File.join(Config::PROJECT_ROOT_DIR, "pbs_scripts/shrink_image")
+      executable = File.join(Config::PROJECT_ROOT_DIR, "pbs_scripts", ENV['HOST'], "shrink_image")
       
       print "Submitting #{filename}..."
       `echo '#{executable} #{original} #{downsample} #{@config.downsample_ratio}' | qsub -N #{filename}`

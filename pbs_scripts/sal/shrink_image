@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -V
+#PBS -l walltime=3:00:00
+#PBS -l select=1:mpiprocs=8
+#PBS -N default
+#PBS -p 1023
+
+# use tracejob or date to time jobs
+cd $PBS_O_WORKDIR
+# date +%s > dates
+echo "input: " $1
+echo "output: " $2
+echo "downsample_ratio: " $3
+~/registration/itk_build/ShrinkImage $1 $2 $3
+echo "finished."
+# date +%s >> dates
