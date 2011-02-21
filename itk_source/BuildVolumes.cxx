@@ -7,6 +7,7 @@
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "RegistrationParameters.hpp"
+#include "Profiling.cxx"
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc != 3 )
@@ -69,8 +70,16 @@ int main(int argc, char const *argv[]) {
   // Scale parameter space
   StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
   
+  // Add time and memory probes
+  itkProbesCreate();
+  
   // perform centered rigid 2D registration
+  itkProbesStart( "Registration" );
   framework2DRat.StartRegistration();
+  itkProbesStop( "Registration" );
+  
+  // Report the time and memory taken by the registration
+  itkProbesReport( std::cout );
   
   // write rigid transforms
   HiResStack.updateVolumes();
