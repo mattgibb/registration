@@ -7,7 +7,7 @@
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "RegistrationParameters.hpp"
-#include "Profiling.cxx"
+#include "Profiling.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc != 3 )
