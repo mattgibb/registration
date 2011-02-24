@@ -36,7 +36,7 @@ ENDIF(orac STREQUAL ${HOST})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
                     "lib"
                     "lib/Observers"
-                    "lib/RegistrationBuilders"
+                    "lib/Builders"
                     "lib/StackAligners")
 
 ADD_SUBDIRECTORY(lib)
@@ -57,7 +57,7 @@ TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs RegistrationParameters Stack
-                                   RegistrationBuilders StackAligners)
+                                   Builders StackAligners)
 
 ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
 TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} 
