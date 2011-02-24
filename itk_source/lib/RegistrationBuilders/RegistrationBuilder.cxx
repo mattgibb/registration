@@ -1,35 +1,45 @@
-#ifndef FRAMEWORK2DBASE_CXX_
-#define FRAMEWORK2DBASE_CXX_
+#ifndef REGISTRATIONBUILDER_CXX_
+#define REGISTRATIONBUILDER_CXX_
 
-#include "Framework2DBase.hpp"
-#include "RegistrationParameters.hpp"
-#include "itkRegularStepGradientDescentOptimizer.h"
-#include "itkGradientDescentOptimizer.h"
+
+// registration methods
+
+// metrics
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
 #include "itkNormalizedCorrelationImageToImageMetric.h"
+// optimisers
+#include "itkRegularStepGradientDescentOptimizer.h"
+#include "itkGradientDescentOptimizer.h"
+// interpolators
+#include "itkLinearInterpolateImageFunction.h"
 
 // my files
+#include "RegistrationBuilder.hpp"
+#include "RegistrationParameters.hpp"
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
 #include "NormalizedDifferenceIterationUpdate.hpp"
 
 
-Framework2DBase::Framework2DBase()
+RegistrationBuilder::RegistrationBuilder()
 {
   buildRegistrationComponents();
-  wireUpRegistrationComponents();
 	setUpObservers();
 }
 
-void Framework2DBase::buildRegistrationComponents() {
-	registration = RegistrationType::New();
+void RegistrationBuilder::buildRegistrationComponents() {
+  buildRegistration();
   buildMetric();
   buildOptimizer();
-  interpolator = LinearInterpolatorType::New();
+  buildInterpolator();
 }
 
-void Framework2DBase::buildMetric() {
+void RegistrationBuilder::buildRegistration() {
+  m_registration = RegistrationType::New();
+}
+
+void RegistrationBuilder::buildMetric() {
   const YAML::Node& metricParameters = registrationParameters()["metric"];
   
   // ensure metric will be built
@@ -46,24 +56,24 @@ void Framework2DBase::buildMetric() {
   // pick metric
   if(metricParameters.FindValue("meanSquares")) {
     cout << "Using mean squares image metric.\n";
-    typedef itk::MeanSquaresImageToImageMetric< SliceType, SliceType > MetricType;
-    MetricType::Pointer specificMetric = MetricType::New();
+    typedef itk::MeanSquaresImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
+    MetricType::Pointer metric = MetricType::New();
     
-    metric = specificMetric;
+    m_registration->SetMetric( metric );
   }
   
   if(metricParameters.FindValue("normalizedCorrelation")) {
     cout << "Using normalized correlation image metric.\n";
-    typedef itk::NormalizedCorrelationImageToImageMetric< SliceType, SliceType > MetricType;
-    MetricType::Pointer specificMetric = MetricType::New();
+    typedef itk::NormalizedCorrelationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
+    MetricType::Pointer metric = MetricType::New();
     
-    metric = specificMetric;
+    m_registration->SetMetric( metric );
   }
   
   if(metricParameters.FindValue("mattesMutualInformation")) {
     cout << "Using Mattes mutual information image metric.\n";
-    typedef itk::MattesMutualInformationImageToImageMetric< SliceType, SliceType > MetricType;
-    MetricType::Pointer specificMetric = MetricType::New();
+    typedef itk::MattesMutualInformationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
+    MetricType::Pointer metric = MetricType::New();
     
     // specific settings
     unsigned int numberOfSpatialSamples, numberOfHistogramBins;
@@ -71,14 +81,14 @@ void Framework2DBase::buildMetric() {
     metricParameters["mattesMutualInformation"]["numberOfSpatialSamples"]  >> numberOfSpatialSamples;
     metricParameters["mattesMutualInformation"]["numberOfHistogramBins"]  >> numberOfHistogramBins;
     
-		specificMetric->SetNumberOfSpatialSamples( numberOfSpatialSamples );
-		specificMetric->SetNumberOfHistogramBins( numberOfHistogramBins );
+		metric->SetNumberOfSpatialSamples( numberOfSpatialSamples );
+		metric->SetNumberOfHistogramBins( numberOfHistogramBins );
     
-    metric = specificMetric;
+    m_registration->SetMetric( metric );
   }
 }
 
-void Framework2DBase::buildOptimizer() {
+void RegistrationBuilder::buildOptimizer() {
   const YAML::Node& optimizerParameters = registrationParameters()["optimizer"];
   
   // ensure optimizer will be built
@@ -111,7 +121,7 @@ void Framework2DBase::buildOptimizer() {
     
     specificOptimizer->SetMaximize(maximize);
     
-    optimizer = specificOptimizer;
+    m_registration->SetOptimizer( specificOptimizer );
   }
   
   if(optimizerParameters.FindValue("regularStepGradientDescent")) {
@@ -130,18 +140,17 @@ void Framework2DBase::buildOptimizer() {
     
     specificOptimizer->SetMaximize(maximize);
     
-    optimizer = specificOptimizer;
+    m_registration->SetOptimizer( specificOptimizer );
   }
-  
+    
 }
 
-void Framework2DBase::wireUpRegistrationComponents() {
-	registration->SetMetric( metric );
-  registration->SetOptimizer( optimizer );
-  registration->SetInterpolator( interpolator );
+void RegistrationBuilder::buildInterpolator() {
+  typedef itk::LinearInterpolateImageFunction< Stack::SliceType, double > LinearInterpolatorType;
+  m_registration->SetInterpolator( LinearInterpolatorType::New() );
 }
 
-// implementation of Framework2DBase::SetUpObservers()
+// implementation of RegistrationBuilder::SetUpObservers()
 template< typename OptimizerType >
 void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
 {
@@ -161,20 +170,20 @@ void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   
 }
 
-void Framework2DBase::setUpObservers() {
+void RegistrationBuilder::setUpObservers() {
   const YAML::Node& optimizerParameters = registrationParameters()["optimizer"];
   
   // declare observer types
   if(optimizerParameters.FindValue("gradientDescent"))
   {
-    doSetUpObservers< itk::GradientDescentOptimizer >(optimizer);
+    doSetUpObservers< itk::GradientDescentOptimizer >( m_registration->GetOptimizer() );
   }
   if(optimizerParameters.FindValue("regularStepGradientDescent"))
   {
-    doSetUpObservers< itk::RegularStepGradientDescentOptimizer >(optimizer);
+    doSetUpObservers< itk::RegularStepGradientDescentOptimizer >( m_registration->GetOptimizer() );
   }
 }
 
-Framework2DBase::~Framework2DBase() {}
+// RegistrationBuilder::~RegistrationBuilder() {}
 
 #endif

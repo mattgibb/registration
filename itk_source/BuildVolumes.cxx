@@ -2,7 +2,8 @@
 
 // my files
 #include "Stack.hpp"
-#include "Framework2DRat.hpp"
+#include "RegistrationBuilder.hpp"
+#include "StackAligner.hpp"
 #include "IOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
@@ -65,18 +66,20 @@ int main(int argc, char const *argv[]) {
   // writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
   
   // initialise registration framework
-  Framework2DRat framework2DRat(LoResStack, HiResStack);
+  RegistrationBuilder registrationBuilder;
+  RegistrationBuilder::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
+  StackAligner stackAligner(LoResStack, HiResStack, registration);
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
+  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
   
   // Add time and memory probes
   itkProbesCreate();
   
-  // perform centered rigid 2D registration
-  itkProbesStart( "Registration" );
-  framework2DRat.StartRegistration();
-  itkProbesStop( "Registration" );
+  // perform centered rigid 2D registration on each pair of slices
+  itkProbesStart( "Aligning stacks" );
+  stackAligner.Update();
+  itkProbesStop( "Aligning stacks" );
   
   // Report the time and memory taken by the registration
   itkProbesReport( std::cout );
@@ -84,15 +87,15 @@ int main(int argc, char const *argv[]) {
   // write rigid transforms
   HiResStack.updateVolumes();
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
-  // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
+  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
   
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( framework2DRat.GetOptimizer() );
+  StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
   
   // perform similarity rigid 2D registration
-  framework2DRat.StartRegistration();
+  stackAligner.Update();
   
   // write similarity transforms
   HiResStack.updateVolumes();
@@ -100,36 +103,17 @@ int main(int argc, char const *argv[]) {
   
   // repeat registration with affine transform
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredAffineTransform< double, 2 > >(HiResStack);
-  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( framework2DRat.GetOptimizer() );
-  framework2DRat.StartRegistration();
+  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
+  stackAligner.Update();
   HiResStack.updateVolumes();
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
   // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
   
-  //   StackTransforms::InitializeFromCurrentTransforms< itk::Similarity2DTransform< double > >( HiResStack );
-  //   
-  //   // Set optimizer scales for Similarity2DTransform
-  // Framework2DRat::OptimizerType::ScalesType similarityOptimizerScales( 4 );
-  //   similarityOptimizerScales[0] = 1.0;
-  //   similarityOptimizerScales[1] = 1.0;
-  //   similarityOptimizerScales[2] = translationScale;
-  //   similarityOptimizerScales[3] = translationScale;
-  //   framework2DRat.GetOptimizer()->SetScales( similarityOptimizerScales );
-  //   
-  //   framework2DRat.StartRegistration( outputDir + "output2.txt" );
-  //   
-  //   // Update LoRes as the masks might have shrunk, HiRes as the transforms have changed
-  //   LoResStack.updateVolumes();
-  //   HiResStack.updateVolumes();
+  // Update LoRes as the masks might have shrunk
+  LoResStack.updateVolumes();
+  HiResStack.updateVolumes();
   
-  // Write final transform to file
-  // writeData< itk::TransformFileWriter, Framework3D::TransformType3D >( framework3D.transform3D, outputDir + "finalParameters3D.transform" );
+  // Write final transforms to file
   
-	// perform non-rigid registration
-	// check out itkMultiResolutionPDEDeformableRegistration
-	// update HiRes slices
-  // HiResStack.updateVolumes();
-	// write volume and mask to disk
-	
   return EXIT_SUCCESS;
 }

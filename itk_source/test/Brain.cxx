@@ -3,7 +3,8 @@
 #include "FileIterationUpdate.hpp"
 #include "MultiResRegistrationCommand.hpp"
 #include "Stack.hpp"
-#include "Framework2DRat.hpp"
+#include "RegistrationBuilder.hpp"
+#include "StackAligner.hpp"
 #include "IOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
@@ -40,13 +41,16 @@ int main(int argc, char const *argv[]) {
   LoResStack.updateVolumes();
   HiResStack.updateVolumes();
   
-  Framework2DRat framework2DRat(LoResStack, HiResStack);
+  // initialise registration framework
+  RegistrationBuilder registrationBuilder;
+  RegistrationBuilder::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
+  StackAligner stackAligner(LoResStack, HiResStack, registration);
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( framework2DRat.GetOptimizer() );
+  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
   
 	// perform centered rigid 2D registration
-  framework2DRat.StartRegistration();
+  stackAligner.Update();
   
   HiResStack.updateVolumes();
   

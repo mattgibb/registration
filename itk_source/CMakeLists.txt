@@ -33,7 +33,12 @@ ELSE(orac STREQUAL ${HOST})
 ENDIF(orac STREQUAL ${HOST})
 
 # Project tree
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR} lib lib/Frameworks lib/Observers)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
+                    "lib"
+                    "lib/Observers"
+                    "lib/RegistrationBuilders"
+                    "lib/StackAligners")
+
 ADD_SUBDIRECTORY(lib)
 
 # Targets
@@ -51,7 +56,8 @@ TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
-                                   Dirs RegistrationParameters Frameworks Stack)
+                                   Dirs RegistrationParameters Stack
+                                   RegistrationBuilders StackAligners)
 
 ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
 TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} 
