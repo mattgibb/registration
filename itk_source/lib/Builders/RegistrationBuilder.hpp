@@ -8,7 +8,7 @@
 #include "Stack.hpp"
 
 
-class RegistrationBuilder {
+class RegistrationBuilder : public itk::Object {
 public:
 	typedef itk::ImageRegistrationMethod< Stack::SliceType, Stack::SliceType > RegistrationType;
   
@@ -26,7 +26,7 @@ public:
   
   void setUpObservers();
 	
-	RegistrationType::Pointer GetRegistration() {return m_registration;}
+  RegistrationType::Pointer GetRegistration();
 	
 	// explicitly declare virtual destructor,
   // so that base pointers to derived classes will be destroyed fully

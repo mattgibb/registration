@@ -7,6 +7,7 @@
 // metrics
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
+
 #include "itkNormalizedCorrelationImageToImageMetric.h"
 // optimisers
 #include "itkRegularStepGradientDescentOptimizer.h"
@@ -182,6 +183,31 @@ void RegistrationBuilder::setUpObservers() {
   {
     doSetUpObservers< itk::RegularStepGradientDescentOptimizer >( m_registration->GetOptimizer() );
   }
+}
+
+RegistrationBuilder::RegistrationType::Pointer RegistrationBuilder::GetRegistration() {
+  // Sanity checks
+  if( ! this->m_registration )
+  {
+    itkExceptionMacro( "Registration has not been initialised, check params file." );
+  }
+
+  if( ! this->m_registration->GetMetric() )
+  {
+    itkExceptionMacro( "Metric has not been initialised, check params file" );
+  }
+
+  if( ! this->m_registration->GetOptimizer() )
+  {
+    itkExceptionMacro( "Optimiser has not been initialised, check params file" );
+  }
+
+  if( ! this->m_registration->GetInterpolator() )
+  {
+    itkExceptionMacro( "Interpolator has not been initialised, check params file" );
+  }
+  
+  return m_registration;
 }
 
 // RegistrationBuilder::~RegistrationBuilder() {}
