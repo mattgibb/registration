@@ -3,7 +3,7 @@
 
 #include <sys/stat.h> // for fileExists
 #include "Stack.hpp"
-#include "RegistrationParameters.hpp"
+#include "Parameters.hpp"
 
 Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings):
 fileNames(inputFileNames),

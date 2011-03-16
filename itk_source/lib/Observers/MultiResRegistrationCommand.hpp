@@ -3,7 +3,7 @@
 
 #include "itkCommand.h"
 #include "itkArray.h"
-#include "RegistrationParameters.hpp"
+#include "Parameters.hpp"
 
 using namespace std;
 

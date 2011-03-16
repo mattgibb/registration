@@ -1,9 +1,29 @@
-#ifndef _REGISTRATIONPARAMETERS_CXX_
-#define _REGISTRATIONPARAMETERS_CXX_
+#ifndef _PARAMETERS_CXX_
+#define _PARAMETERS_CXX_
 
 #include <fstream>
 #include "yaml-cpp/yaml.h"
 #include "Dirs.hpp"
+
+YAML::Node& imageDimensions()
+{
+  // only initialize statics when registrationParameters is first called
+  static YAML::Node imageDimensions;
+  static bool initialized = false;
+  
+  // initialize registrationParameters if hasn't been already
+  if(!initialized)
+  {
+    ifstream config_filestream( (Dirs::ConfigDir() + "/image_dimensions.yml").c_str() );
+    YAML::Parser parser(config_filestream);
+    parser.GetNextDocument(imageDimensions);
+    initialized = true;
+  }
+  
+  // return reference to singleton
+  return imageDimensions;
+}
+
 
 YAML::Node& registrationParameters()
 {

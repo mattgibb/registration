@@ -1,12 +1,6 @@
-ActualLoResSpacings: [19, 19, 10] # LoRes spacings
-ActualHiResSpacings:  [0.546, 0.546, 10]
-LoResSpacings: [152, 152, 10] # LoRes spacings
-HiResSpacings:  [70.4, 70.4, 10]
-LoResTranslation: [17024, 1520]
-LoResSize: [89, 119]
-
 maskShrinkFactor: 0.75
 normalizeImages: true
+
 optimizer:
   maximize: on
   scale:

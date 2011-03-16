@@ -8,7 +8,7 @@
 #include "IOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
-#include "RegistrationParameters.hpp"
+#include "Parameters.hpp"
 
 int main(int argc, char const *argv[]) {
   Dirs::SetParamsFile(Dirs::TestDir() + "data/registration_parameters.yml");

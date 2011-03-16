@@ -8,7 +8,7 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Build libraries
 ADD_LIBRARY(Dirs Dirs.cxx)
-ADD_LIBRARY(RegistrationParameters RegistrationParameters.cxx)
+ADD_LIBRARY(Parameters Parameters.cxx)
 ADD_LIBRARY(Stack Stack.cxx)
 
 ADD_SUBDIRECTORY(Builders)

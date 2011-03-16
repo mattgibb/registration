@@ -17,7 +17,7 @@
 
 // my files
 #include "RegistrationBuilder.hpp"
-#include "RegistrationParameters.hpp"
+#include "Parameters.hpp"
 #include "StdOutIterationUpdate.hpp"
 #include "FileIterationUpdate.hpp"
 #include "NormalizedDifferenceIterationUpdate.hpp"

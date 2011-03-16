@@ -12,7 +12,7 @@
 #include "IOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
-#include "RegistrationParameters.hpp"
+#include "Parameters.hpp"
 #include "Profiling.hpp"
 
 
@@ -36,15 +36,15 @@ int main(int argc, char const *argv[]) {
 	// initialise stack objects
   Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
 	for(unsigned int i=0; i<3; i++) {
-    registrationParameters()["LoResSpacings"][i] >> LoResSpacings[i];
-    registrationParameters()["HiResSpacings"][i] >> HiResSpacings[i];
+    imageDimensions()["LoResSpacings"][i] >> LoResSpacings[i];
+    imageDimensions()["HiResSpacings"][i] >> HiResSpacings[i];
   }
   
   Stack::SliceType::SizeType LoResSize;
   itk::Vector< double, 2 > LoResTranslation;
   for(unsigned int i=0; i<2; i++) {
-    registrationParameters()["LoResSize"][i] >> LoResSize[i];
-    registrationParameters()["LoResTranslation"][i] >> LoResTranslation[i];
+    imageDimensions()["LoResSize"][i] >> LoResSize[i];
+    imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
   }
   
   Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize);

@@ -56,12 +56,12 @@ TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
-                                   Dirs RegistrationParameters Stack
+                                   Dirs Parameters Stack
                                    Builders StackAligners)
 
 ADD_EXECUTABLE(DeformableRegistration DeformableRegistration.cxx )
 TARGET_LINK_LIBRARIES(DeformableRegistration ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
-                                  Dirs RegistrationParameters Stack
+                                  Dirs Parameters Stack
                                   Builders StackAligners)
 
 ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )

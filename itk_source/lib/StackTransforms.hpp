@@ -15,7 +15,7 @@
 
 
 #include "Stack.hpp"
-#include "RegistrationParameters.hpp"
+#include "Parameters.hpp"
 #include "StdOutIterationUpdate.hpp"
 
 using namespace std;
