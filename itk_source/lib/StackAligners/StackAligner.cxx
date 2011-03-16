@@ -16,6 +16,7 @@ StackAligner::StackAligner(Stack &LoResStack,
 void StackAligner::Update() {
   unsigned int number_of_slices = m_LoResStack.GetSize();
   
+  cout << "Metric class name just before registration: " << m_registration->GetMetric()->GetNameOfClass() << endl;
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
     cout << "slice number: " << slice_number << endl;
     cout << "file name: " << m_LoResStack.GetFileName(slice_number) << endl;
@@ -26,7 +27,6 @@ void StackAligner::Update() {
       // applying the fixed transform back again afterwards.
       m_registration->SetFixedImage( m_LoResStack.GetResampledSlice(slice_number) );
       m_registration->SetMovingImage( m_HiResStack.GetOriginalImage(slice_number) );
-      
       // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
       // m_registration->SetFixedImageRegion( m_LoResStack.GetOriginalImage(slice_number)->GetLargestPossibleRegion() );
       // TEST TO SEE IF THIS MAKES ANY DIFFERENCE
@@ -35,8 +35,11 @@ void StackAligner::Update() {
       m_registration->GetMetric()->SetMovingImageMask( m_HiResStack.GetOriginal2DMask(slice_number) );
       
       m_registration->SetTransform( m_HiResStack.GetTransform(slice_number) );
-      m_registration->SetInitialTransformParameters( m_HiResStack.GetTransform(slice_number)->GetParameters() );
+      cout << "set transform" << endl;
       
+      cout << m_HiResStack.GetTransform(0) << endl;
+      m_registration->SetInitialTransformParameters( m_HiResStack.GetTransform(slice_number)->GetParameters() );
+      cout << "set transform parameters" << endl;
       // halve the width and height of the LoRes mask for each slice
       // until optimiser stops throwing errors
       cout << "Trying registration..." << endl;

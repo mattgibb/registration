@@ -8,8 +8,15 @@
 #include "itkCenteredRigid2DTransform.h"
 #include "itkCenteredAffineTransform.h"
 #include "itkSingleValuedNonLinearOptimizer.h"
+#include "itkBSplineDeformableTransform.h"
+#include "itkBSplineDeformableTransformInitializer.h"
+#include "itkLBFGSBOptimizer.h"
+#include "itkTransformFactory.h"
+
+
 #include "Stack.hpp"
 #include "RegistrationParameters.hpp"
+#include "StdOutIterationUpdate.hpp"
 
 using namespace std;
 
@@ -116,6 +123,47 @@ namespace StackTransforms {
     
   }
   
+  void InitializeBSplineDeformableFromBulk(Stack& LoResStack, Stack& HiResStack)
+  {
+    // Perform non-rigid registration
+    typedef double CoordinateRepType;
+    const unsigned int SpaceDimension = 2;
+    const unsigned int SplineOrder = 3;
+    typedef itk::BSplineDeformableTransform< CoordinateRepType, SpaceDimension, SplineOrder > TransformType;
+    typedef itk::BSplineDeformableTransformInitializer< TransformType, Stack::SliceType > InitializerType;
+    Stack::TransformVectorType newTransforms;
+    
+    for(unsigned int slice_number=0; slice_number<HiResStack.GetSize(); slice_number++)
+    {
+      // instantiate transform
+      TransformType::Pointer transform( TransformType::New() );
+      
+      // initialise transform
+      InitializerType::Pointer initializer = InitializerType::New();
+      initializer->SetTransform( transform );
+      initializer->SetImage( LoResStack.GetResampledSlice(slice_number) );
+      unsigned int gridSize;
+      registrationParameters()["bsplineTransform"]["gridSize"] >> gridSize;
+      TransformType::RegionType::SizeType gridSizeInsideTheImage;
+      gridSizeInsideTheImage.Fill(gridSize);
+      initializer->SetGridSizeInsideTheImage( gridSizeInsideTheImage );
+      
+      initializer->InitializeTransform();
+      
+      transform->SetBulkTransform( HiResStack.GetTransform(slice_number) );
+      
+      // set initial parameters to zero
+      TransformType::ParametersType initialDeformableTransformParameters( transform->GetNumberOfParameters() );
+      initialDeformableTransformParameters.Fill( 0.0 );
+      transform->SetParametersByValue( initialDeformableTransformParameters );
+      
+      // add transform to vector
+      Stack::TransformType::Pointer baseTransform( transform );
+      newTransforms.push_back( baseTransform );
+    }
+    HiResStack.SetTransforms(newTransforms);
+  }
+  
   void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   {
     double translationScale, rotationScale;
@@ -165,6 +213,44 @@ namespace StackTransforms {
     scales[7] = translationScale;
     optimizer->SetScales( scales );
   }
+
+  void ConfigureLBFGSBOptimizer(unsigned int numberOfParameters, itk::LBFGSBOptimizer::Pointer optimizer)
+  {
+    // From Example
+    itk::LBFGSBOptimizer::BoundSelectionType boundSelect( numberOfParameters );
+    itk::LBFGSBOptimizer::BoundValueType upperBound( numberOfParameters );
+    itk::LBFGSBOptimizer::BoundValueType lowerBound( numberOfParameters );
+    
+    boundSelect.Fill( 0 );
+    upperBound.Fill( 0.0 );
+    lowerBound.Fill( 0.0 );
+    
+    optimizer->SetBoundSelection( boundSelect );
+    optimizer->SetUpperBound( upperBound );
+    optimizer->SetLowerBound( lowerBound );
+    
+    optimizer->SetCostFunctionConvergenceFactor( 1e+12 );
+    optimizer->SetProjectedGradientTolerance( 1.0 );
+    optimizer->SetMaximumNumberOfIterations( 500 );
+    optimizer->SetMaximumNumberOfEvaluations( 500 );
+    optimizer->SetMaximumNumberOfCorrections( 5 );
+    
+    // Create an observer and register it with the optimizer
+    typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
+    StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
+    optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
+    
+  }
+  
+  void SetOptimizerScalesForBSplineDeformableTransform(Stack &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  {
+    typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
+    ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );
+    optimizerScales.Fill( 1.0 );
+    
+    optimizer->SetScales( optimizerScales );
+    
+  }
   
   void Save(Stack& stack, const string& fileName)
   {
@@ -196,14 +282,13 @@ namespace StackTransforms {
   {
     typedef itk::TransformFileReader ReaderType;
     ReaderType::Pointer reader = ReaderType::New();
-    // Software Guide : EndCodeSnippet
-
+    
     // Some transforms (like the BSpline transform) might not be registered
     // with the factory so we add them manually.
-    // itk::TransformFactory<BSplineTransformType>::RegisterTransform();
-
+    itk::TransformFactory< itk::TranslationTransform< double, 2 > >::RegisterTransform();
+    
     reader->SetFileName( fileName.c_str() );
-
+    
     try
     {
       reader->Update();
@@ -214,33 +299,32 @@ namespace StackTransforms {
       cerr << err << endl;
   		std::abort();
     }
-
+    
     // The transform reader is not template and therefore it returns a list
     // of Transform. However, the reader instantiate the appropriate
     // transform class when reading the file but it is up to the user to
     // do the approriate cast.
     typedef ReaderType::TransformListType TransformListType;
     TransformListType * transforms = reader->GetTransformList();
-    std::cout << "Number of transforms read = " << transforms->size() << std::endl;
-
-    // Cast each transform
+    
+    // Assert stack has the same number of slices as there are transforms from the reader
+    if (stack.GetSize() != transforms->size())
+    {
+      cerr << "Stack size and transform file size are different!" << endl;
+      std::abort();
+    }
+    
+    // assign transforms to stack
+    Stack::TransformVectorType newTransforms;
     for(TransformListType::const_iterator it = transforms->begin();
         it != transforms->end(); it++)
     {
-      // FROM TransformReadWrite.cxx
-      // if(!strcmp((*it)->GetNameOfClass(),"AffineTransform"))
-      // {
-      //   AffineTransformType::Pointer affine_read = static_cast<AffineTransformType*>((*it).GetPointer());
-      //   affine_read->Print(std::cout);
-      // }
-      // 
-      // if(!strcmp((*it)->GetNameOfClass(),"BSplineDeformableTransform"))
-      // {
-      //   BSplineTransformType::Pointer bspline_read = static_cast<BSplineTransformType*>((*it).GetPointer());
-      //   bspline_read->Print(std::cout);
-      // }
-      // FROM TransformReadWrite.cxx
+      // build vector out of list
+      Stack::TransformType::Pointer transform = static_cast<Stack::TransformType*>( (*it).GetPointer() );
+      newTransforms.push_back( transform );
     }
+    
+    stack.SetTransforms(newTransforms);
   }
   
 }

@@ -18,6 +18,14 @@ task :build_volumes => [:make] do
   end
 end
 
+task :deformable_registration => [:make] do
+  sh "itk_build/DeformableRegistration Rat24 BuildVolumes"
+  begin
+    sh "say done"
+  rescue
+  end
+end
+
 namespace :test do
   task :default => [:brain, :refactor]
   

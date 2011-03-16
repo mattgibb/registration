@@ -1,9 +1,4 @@
-#include "itkCenteredSimilarity2DTransform.h"
-#include "itkLBFGSBOptimizer.h"
-// TEMP
 #include "itkNormalizedCorrelationImageToImageMetric.h"
-#include "itkMattesMutualInformationImageToImageMetric.h"
-// TEMP
 
 // my files
 #include "Stack.hpp"
@@ -15,12 +10,11 @@
 #include "RegistrationParameters.hpp"
 #include "Profiling.hpp"
 
-
 void checkUsage(int argc, char const *argv[]) {
   if( argc != 3 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet outputDir\n\n";
+    cerr << argv[0] << " dataSet resultsDir\n\n";
     exit(EXIT_FAILURE);
   }
 }
@@ -55,21 +49,18 @@ int main(int argc, char const *argv[]) {
   Stack HiResStack(getFileNames(Dirs::SliceDir(), Dirs::SliceFile()), HiResOriginalSpacings,
         LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
-  // Assert stacks have the same number of slices
-  if (LoResStack.GetSize() != HiResStack.GetSize())
-  {
-    cerr << "LoRes and HiRes stacks are different sizes!" << endl;
-    std::abort();
-  }
+  // initialise stacks' transforms with saved transform files
+  StackTransforms::Load(LoResStack, outputDir + "LoResTransforms.meta");
+  StackTransforms::Load(HiResStack, outputDir + "HiResTransforms.meta");
   
-  // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeWithTranslation( LoResStack, LoResTranslation );
-  StackTransforms::InitializeToCommonCentre( HiResStack );
-  StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
-
   // Generate fixed images to register against
   LoResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResPersistedStack.mha" );
+  
+  HiResStack.updateVolumes();
+  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResPersistedStack.mha" );
+  
+  std::exit(0);
   
   // initialise registration framework
   RegistrationBuilder registrationBuilder;
@@ -94,7 +85,7 @@ int main(int argc, char const *argv[]) {
   HiResStack.updateVolumes();
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
   writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
-  StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
+  // StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
   
   // Scale parameter space
   StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
@@ -118,10 +109,9 @@ int main(int argc, char const *argv[]) {
   LoResStack.updateVolumes();
   
   // Write final transforms to file
-  StackTransforms::Save(LoResStack, outputDir + "LoResTransforms.meta");
-  StackTransforms::Save(HiResStack, outputDir + "HiResTransforms.meta");
+  StackTransforms::Save(LoResStack, Dirs::ResultsDir() + "LoResStackTransforms.meta");
+  StackTransforms::Save(HiResStack, Dirs::ResultsDir() + "HiResStackAffineTransforms.meta");
   
-  std::exit(0);
   
   // Perform non-rigid registration
   StackTransforms::InitializeBSplineDeformableFromBulk(LoResStack, HiResStack);
