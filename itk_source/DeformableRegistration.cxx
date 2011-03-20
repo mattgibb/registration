@@ -5,6 +5,7 @@
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "IOHelpers.hpp"
+#include "StackIOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "Parameters.hpp"
@@ -52,6 +53,10 @@ int main(int argc, char const *argv[]) {
   // initialise stacks' transforms with saved transform files
   StackTransforms::Load(LoResStack, outputDir + "LoResTransforms.meta");
   StackTransforms::Load(HiResStack, outputDir + "HiResTransforms.meta");
+  
+  // shrink mask slices
+  cout << "Test mask load.\n";
+  loadNumberOfTimesTooBig(HiResStack, outputDir + "numberOfTimesTooBig.txt");
   
   // Generate fixed images to register against
   LoResStack.updateVolumes();
@@ -111,7 +116,6 @@ int main(int argc, char const *argv[]) {
   // Write final transforms to file
   StackTransforms::Save(LoResStack, Dirs::ResultsDir() + "LoResStackTransforms.meta");
   StackTransforms::Save(HiResStack, Dirs::ResultsDir() + "HiResStackAffineTransforms.meta");
-  
   
   // Perform non-rigid registration
   StackTransforms::InitializeBSplineDeformableFromBulk(LoResStack, HiResStack);

@@ -6,7 +6,6 @@
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 
-
 using namespace std;
 
 inline vector< string > getFileNames(const string& directory, const string& fileList) {
@@ -79,5 +78,6 @@ template<typename ImageType>
 void writeImage(const typename ImageType::Pointer image, const string& fileName) {
   writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
 }
+
 
 #endif

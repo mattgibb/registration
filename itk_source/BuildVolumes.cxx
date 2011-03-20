@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "itkCenteredSimilarity2DTransform.h"
 #include "itkLBFGSBOptimizer.h"
 // TEMP
@@ -9,6 +10,7 @@
 #include "Stack.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
+#include "StackIOHelpers.hpp"
 #include "IOHelpers.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
@@ -56,11 +58,7 @@ int main(int argc, char const *argv[]) {
         LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
   // Assert stacks have the same number of slices
-  if (LoResStack.GetSize() != HiResStack.GetSize())
-  {
-    cerr << "LoRes and HiRes stacks are different sizes!" << endl;
-    std::abort();
-  }
+  assert(LoResStack.GetSize() == HiResStack.GetSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
   StackTransforms::InitializeWithTranslation( LoResStack, LoResTranslation );
@@ -117,65 +115,12 @@ int main(int argc, char const *argv[]) {
   // Update LoRes as the masks might have shrunk
   LoResStack.updateVolumes();
   
+  // persist mask numberOfTimesTooBig
+  saveNumberOfTimesTooBig(HiResStack, outputDir + "numberOfTimesTooBig.txt");
+  
   // Write final transforms to file
   StackTransforms::Save(LoResStack, outputDir + "LoResTransforms.meta");
   StackTransforms::Save(HiResStack, outputDir + "HiResTransforms.meta");
-  
-  std::exit(0);
-  
-  // Perform non-rigid registration
-  StackTransforms::InitializeBSplineDeformableFromBulk(LoResStack, HiResStack);
-  
-  typedef itk::LBFGSBOptimizer DeformableOptimizerType;
-  DeformableOptimizerType::Pointer deformableOptimizer = DeformableOptimizerType::New();
-  
-  // StackTransforms::ConfigureLBFGSBOptimizer(LoResStack.GetTransform(0)->GetNumberOfParameters(), deformableOptimizer);
-  unsigned int numberOfParameters = HiResStack.GetTransform(0)->GetNumberOfParameters();
-  cout << "numberOfParameters: " << numberOfParameters << endl;
-  StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(HiResStack, registration->GetOptimizer());
-  // itk::LBFGSBOptimizer::BoundSelectionType boundSelect( numberOfParameters );
-  // itk::LBFGSBOptimizer::BoundValueType upperBound( numberOfParameters );
-  // itk::LBFGSBOptimizer::BoundValueType lowerBound( numberOfParameters );
-  // 
-  // boundSelect.Fill( 0 );
-  // upperBound.Fill( 0.0 );
-  // lowerBound.Fill( 0.0 );
-  // 
-  // deformableOptimizer->SetBoundSelection( boundSelect );
-  // deformableOptimizer->SetUpperBound( upperBound );
-  // deformableOptimizer->SetLowerBound( lowerBound );
-  // 
-  // deformableOptimizer->SetCostFunctionConvergenceFactor( 1e+7 );
-  // deformableOptimizer->SetProjectedGradientTolerance( 0.0000001 );
-  // deformableOptimizer->SetMaximumNumberOfIterations( 500 );
-  // deformableOptimizer->SetMaximumNumberOfEvaluations( 500 );
-  // deformableOptimizer->SetMaximumNumberOfCorrections( 10 );
-  // deformableOptimizer->MaximizeOn();
-    
-  
-  // Create an observer and register it with the optimizer
-  // typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
-  // StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
-  // deformableOptimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
-  // 
-  // registration->SetOptimizer( deformableOptimizer );
-  
-  typedef itk::NormalizedCorrelationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-  // typedef itk::MattesMutualInformationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-  MetricType::Pointer metric = MetricType::New();
-
-  // specific settings
-  // metric->SetNumberOfSpatialSamples( 3000 );
-  // metric->SetNumberOfHistogramBins( 50 );
-  
-  registration->SetMetric( metric );
-  
-  // StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(LoResStack, deformableOptimizer );
-  stackAligner.Update();
-  HiResStack.updateVolumes();
-  
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResDeformedStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
   
   return EXIT_SUCCESS;
 }

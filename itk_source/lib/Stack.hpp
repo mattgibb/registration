@@ -174,7 +174,9 @@ public:
   }
   
   void ShrinkMaskSlice(unsigned int slice_number);
-
+  
+  const vector< unsigned int >& GetNumberOfTimesTooBig() { return numberOfTimesTooBig; }
+  
 protected:
   void GenerateMaskSlice(unsigned int slice_number);
 	
