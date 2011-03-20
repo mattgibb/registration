@@ -23,7 +23,15 @@
 #include "NormalizedDifferenceIterationUpdate.hpp"
 
 
-RegistrationBuilder::RegistrationBuilder()
+RegistrationBuilder::RegistrationBuilder():
+  m_registrationParameters( registrationParameters() )
+{
+  buildRegistrationComponents();
+	setUpObservers();
+}
+
+RegistrationBuilder::RegistrationBuilder(YAML::Node& parameters):
+  m_registrationParameters( parameters )
 {
   buildRegistrationComponents();
 	setUpObservers();
@@ -41,7 +49,7 @@ void RegistrationBuilder::buildRegistration() {
 }
 
 void RegistrationBuilder::buildMetric() {
-  const YAML::Node& metricParameters = registrationParameters()["metric"];
+  const YAML::Node& metricParameters = m_registrationParameters["metric"];
   
   // ensure metric will be built
   if(
@@ -90,7 +98,7 @@ void RegistrationBuilder::buildMetric() {
 }
 
 void RegistrationBuilder::buildOptimizer() {
-  const YAML::Node& optimizerParameters = registrationParameters()["optimizer"];
+  const YAML::Node& optimizerParameters = m_registrationParameters["optimizer"];
   
   // ensure optimizer will be built
   if(
@@ -172,7 +180,7 @@ void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
 }
 
 void RegistrationBuilder::setUpObservers() {
-  const YAML::Node& optimizerParameters = registrationParameters()["optimizer"];
+  const YAML::Node& optimizerParameters = m_registrationParameters["optimizer"];
   
   // declare observer types
   if(optimizerParameters.FindValue("gradientDescent"))

@@ -20,7 +20,7 @@
 
 using namespace std;
 
-class Stack {
+class Stack : public itk::Object {
 public:
   typedef float PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;

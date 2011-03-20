@@ -1,6 +1,8 @@
 #ifndef REGISTRATIONBUILDER_HPP_
 #define REGISTRATIONBUILDER_HPP_
 
+#include "yaml-cpp/yaml.h"
+
 // ITK includes
 #include "itkImageRegistrationMethod.h"
 
@@ -13,6 +15,8 @@ public:
 	typedef itk::ImageRegistrationMethod< Stack::SliceType, Stack::SliceType > RegistrationType;
   
   RegistrationBuilder();
+
+  RegistrationBuilder(YAML::Node& parameters);
   
   void buildRegistrationComponents();
 
@@ -41,6 +45,8 @@ private:
   RegistrationBuilder& operator=(const RegistrationBuilder&);
 	
 	RegistrationType::Pointer m_registration;
+	
+  YAML::Node& m_registrationParameters;
 };
 
 #endif
