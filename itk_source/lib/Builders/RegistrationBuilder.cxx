@@ -138,14 +138,16 @@ void RegistrationBuilder::buildOptimizer() {
     typedef itk::RegularStepGradientDescentOptimizer OptimizerType;
     OptimizerType::Pointer specificOptimizer = OptimizerType::New();
     
-    double relaxationFactor, maxStepLength, minStepLength;
+    double relaxationFactor, maxStepLength, minStepLength, gradientMagnitudeTolerance;
     optimizerParameters["regularStepGradientDescent"]["relaxationFactor"]  >> relaxationFactor;
     optimizerParameters["regularStepGradientDescent"]["maxStepLength"]  >> maxStepLength;
     optimizerParameters["regularStepGradientDescent"]["minStepLength"]  >> minStepLength;
+    optimizerParameters["regularStepGradientDescent"]["gradientMagnitudeTolerance"]  >> gradientMagnitudeTolerance;
     specificOptimizer->SetRelaxationFactor( relaxationFactor );
     specificOptimizer->SetNumberOfIterations( maxIterations );
     specificOptimizer->SetMaximumStepLength( maxStepLength );
     specificOptimizer->SetMinimumStepLength( minStepLength );
+    specificOptimizer->SetGradientMagnitudeTolerance( gradientMagnitudeTolerance );
     
     specificOptimizer->SetMaximize(maximize);
     

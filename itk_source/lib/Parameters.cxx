@@ -2,6 +2,7 @@
 #define _PARAMETERS_CXX_
 
 #include <fstream>
+#include <boost/make_shared.hpp>
 #include "yaml-cpp/yaml.h"
 #include "Dirs.hpp"
 
@@ -42,6 +43,15 @@ YAML::Node& registrationParameters()
   
   // return reference to singleton
   return registrationParameters;
+}
+
+boost::shared_ptr<YAML::Node> config(const string& filename)
+{
+  boost::shared_ptr<YAML::Node> node = boost::make_shared<YAML::Node>();
+  ifstream config_filestream( (Dirs::ConfigDir() + "/" + filename).c_str() );
+  YAML::Parser parser(config_filestream);
+  parser.GetNextDocument(*node);
+  return node;
 }
 
 #endif

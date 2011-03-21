@@ -143,7 +143,8 @@ namespace StackTransforms {
       initializer->SetTransform( transform );
       initializer->SetImage( LoResStack.GetResampledSlice(slice_number) );
       unsigned int gridSize;
-      registrationParameters()["bsplineTransform"]["gridSize"] >> gridSize;
+      boost::shared_ptr<YAML::Node> deformableParameters = config("deformable_parameters.yml");
+      (*deformableParameters)["bsplineTransform"]["gridSize"] >> gridSize;
       TransformType::RegionType::SizeType gridSizeInsideTheImage;
       gridSizeInsideTheImage.Fill(gridSize);
       initializer->SetGridSizeInsideTheImage( gridSizeInsideTheImage );

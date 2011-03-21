@@ -65,68 +65,21 @@ int main(int argc, char const *argv[]) {
   HiResStack.updateVolumes();
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResPersistedStack.mha" );
   
-  std::exit(0);
-  
   // initialise registration framework
-  RegistrationBuilder registrationBuilder;
+  boost::shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
+  RegistrationBuilder registrationBuilder(*pDeformableParameters);
   RegistrationBuilder::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
   StackAligner stackAligner(LoResStack, HiResStack, registration);
   
-  // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
-  
-  // Add time and memory probes
-  itkProbesCreate();
-  
-  // perform centered rigid 2D registration on each pair of slices
-  itkProbesStart( "Aligning stacks" );
-  stackAligner.Update();
-  itkProbesStop( "Aligning stacks" );
-  
-  // Report the time and memory taken by the registration
-  itkProbesReport( std::cout );
-  
-  // write rigid transforms
-  HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
-  // StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
-  
-  // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
-  
-  // perform similarity rigid 2D registration
-  stackAligner.Update();
-  
-  // write similarity transforms
-  HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResSimilarityStack.mha" );
-  
-  // repeat registration with affine transform
-  StackTransforms::InitializeFromCurrentTransforms< itk::CenteredAffineTransform< double, 2 > >(HiResStack);
-  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
-  stackAligner.Update();
-  HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
-  
-  // Update LoRes as the masks might have shrunk
-  LoResStack.updateVolumes();
-  
-  // Write final transforms to file
-  StackTransforms::Save(LoResStack, Dirs::ResultsDir() + "LoResStackTransforms.meta");
-  StackTransforms::Save(HiResStack, Dirs::ResultsDir() + "HiResStackAffineTransforms.meta");
-  
   // Perform non-rigid registration
   StackTransforms::InitializeBSplineDeformableFromBulk(LoResStack, HiResStack);
-  
-  typedef itk::LBFGSBOptimizer DeformableOptimizerType;
-  DeformableOptimizerType::Pointer deformableOptimizer = DeformableOptimizerType::New();
-  
-  // StackTransforms::ConfigureLBFGSBOptimizer(LoResStack.GetTransform(0)->GetNumberOfParameters(), deformableOptimizer);
-  unsigned int numberOfParameters = HiResStack.GetTransform(0)->GetNumberOfParameters();
-  cout << "numberOfParameters: " << numberOfParameters << endl;
   StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(HiResStack, registration->GetOptimizer());
+  
+  // typedef itk::LBFGSBOptimizer DeformableOptimizerType;
+  // DeformableOptimizerType::Pointer deformableOptimizer = DeformableOptimizerType::New();
+  // 
+  // StackTransforms::ConfigureLBFGSBOptimizer(LoResStack.GetTransform(0)->GetNumberOfParameters(), deformableOptimizer);
+  // unsigned int numberOfParameters = HiResStack.GetTransform(0)->GetNumberOfParameters();
   // itk::LBFGSBOptimizer::BoundSelectionType boundSelect( numberOfParameters );
   // itk::LBFGSBOptimizer::BoundValueType upperBound( numberOfParameters );
   // itk::LBFGSBOptimizer::BoundValueType lowerBound( numberOfParameters );
@@ -145,8 +98,7 @@ int main(int argc, char const *argv[]) {
   // deformableOptimizer->SetMaximumNumberOfEvaluations( 500 );
   // deformableOptimizer->SetMaximumNumberOfCorrections( 10 );
   // deformableOptimizer->MaximizeOn();
-    
-  
+  // 
   // Create an observer and register it with the optimizer
   // typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
   // StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
@@ -154,18 +106,12 @@ int main(int argc, char const *argv[]) {
   // 
   // registration->SetOptimizer( deformableOptimizer );
   
-  typedef itk::NormalizedCorrelationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-  // typedef itk::MattesMutualInformationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-  MetricType::Pointer metric = MetricType::New();
-
-  // specific settings
-  // metric->SetNumberOfSpatialSamples( 3000 );
-  // metric->SetNumberOfHistogramBins( 50 );
-  
-  registration->SetMetric( metric );
-  
-  // StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(LoResStack, deformableOptimizer );
+  itkProbesCreate();
+  itkProbesStart( "Aligning stacks" );
   stackAligner.Update();
+  itkProbesStop( "Aligning stacks" );
+  itkProbesReport( std::cout );
+  
   HiResStack.updateVolumes();
   
   writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResDeformedStack.mha" );
