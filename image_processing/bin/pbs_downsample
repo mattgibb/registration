@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 # usage: pbs_downsample <dataset> <downsample_ratio>
-# e.g. pbs_downsample Rat24 32
+# e.g. pbs_downsample Rat24/HiRes 32
 require 'image_processing/config'
 require 'image_processing/pbs_downsampler'
 
