@@ -1,0 +1,11 @@
+#!/bin/bash
+#PBS -V
+#PBS -l walltime=3:00:00
+#PBS -l select=1:mpiprocs=8
+#PBS -N flip_image
+#PBS -p 1023
+
+cd $PBS_O_WORKDIR
+# date +%s > dates
+~/registration/itk_build_sal/FlipImage $1 $2
+# date +%s >> dates
