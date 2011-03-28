@@ -165,6 +165,10 @@ public:
     return transforms[slice_number];
   }
 	
+	const string& GetFileName(unsigned int slice_number) {
+    return fileNames[slice_number];
+	}
+	
   const TransformVectorType& GetTransforms() { return transforms; }
 	
   void SetTransforms(const TransformVectorType& inputTransforms) { transforms = inputTransforms; }

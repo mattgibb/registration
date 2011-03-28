@@ -51,8 +51,8 @@ int main(int argc, char const *argv[]) {
         LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
   // initialise stacks' transforms with saved transform files
-  StackTransforms::Load(LoResStack, outputDir + "LoResTransforms.meta");
-  StackTransforms::Load(HiResStack, outputDir + "HiResTransforms.meta");
+  Load(LoResStack, outputDir + "LoResTransforms");
+  Load(HiResStack, outputDir + "HiResTransforms");  
   
   // shrink mask slices
   cout << "Test mask load.\n";

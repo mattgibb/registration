@@ -1,8 +1,6 @@
 #ifndef STACKTRANSFORMS_HPP_
 #define STACKTRANSFORMS_HPP_
 
-#include "itkTransformFileReader.h"
-#include "itkTransformFileWriter.h"
 #include "itkIdentityTransform.h"
 #include "itkTranslationTransform.h"
 #include "itkCenteredRigid2DTransform.h"
@@ -11,7 +9,6 @@
 #include "itkBSplineDeformableTransform.h"
 #include "itkBSplineDeformableTransformInitializer.h"
 #include "itkLBFGSBOptimizer.h"
-#include "itkTransformFactory.h"
 
 
 #include "Stack.hpp"
@@ -80,7 +77,7 @@ namespace StackTransforms {
 		
     stack.SetTransforms(newTransforms);
   }
-    
+  
   void SetMovingStackCORWithFixedStack( Stack& fixedStack, Stack& movingStack )
   {
     const Stack::TransformVectorType& movingTransforms = movingStack.GetTransforms();
@@ -251,81 +248,6 @@ namespace StackTransforms {
     
     optimizer->SetScales( optimizerScales );
     
-  }
-  
-  void Save(Stack& stack, const string& fileName)
-  {
-    typedef itk::TransformFileWriter WriterType;
-    WriterType::Pointer writer = WriterType::New();
-
-    writer->SetFileName( fileName.c_str() );
-  	
-    for(int i=0; i < stack.GetSize(); i++)
-  	{
-      writer->AddTransform( stack.GetTransform(i) );
-    }
-    
-    try
-    {
-    	writer->Update();
-    }
-  	catch( itk::ExceptionObject & err )
-  	{
-      cerr << "ExceptionObject caught while saving transforms." << endl;
-      cerr << err << endl;
-  		std::abort();
-  	}
-    
-  }
-  
-  
-  void Load(Stack& stack, const string& fileName)
-  {
-    typedef itk::TransformFileReader ReaderType;
-    ReaderType::Pointer reader = ReaderType::New();
-    
-    // Some transforms (like the BSpline transform) might not be registered
-    // with the factory so we add them manually.
-    itk::TransformFactory< itk::TranslationTransform< double, 2 > >::RegisterTransform();
-    
-    reader->SetFileName( fileName.c_str() );
-    
-    try
-    {
-      reader->Update();
-    }
-    catch( itk::ExceptionObject & err )
-    {
-      std::cerr << "ExceptionObject caught while reading transforms." << std::endl;
-      cerr << err << endl;
-  		std::abort();
-    }
-    
-    // The transform reader is not template and therefore it returns a list
-    // of Transform. However, the reader instantiate the appropriate
-    // transform class when reading the file but it is up to the user to
-    // do the approriate cast.
-    typedef ReaderType::TransformListType TransformListType;
-    TransformListType * transforms = reader->GetTransformList();
-    
-    // Assert stack has the same number of slices as there are transforms from the reader
-    if (stack.GetSize() != transforms->size())
-    {
-      cerr << "Stack size and transform file size are different!" << endl;
-      std::abort();
-    }
-    
-    // assign transforms to stack
-    Stack::TransformVectorType newTransforms;
-    for(TransformListType::const_iterator it = transforms->begin();
-        it != transforms->end(); it++)
-    {
-      // build vector out of list
-      Stack::TransformType::Pointer transform = static_cast<Stack::TransformType*>( (*it).GetPointer() );
-      newTransforms.push_back( transform );
-    }
-    
-    stack.SetTransforms(newTransforms);
   }
   
 }

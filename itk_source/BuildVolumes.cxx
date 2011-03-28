@@ -119,8 +119,8 @@ int main(int argc, char const *argv[]) {
   saveNumberOfTimesTooBig(HiResStack, outputDir + "numberOfTimesTooBig.txt");
   
   // Write final transforms to file
-  StackTransforms::Save(LoResStack, outputDir + "LoResTransforms.meta");
-  StackTransforms::Save(HiResStack, outputDir + "HiResTransforms.meta");
+  Save(LoResStack, outputDir + "LoResTransforms");
+  Save(HiResStack, outputDir + "HiResTransforms");
   
   return EXIT_SUCCESS;
 }

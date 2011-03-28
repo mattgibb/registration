@@ -8,7 +8,7 @@ INCLUDE(${ITK_USE_FILE})
 SET(ITKLibs ITKCommon ITKBasicFilters ITKIO ITKNumerics)  
 
 # Boost
-FIND_PACKAGE(Boost 1.45 COMPONENTS program_options REQUIRED)
+FIND_PACKAGE(Boost 1.44 COMPONENTS program_options filesystem system REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 
 # YAML
