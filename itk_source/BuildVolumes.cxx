@@ -19,10 +19,10 @@
 
 
 void checkUsage(int argc, char const *argv[]) {
-  if( argc != 3 )
+  if( argc < 3 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet outputDir\n\n";
+    cerr << argv[0] << " dataSet outputDir (slice)\n\n";
     exit(EXIT_FAILURE);
   }
 }
@@ -34,6 +34,17 @@ int main(int argc, char const *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  vector< string > LoResFileNames, HiResFileNames;
+  if( argc >= 4)
+  {
+    LoResFileNames.push_back(Dirs::BlockDir() + argv[3]);
+    HiResFileNames.push_back(Dirs::SliceDir() + argv[3]);
+  }
+  else
+  {
+    LoResFileNames = getFileNames(Dirs::BlockDir(), Dirs::SliceFile());
+    HiResFileNames = getFileNames(Dirs::SliceDir(), Dirs::SliceFile());
+  }
 	
 	// initialise stack objects
   Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
@@ -49,12 +60,12 @@ int main(int argc, char const *argv[]) {
     imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
   }
   
-  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize);
+  Stack LoResStack(LoResFileNames, LoResSpacings , LoResSize);
   
   Stack::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
   
-  Stack HiResStack(getFileNames(Dirs::SliceDir(), Dirs::SliceFile()), HiResOriginalSpacings,
+  Stack HiResStack(HiResFileNames, HiResOriginalSpacings,
         LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
   // Assert stacks have the same number of slices
