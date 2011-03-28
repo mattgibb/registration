@@ -1,0 +1,9 @@
+#!/bin/bash
+#PBS -V
+#PBS -l walltime=24:00:00
+#PBS -l select=1:mpiprocs=8
+#PBS -N deformable_registration
+#PBS -p 1023
+
+cd $PBS_O_WORKDIR
+~/registration/itk_build_sal/DeformableRegistration Rat24 BuildVolumes
