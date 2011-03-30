@@ -77,8 +77,11 @@ int main(int argc, char const *argv[]) {
   StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
 
   // Generate fixed images to register against
-  LoResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  if( argc < 4)
+  {
+    LoResStack.updateVolumes();
+    writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  }
   
   // initialise registration framework
   RegistrationBuilder registrationBuilder;
@@ -100,9 +103,12 @@ int main(int argc, char const *argv[]) {
   itkProbesReport( std::cout );
   
   // write rigid transforms
-  HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
+  if( argc < 4)
+  {
+    HiResStack.updateVolumes();
+    writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
+    // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
+  }
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredSimilarity2DTransform< double > >(HiResStack);
   
   // Scale parameter space
@@ -112,16 +118,23 @@ int main(int argc, char const *argv[]) {
   stackAligner.Update();
   
   // write similarity transforms
-  HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResSimilarityStack.mha" );
+  if(argc < 4)
+  {
+    HiResStack.updateVolumes();
+    writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResSimilarityStack.mha" );
+  }
   
   // repeat registration with affine transform
   StackTransforms::InitializeFromCurrentTransforms< itk::CenteredAffineTransform< double, 2 > >(HiResStack);
   StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
   stackAligner.Update();
-  HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
+  
+  if(argc < 4)
+  {
+    HiResStack.updateVolumes();
+    writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
+    // writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
+  }
   
   // Update LoRes as the masks might have shrunk
   LoResStack.updateVolumes();
