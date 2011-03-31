@@ -65,7 +65,7 @@ TARGET_LINK_LIBRARIES(DeformableRegistration ${ITKLibs} ${YAML_LIBRARY} ${Boost_
                                   Builders StackAligners)
 
 ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
-TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} 
+TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs)
 
 ADD_SUBDIRECTORY(test)

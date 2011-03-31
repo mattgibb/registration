@@ -1,20 +1,27 @@
 #ifndef IO_HELPERS_HPP_
 #define IO_HELPERS_HPP_
 
+#include "boost/filesystem.hpp"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 
 using namespace std;
+using namespace boost::filesystem;
 
 inline vector< string > getFileNames(const string& directory, const string& fileList) {
+  // use boost filesystem to handle presence/absence of trailing slash on directory
+  path directoryPath(directory);
+  
   vector< string > fileNames;
   fileNames.clear();
   ifstream infile(fileList.c_str(), ios_base::in);
   string fileName;
+  
   while (getline(infile, fileName)) {
-    fileNames.push_back(directory + fileName);
+    fileNames.push_back( (directoryPath / fileName).string() );
   }
   
   return fileNames;
