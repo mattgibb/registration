@@ -68,4 +68,7 @@ ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
 TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs)
 
+ADD_EXECUTABLE(ComposeTransformSeries ComposeTransformSeries.cxx )
+TARGET_LINK_LIBRARIES(ComposeTransformSeries ${ITKLibs} ${Boost_LIBRARIES} Dirs)
+
 ADD_SUBDIRECTORY(test)
