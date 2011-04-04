@@ -60,7 +60,7 @@ namespace :test do
   
   desc "Run refactored code and test output against original output"
   task :refactor => [:make] do
-    rm Dir['results/Rat24/BuildVolumes_refactor/*']
+    %x{rm -rf results/Rat24/BuildVolumes_refactor/*}
     sh "itk_build/BuildVolumes Rat24 BuildVolumes_refactor"
     diff_output = `diff -r -x .DS_Store results/Rat24/BuildVolumes{,_refactor}`
     test_success(diff_output)
