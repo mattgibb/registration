@@ -1,3 +1,5 @@
+#include "boost/filesystem.hpp"
+
 #include <assert.h>
 #include "itkCenteredSimilarity2DTransform.h"
 #include "itkLBFGSBOptimizer.h"
@@ -145,8 +147,13 @@ int main(int argc, char const *argv[]) {
   saveNumberOfTimesTooBig(HiResStack, outputDir + "numberOfTimesTooBig.txt");
   
   // Write final transforms to file
-  Save(LoResStack, outputDir + "LoResTransforms");
-  Save(HiResStack, outputDir + "HiResTransforms");
+  using namespace boost::filesystem;
+  string LoResTransformsDir = outputDir + "LoResTransforms";
+  string HiResTransformsDir = outputDir + "HiResTransforms";
+  create_directory(LoResTransformsDir);
+  create_directory(HiResTransformsDir);
+  Save(LoResStack, LoResTransformsDir);
+  Save(HiResStack, HiResTransformsDir);
   
   return EXIT_SUCCESS;
 }
