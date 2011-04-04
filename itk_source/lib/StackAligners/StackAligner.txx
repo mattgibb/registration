@@ -4,16 +4,17 @@
 #include "StackAligner.hpp"
 
 
-StackAligner::StackAligner(Stack &LoResStack,
-                           Stack &HiResStack,
-                           RegistrationType::Pointer registration):
+template <typename StackType>
+StackAligner< StackType >::StackAligner(StackType &LoResStack,
+                           StackType &HiResStack,
+                           typename RegistrationType::Pointer registration):
                            m_LoResStack(LoResStack),
                            m_HiResStack(HiResStack),
                            m_registration(registration)
                            {}
 
-
-void StackAligner::Update() {
+template <typename StackType>
+void StackAligner< StackType >::Update() {
   unsigned int number_of_slices = m_LoResStack.GetSize();
   
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
@@ -49,12 +50,14 @@ void StackAligner::Update() {
   cout << "Finished registration." << endl;
 }
 
-bool StackAligner::bothImagesExist(unsigned int slice_number) {
+template <typename StackType>
+bool StackAligner< StackType >::bothImagesExist(unsigned int slice_number) {
   return (m_LoResStack.ImageExists(slice_number) &&
           m_HiResStack.ImageExists(slice_number) );
 }
 
-bool StackAligner::tryRegistration() {
+template <typename StackType>
+bool StackAligner< StackType >::tryRegistration() {
   try {
     m_registration->Update();
     cout << "Optimizer stop condition: "
@@ -67,6 +70,5 @@ bool StackAligner::tryRegistration() {
     return false;
   }
 }
-
 
 #endif

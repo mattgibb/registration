@@ -9,10 +9,10 @@
 // my files
 #include "Stack.hpp"
 
-
+template <typename StackType>
 class RegistrationBuilder : public itk::Object {
 public:
-	typedef itk::ImageRegistrationMethod< Stack::SliceType, Stack::SliceType > RegistrationType;
+	typedef itk::ImageRegistrationMethod< typename StackType::SliceType, typename StackType::SliceType > RegistrationType;
   
   RegistrationBuilder();
 
@@ -30,7 +30,7 @@ public:
   
   void setUpObservers();
 	
-  RegistrationType::Pointer GetRegistration();
+  typename RegistrationType::Pointer GetRegistration();
 	
 	// explicitly declare virtual destructor,
   // so that base pointers to derived classes will be destroyed fully
@@ -44,9 +44,10 @@ private:
   RegistrationBuilder(const RegistrationBuilder&);
   RegistrationBuilder& operator=(const RegistrationBuilder&);
 	
-	RegistrationType::Pointer m_registration;
+	typename RegistrationType::Pointer m_registration;
 	
   YAML::Node& m_registrationParameters;
 };
 
+#include "RegistrationBuilder.txx"
 #endif

@@ -22,7 +22,8 @@ const string TransformFileName(const string& imageFileName, const string& transf
 
 
 // Stack Persistence
-void Save(Stack& stack, const string& dirName)
+template <typename StackType>
+void Save(StackType& stack, const string& dirName)
 {
   typedef itk::TransformFileWriter WriterType;
 
@@ -48,7 +49,8 @@ void Save(Stack& stack, const string& dirName)
 }
 
 
-void Load(Stack& stack, const string& dirName)
+template <typename StackType>
+void Load(StackType& stack, const string& dirName)
 {
   typedef itk::TransformFileReader ReaderType;
   
@@ -58,7 +60,7 @@ void Load(Stack& stack, const string& dirName)
   // TODO: below registers a new version of transform every time Load() is called
   itk::TransformFactory< itk::TranslationTransform< double, 2 > >::RegisterTransform();
   
-  Stack::TransformVectorType newTransforms;
+  typename StackType::TransformVectorType newTransforms;
   
   for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
   {
@@ -76,7 +78,7 @@ void Load(Stack& stack, const string& dirName)
   		std::abort();
     }
     
-    Stack::TransformType::Pointer transform = static_cast<Stack::TransformType*>( reader->GetTransformList()->begin()->GetPointer() );
+    typename StackType::TransformType::Pointer transform = static_cast<typename StackType::TransformType*>( reader->GetTransformList()->begin()->GetPointer() );
     newTransforms.push_back( transform );
   }
   
@@ -84,7 +86,8 @@ void Load(Stack& stack, const string& dirName)
 }
 
 
-void saveNumberOfTimesTooBig(Stack& stack, const string& fileName)
+template <typename StackType>
+void saveNumberOfTimesTooBig(StackType& stack, const string& fileName)
 {
   const vector< unsigned int >& numbers = stack.GetNumberOfTimesTooBig();
   ofstream outfile(fileName.c_str());
@@ -95,7 +98,8 @@ void saveNumberOfTimesTooBig(Stack& stack, const string& fileName)
   }
 }
 
-void loadNumberOfTimesTooBig(Stack& stack, const string& fileName)
+template <typename StackType>
+void loadNumberOfTimesTooBig(StackType& stack, const string& fileName)
 {
   ifstream infile(fileName.c_str());
   assert(infile.is_open());
@@ -116,7 +120,6 @@ void loadNumberOfTimesTooBig(Stack& stack, const string& fileName)
   }
   assert( nol == stack.GetSize() );
 }
-
 
 
 #endif

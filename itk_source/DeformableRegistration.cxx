@@ -29,26 +29,27 @@ int main(int argc, char const *argv[]) {
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
 	
 	// initialise stack objects
-  Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
+	typedef Stack< float > StackType;
+  StackType::VolumeType::SpacingType LoResSpacings, HiResSpacings;
 	for(unsigned int i=0; i<3; i++) {
     imageDimensions()["LoResSpacings"][i] >> LoResSpacings[i];
     imageDimensions()["HiResSpacings"][i] >> HiResSpacings[i];
   }
   
-  Stack::SliceType::SizeType LoResSize;
+  StackType::SliceType::SizeType LoResSize;
   itk::Vector< double, 2 > LoResTranslation;
   for(unsigned int i=0; i<2; i++) {
     imageDimensions()["LoResSize"][i] >> LoResSize[i];
     imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
   }
   
-  Stack LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize);
+  StackType LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize);
   
-  Stack::SliceType::SpacingType HiResOriginalSpacings;
+  StackType::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
   
-  Stack HiResStack(getFileNames(Dirs::SliceDir(), Dirs::SliceFile()), HiResOriginalSpacings,
-        LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
+  StackType HiResStack(getFileNames(Dirs::SliceDir(), Dirs::SliceFile()), HiResOriginalSpacings,
+            LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
   // initialise stacks' transforms with saved transform files
   Load(LoResStack, outputDir + "LoResTransforms");
@@ -60,16 +61,17 @@ int main(int argc, char const *argv[]) {
   
   // Generate fixed images to register against
   LoResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResPersistedStack.mha" );
+  writeImage< StackType::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResPersistedStack.mha" );
   
   HiResStack.updateVolumes();
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResPersistedStack.mha" );
+  writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResPersistedStack.mha" );
   
   // initialise registration framework
   boost::shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
-  RegistrationBuilder registrationBuilder(*pDeformableParameters);
-  RegistrationBuilder::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
-  StackAligner stackAligner(LoResStack, HiResStack, registration);
+  typedef RegistrationBuilder< StackType > RegistrationBuilderType;
+  RegistrationBuilderType registrationBuilder(*pDeformableParameters);
+  RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
+  StackAligner< StackType > stackAligner(LoResStack, HiResStack, registration);
   
   // Perform non-rigid registration
   StackTransforms::InitializeBSplineDeformableFromBulk(LoResStack, HiResStack);
@@ -114,8 +116,8 @@ int main(int argc, char const *argv[]) {
   
   HiResStack.updateVolumes();
   
-  writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResDeformedStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
+  writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResDeformedStack.mha" );
+  writeImage< StackType::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
   
   return EXIT_SUCCESS;
 }

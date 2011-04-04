@@ -20,15 +20,16 @@
 
 using namespace std;
 
+template <typename TPixel>
 class Stack : public itk::Object {
 public:
-  typedef float PixelType;
+  typedef TPixel PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
 	typedef itk::Image< unsigned char, 2 > MaskSliceType;
 	typedef itk::ImageRegionIterator< MaskSliceType > MaskSliceIteratorType;
 	typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
-	typedef vector< SliceType::Pointer > SliceVectorType;
+	typedef vector< typename SliceType::Pointer > SliceVectorType;
   typedef vector< MaskSliceType::Pointer > MaskSliceVectorType;
   typedef itk::ImageFileReader< SliceType > ReaderType;
 	typedef itk::Transform< double, 2, 2 > TransformType;
@@ -50,40 +51,40 @@ public:
 private:
   const vector< string > fileNames;
 	SliceVectorType originalImages;
-	XYScaleType::Pointer xyScaler;
+	typename XYScaleType::Pointer xyScaler;
   SliceVectorType slices;
-	VolumeType::Pointer volume;
-  SliceType::SizeType maxSize;
-	SliceType::SizeType resamplerSize;
-	SliceType::SpacingType originalSpacings;
-	VolumeType::SpacingType spacings;
-	MaskType3D::Pointer mask3D;
+	typename VolumeType::Pointer volume;
+  typename SliceType::SizeType maxSize;
+	typename SliceType::SizeType resamplerSize;
+	typename SliceType::SpacingType originalSpacings;
+	typename VolumeType::SpacingType spacings;
+	typename MaskType3D::Pointer mask3D;
 	MaskVectorType2D original2DMasks;
 	MaskVectorType2D resampled2DMasks;
 	TransformVectorType transforms;
-	LinearInterpolatorType::Pointer linearInterpolator;
-	NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
-	NormalizerType::Pointer normalizer;
-	ResamplerType::Pointer resampler;
-	MaskResamplerType::Pointer maskResampler;
-	TileFilterType::Pointer tileFilter;
-	TileFilterType::LayoutArrayType layout;
-	MaskTileFilterType::Pointer maskTileFilter;
-	ZScaleType::Pointer zScaler;
-	MaskZScaleType::Pointer maskZScaler;
+	typename LinearInterpolatorType::Pointer linearInterpolator;
+	typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
+	typename NormalizerType::Pointer normalizer;
+	typename ResamplerType::Pointer resampler;
+	typename MaskResamplerType::Pointer maskResampler;
+	typename TileFilterType::Pointer tileFilter;
+	typename TileFilterType::LayoutArrayType layout;
+	typename MaskTileFilterType::Pointer maskTileFilter;
+	typename ZScaleType::Pointer zScaler;
+	typename MaskZScaleType::Pointer maskZScaler;
   vector< unsigned int > numberOfTimesTooBig;
 	
 public:
   // constructor to center images and size stack to fit in the longest and widest image
-  Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings);
+  Stack(const vector< string >& inputFileNames, const typename VolumeType::SpacingType& inputSpacings);
 
 	// constructor to specify size and start index explicitly
-  Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
-        const SliceType::SizeType& inputSize);
+  Stack(const vector< string >& inputFileNames, const typename VolumeType::SpacingType& inputSpacings,
+        const typename SliceType::SizeType& inputSize);
 	
 	// constructor to specify stack size and spacing, and spacing of original images
-  Stack(const vector< string >& inputFileNames, const SliceType::SpacingType& inputOriginalSpacings,
-        const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize);
+  Stack(const vector< string >& inputFileNames, const typename SliceType::SpacingType& inputOriginalSpacings,
+        const typename VolumeType::SpacingType& inputSpacings, const typename SliceType::SizeType& inputSize);
 	
 protected:
   void readImages();
@@ -128,37 +129,37 @@ public:
     
   unsigned short GetSize() const { return originalImages.size(); }
   
-  const SliceType::SizeType& GetMaxSize() const { return maxSize; }
+  const typename SliceType::SizeType& GetMaxSize() const { return maxSize; }
 
-  const SliceType::SizeType& GetResamplerSize() const { return resamplerSize; }
+  const typename SliceType::SizeType& GetResamplerSize() const { return resamplerSize; }
   
-  const VolumeType::SpacingType& GetSpacings() const { return spacings; }
+  const typename VolumeType::SpacingType& GetSpacings() const { return spacings; }
 
-  const SliceType::SpacingType& GetOriginalSpacings() const { return originalSpacings; }
+  const typename SliceType::SpacingType& GetOriginalSpacings() const { return originalSpacings; }
           
-  SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
+  typename SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
     checkSliceNumber(slice_number);
   	return originalImages[slice_number];
   }
 	
-  MaskType2D::Pointer GetOriginal2DMask(unsigned int slice_number) {
+  typename MaskType2D::Pointer GetOriginal2DMask(unsigned int slice_number) {
   	checkSliceNumber(slice_number);
     return original2DMasks[slice_number];
   }
 	
-  SliceType::Pointer GetResampledSlice(unsigned int slice_number) {
+  typename SliceType::Pointer GetResampledSlice(unsigned int slice_number) {
     checkSliceNumber(slice_number);
     return slices[slice_number];
   }
   
-  MaskType2D::Pointer GetResampled2DMask(unsigned int slice_number) {
+  typename MaskType2D::Pointer GetResampled2DMask(unsigned int slice_number) {
     checkSliceNumber(slice_number);
     return resampled2DMasks[slice_number];
   }
   
-  VolumeType::Pointer GetVolume() { return volume; }
+  typename VolumeType::Pointer GetVolume() { return volume; }
 	
-  MaskType3D::Pointer Get3DMask() { return mask3D; }
+  typename MaskType3D::Pointer Get3DMask() { return mask3D; }
 	
   TransformType::Pointer GetTransform(unsigned int slice_number) {
     checkSliceNumber(slice_number);
@@ -186,8 +187,8 @@ protected:
 	
   static bool fileExists(const string& strFilename);
   
-  SliceType::SpacingType spacings2D() const {
-    SliceType::SpacingType spacings2D;
+  typename SliceType::SpacingType spacings2D() const {
+    typename SliceType::SpacingType spacings2D;
     for(unsigned int i=0; i<2; i++) spacings2D[i] = spacings[i];
     return spacings2D;
   }
@@ -199,4 +200,6 @@ private:
   Stack& operator=(const Stack&);
 
 };
+
+#include "Stack.txx"
 #endif

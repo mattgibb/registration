@@ -23,32 +23,37 @@
 #include "NormalizedDifferenceIterationUpdate.hpp"
 
 
-RegistrationBuilder::RegistrationBuilder():
+template <typename StackType>
+RegistrationBuilder< StackType >::RegistrationBuilder():
   m_registrationParameters( registrationParameters() )
 {
   buildRegistrationComponents();
 	setUpObservers();
 }
 
-RegistrationBuilder::RegistrationBuilder(YAML::Node& parameters):
+template <typename StackType>
+RegistrationBuilder< StackType >::RegistrationBuilder(YAML::Node& parameters):
   m_registrationParameters( parameters )
 {
   buildRegistrationComponents();
 	setUpObservers();
 }
 
-void RegistrationBuilder::buildRegistrationComponents() {
+template <typename StackType>
+void RegistrationBuilder< StackType >::buildRegistrationComponents() {
   buildRegistration();
   buildMetric();
   buildOptimizer();
   buildInterpolator();
 }
 
-void RegistrationBuilder::buildRegistration() {
+template <typename StackType>
+void RegistrationBuilder< StackType >::buildRegistration() {
   m_registration = RegistrationType::New();
 }
 
-void RegistrationBuilder::buildMetric() {
+template <typename StackType>
+void RegistrationBuilder< StackType >::buildMetric() {
   const YAML::Node& metricParameters = m_registrationParameters["metric"];
   
   // ensure metric will be built
@@ -65,24 +70,24 @@ void RegistrationBuilder::buildMetric() {
   // pick metric
   if(metricParameters.FindValue("meanSquares")) {
     cout << "Using mean squares image metric.\n";
-    typedef itk::MeanSquaresImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-    MetricType::Pointer metric = MetricType::New();
+    typedef itk::MeanSquaresImageToImageMetric< typename StackType::SliceType, typename StackType::SliceType > MetricType;
+    typename MetricType::Pointer metric = MetricType::New();
     
     m_registration->SetMetric( metric );
   }
   
   if(metricParameters.FindValue("normalizedCorrelation")) {
     cout << "Using normalized correlation image metric.\n";
-    typedef itk::NormalizedCorrelationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-    MetricType::Pointer metric = MetricType::New();
+    typedef itk::NormalizedCorrelationImageToImageMetric< typename StackType::SliceType, typename StackType::SliceType > MetricType;
+    typename MetricType::Pointer metric = MetricType::New();
     
     m_registration->SetMetric( metric );
   }
   
   if(metricParameters.FindValue("mattesMutualInformation")) {
     cout << "Using Mattes mutual information image metric.\n";
-    typedef itk::MattesMutualInformationImageToImageMetric< Stack::SliceType, Stack::SliceType > MetricType;
-    MetricType::Pointer metric = MetricType::New();
+    typedef itk::MattesMutualInformationImageToImageMetric< typename StackType::SliceType, typename StackType::SliceType > MetricType;
+    typename MetricType::Pointer metric = MetricType::New();
     
     // specific settings
     unsigned int numberOfSpatialSamples, numberOfHistogramBins;
@@ -97,7 +102,8 @@ void RegistrationBuilder::buildMetric() {
   }
 }
 
-void RegistrationBuilder::buildOptimizer() {
+template <typename StackType>
+void RegistrationBuilder< StackType >::buildOptimizer() {
   const YAML::Node& optimizerParameters = m_registrationParameters["optimizer"];
   
   // ensure optimizer will be built
@@ -156,12 +162,13 @@ void RegistrationBuilder::buildOptimizer() {
     
 }
 
-void RegistrationBuilder::buildInterpolator() {
-  typedef itk::LinearInterpolateImageFunction< Stack::SliceType, double > LinearInterpolatorType;
+template <typename StackType>
+void RegistrationBuilder< StackType >::buildInterpolator() {
+  typedef itk::LinearInterpolateImageFunction< typename StackType::SliceType, double > LinearInterpolatorType;
   m_registration->SetInterpolator( LinearInterpolatorType::New() );
 }
 
-// implementation of RegistrationBuilder::SetUpObservers()
+// implementation of RegistrationBuilder< StackType >::SetUpObservers()
 template< typename OptimizerType >
 void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
 {
@@ -181,7 +188,8 @@ void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   
 }
 
-void RegistrationBuilder::setUpObservers() {
+template <typename StackType>
+void RegistrationBuilder< StackType >::setUpObservers() {
   const YAML::Node& optimizerParameters = m_registrationParameters["optimizer"];
   
   // declare observer types
@@ -195,7 +203,8 @@ void RegistrationBuilder::setUpObservers() {
   }
 }
 
-RegistrationBuilder::RegistrationType::Pointer RegistrationBuilder::GetRegistration() {
+template <typename StackType>
+typename RegistrationBuilder< StackType >::RegistrationType::Pointer RegistrationBuilder< StackType >::GetRegistration() {
   // Sanity checks
   if( ! this->m_registration )
   {
@@ -220,6 +229,6 @@ RegistrationBuilder::RegistrationType::Pointer RegistrationBuilder::GetRegistrat
   return m_registration;
 }
 
-// RegistrationBuilder::~RegistrationBuilder() {}
+// RegistrationBuilder< StackType >::~RegistrationBuilder() {}
 
 #endif

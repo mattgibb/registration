@@ -2,10 +2,11 @@
 #define _STACK_CXX_
 
 #include <sys/stat.h> // for fileExists
-#include "Stack.hpp"
+// #include "Stack.hpp"
 #include "Parameters.hpp"
 
-Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings):
+template <typename TPixel>
+Stack< TPixel >::Stack(const vector< string >& inputFileNames, const typename VolumeType::SpacingType& inputSpacings):
 fileNames(inputFileNames),
 spacings(inputSpacings) {
   readImages();
@@ -21,8 +22,9 @@ spacings(inputSpacings) {
   initializeFilters();
 }
 
-Stack::Stack(const vector< string >& inputFileNames, const VolumeType::SpacingType& inputSpacings,
-             const SliceType::SizeType& inputSize):
+template <typename TPixel>
+Stack< TPixel >::Stack(const vector< string >& inputFileNames, const typename VolumeType::SpacingType& inputSpacings,
+             const typename SliceType::SizeType& inputSize):
 fileNames(inputFileNames),
 resamplerSize(inputSize),
 spacings(inputSpacings) {
@@ -37,8 +39,9 @@ spacings(inputSpacings) {
   initializeFilters();
 }
 
-Stack::Stack(const vector< string >& inputFileNames, const SliceType::SpacingType& inputOriginalSpacings,
-      const VolumeType::SpacingType& inputSpacings, const SliceType::SizeType& inputSize):
+template <typename TPixel>
+Stack< TPixel >::Stack(const vector< string >& inputFileNames, const typename SliceType::SpacingType& inputOriginalSpacings,
+      const typename VolumeType::SpacingType& inputSpacings, const typename SliceType::SizeType& inputSize):
 fileNames(inputFileNames),
 resamplerSize(inputSize),
 originalSpacings(inputOriginalSpacings),
@@ -53,9 +56,10 @@ spacings(inputSpacings) {
   initializeFilters();
 }
 	
-void Stack::readImages() {
+template <typename TPixel>
+void Stack< TPixel >::readImages() {
   originalImages.clear();
-  ReaderType::Pointer reader;
+  typename ReaderType::Pointer reader;
 	
 	for(unsigned int i=0; i<fileNames.size(); i++) {
 	  if( fileExists(fileNames[i]) ) {
@@ -74,7 +78,8 @@ void Stack::readImages() {
 	
 }
 
-void Stack::normalizeImages() {
+template <typename TPixel>
+void Stack< TPixel >::normalizeImages() {
   // test if configured to normalise images
   bool normalizeImages;
   registrationParameters()["normalizeImages"] >> normalizeImages;
@@ -97,7 +102,8 @@ void Stack::normalizeImages() {
   
 }
   
-void Stack::initializeVectors() {
+template <typename TPixel>
+void Stack< TPixel >::initializeVectors() {
 	// initialise various data members once the number of images is available
 	numberOfTimesTooBig = vector< unsigned int >( GetSize(), 0 );
   for(unsigned int slice_number = 0; slice_number < GetSize(); slice_number++) {
@@ -107,7 +113,8 @@ void Stack::initializeVectors() {
   }
 }
   
-void Stack::scaleOriginalSlices() {
+template <typename TPixel>
+void Stack< TPixel >::scaleOriginalSlices() {
   // rescale original images
 	for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 	  xyScaler = XYScaleType::New();
@@ -120,7 +127,8 @@ void Stack::scaleOriginalSlices() {
 	}
 }
 	
-void Stack::buildOriginalMaskSlices() {
+template <typename TPixel>
+void Stack< TPixel >::buildOriginalMaskSlices() {
 	// build a vector of mask slices
 	for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 		// make new maskSlice and make it all white
@@ -139,8 +147,9 @@ void Stack::buildOriginalMaskSlices() {
   }
 }
 	
-void Stack::calculateMaxSize() {
-	SliceType::SizeType size;
+template <typename TPixel>
+void Stack< TPixel >::calculateMaxSize() {
+	typename SliceType::SizeType size;
 	maxSize.Fill(0);
 	unsigned int dimension = size.GetSizeDimension();
   
@@ -154,13 +163,15 @@ void Stack::calculateMaxSize() {
 	}
 }
 	
-void Stack::setResamplerSizeToMaxSize() {
+template <typename TPixel>
+void Stack< TPixel >::setResamplerSizeToMaxSize() {
   for(unsigned int i=0; i<2; i++) {
     resamplerSize[i] = maxSize[i];
   }
 }
 
-void Stack::initializeFilters() {
+template <typename TPixel>
+void Stack< TPixel >::initializeFilters() {
 	// resamplers
 	linearInterpolator = LinearInterpolatorType::New();
 	nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
@@ -196,14 +207,16 @@ void Stack::initializeFilters() {
 	mask3D = MaskType3D::New();
 }
 	
-void Stack::updateVolumes() {
+template <typename TPixel>
+void Stack< TPixel >::updateVolumes() {
   buildSlices();
   buildVolume();
   buildMaskSlices();
   buildMaskVolume();
 }
 	
-void Stack::buildSlices() {
+template <typename TPixel>
+void Stack< TPixel >::buildSlices() {
   for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 		// resample transformed image
 		resampler->SetInput( originalImages[slice_number] );
@@ -216,13 +229,14 @@ void Stack::buildSlices() {
 	}
 }
 
-void Stack::buildVolume() {
+template <typename TPixel>
+void Stack< TPixel >::buildVolume() {
   // construct tile filter
 	tileFilter = TileFilterType::New();
 	tileFilter->SetLayout( layout );
 	
 	// add new images to filter stack
-  for(SliceVectorType::iterator it = slices.begin(); it != slices.end(); it++) {
+  for(typename SliceVectorType::iterator it = slices.begin(); it != slices.end(); it++) {
 		tileFilter->PushBackInput( *it );
 	}
 	
@@ -231,7 +245,8 @@ void Stack::buildVolume() {
 	volume = zScaler->GetOutput();
 }
 
-void Stack::buildMaskSlices() {
+template <typename TPixel>
+void Stack< TPixel >::buildMaskSlices() {
 	// make new 2D masks and assign mask slices to them      
 	for(unsigned int slice_number=0; slice_number<GetSize(); slice_number++)
 	{
@@ -239,7 +254,8 @@ void Stack::buildMaskSlices() {
 	}
 }
 
-void Stack::buildMaskSlice(unsigned int slice_number) {
+template <typename TPixel>
+void Stack< TPixel >::buildMaskSlice(unsigned int slice_number) {
   // generate mask slice
 	maskResampler->SetInput( original2DMasks[slice_number]->GetImage() );
 	maskResampler->SetTransform( transforms[slice_number] );
@@ -254,7 +270,8 @@ void Stack::buildMaskSlice(unsigned int slice_number) {
   GenerateMaskSlice(slice_number);
 }
 	
-void Stack::buildMaskVolume() {
+template <typename TPixel>
+void Stack< TPixel >::buildMaskVolume() {
   // construct tile filter
 	maskTileFilter = MaskTileFilterType::New();
 	maskTileFilter->SetLayout( layout );
@@ -270,14 +287,16 @@ void Stack::buildMaskVolume() {
 	mask3D->SetImage( maskZScaler->GetOutput() );
 }
 
-void Stack::checkSliceNumber(unsigned int slice_number) const {
+template <typename TPixel>
+void Stack< TPixel >::checkSliceNumber(unsigned int slice_number) const {
   if( slice_number >= this->GetSize() ) {
     cerr << "Wait a minute, trying to access slice number bigger than this stack!" << endl;
     exit(EXIT_FAILURE);
   }
 }
   
-void Stack::ShrinkMaskSlice(unsigned int slice_number) {
+template <typename TPixel>
+void Stack< TPixel >::ShrinkMaskSlice(unsigned int slice_number) {
   // increment numberOfTimesTooBig
   numberOfTimesTooBig[slice_number]++;
   
@@ -285,7 +304,8 @@ void Stack::ShrinkMaskSlice(unsigned int slice_number) {
   GenerateMaskSlice(slice_number);
 }
 
-void Stack::GenerateMaskSlice(unsigned int slice_number) {
+template <typename TPixel>
+void Stack< TPixel >::GenerateMaskSlice(unsigned int slice_number) {
   // retrieve mask image and region
   MaskSliceType::ConstPointer oldMaskSlice = resampled2DMasks[slice_number]->GetImage();
   MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
@@ -326,7 +346,8 @@ void Stack::GenerateMaskSlice(unsigned int slice_number) {
   resampled2DMasks[slice_number]->SetImage( newMaskSlice );
 }
 
-bool Stack::fileExists(const string& strFilename) { 
+template <typename TPixel>
+bool Stack< TPixel >::fileExists(const string& strFilename) { 
   struct stat stFileInfo;
   bool blnReturn;
   int intStat;

@@ -15,7 +15,8 @@ int main(int argc, char const *argv[]) {
   string outputDir(Dirs::TestDir() + "data/results/");
 	
 	// initialise stack objects
-	Stack::VolumeType::SpacingType LoResSpacings, HiResSpacings;
+  typedef Stack< float > StackType;
+	StackType::VolumeType::SpacingType LoResSpacings, HiResSpacings;
   for(unsigned int i=0; i<3; i++)
   {
     LoResSpacings[i] = HiResSpacings[i] = 1;
@@ -24,14 +25,14 @@ int main(int argc, char const *argv[]) {
   vector< string > original, rotated;
   original.push_back(Dirs::TestDir() + "data/images/original.png");
   rotated.push_back(Dirs::TestDir() + "data/images/rotated.png");
-  Stack LoResStack( original, LoResSpacings );
+  StackType LoResStack( original, LoResSpacings );
   
   // make 2D version of HiResSpacings
-  Stack::SliceType::SpacingType HiResOriginalSpacings;
+  StackType::SliceType::SpacingType HiResOriginalSpacings;
   for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
   
-  Stack HiResStack(rotated, HiResOriginalSpacings,
-        LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
+  StackType HiResStack(rotated, HiResOriginalSpacings,
+            LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
   StackTransforms::InitializeToCommonCentre( LoResStack );
@@ -42,9 +43,10 @@ int main(int argc, char const *argv[]) {
   HiResStack.updateVolumes();
   
   // initialise registration framework
-  RegistrationBuilder registrationBuilder;
-  RegistrationBuilder::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
-  StackAligner stackAligner(LoResStack, HiResStack, registration);
+  typedef RegistrationBuilder< StackType > RegistrationBuilderType;
+  RegistrationBuilderType registrationBuilder;
+  RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
+  StackAligner< StackType > stackAligner(LoResStack, HiResStack, registration);
   
   // Scale parameter space
   StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
@@ -55,15 +57,15 @@ int main(int argc, char const *argv[]) {
   HiResStack.updateVolumes();
   
   // write transform and results
-  writeData< itk::TransformFileWriter, Stack::TransformType >
+  writeData< itk::TransformFileWriter, StackType::TransformType >
     (HiResStack.GetTransform(0), outputDir + "Transforms.meta");
   
   cout << "outputDir: " << outputDir << endl;
   
-	writeImage< Stack::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
-	writeImage< Stack::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
-  writeImage< Stack::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
+	writeImage< StackType::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+  writeImage< StackType::MaskVolumeType >( LoResStack.Get3DMask()->GetImage(), outputDir + "LoResMask.mha" );
+	writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResStack.mha" );
+  writeImage< StackType::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResMask.mha" );
 	
   return EXIT_SUCCESS;
 }

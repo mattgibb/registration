@@ -18,13 +18,14 @@
 using namespace std;
 
 namespace StackTransforms {
-  void InitializeToIdentity(Stack& stack) {
+  template <typename StackType>
+  void InitializeToIdentity(StackType& stack) {
     typedef itk::IdentityTransform< double, 2 > TransformType;
-    Stack::TransformVectorType newTransforms;
+    typename StackType::TransformVectorType newTransforms;
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-      Stack::TransformType::Pointer transform( TransformType::New() );
+      typename StackType::TransformType::Pointer transform( TransformType::New() );
       newTransforms.push_back( transform );
 		}
 		
@@ -32,9 +33,10 @@ namespace StackTransforms {
     
   }
   
-  void InitializeWithTranslation(Stack& stack, const itk::Vector< double, 2 > &translation) {
+  template <typename StackType>
+  void InitializeWithTranslation(StackType& stack, const itk::Vector< double, 2 > &translation) {
     typedef itk::TranslationTransform< double, 2 > TransformType;
-    Stack::TransformVectorType newTransforms;
+    typename StackType::TransformVectorType newTransforms;
     TransformType::ParametersType parameters(2);
     
     parameters[0] = translation[0];
@@ -42,7 +44,7 @@ namespace StackTransforms {
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-      Stack::TransformType::Pointer transform( TransformType::New() );
+      typename StackType::TransformType::Pointer transform( TransformType::New() );
       transform->SetParametersByValue( parameters );
       newTransforms.push_back( transform );
 		}
@@ -51,17 +53,18 @@ namespace StackTransforms {
     
   }
   
-  void InitializeToCommonCentre(Stack& stack) {
+  template <typename StackType>
+  void InitializeToCommonCentre(StackType& stack) {
     typedef itk::CenteredRigid2DTransform< double > TransformType;
-    Stack::TransformVectorType newTransforms;
+    typename StackType::TransformVectorType newTransforms;
     TransformType::ParametersType parameters(5);
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-			const Stack::SliceType::SizeType &originalSize( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
+			const typename StackType::SliceType::SizeType &originalSize( stack.GetOriginalImage(i)->GetLargestPossibleRegion().GetSize() ),
                                        &resamplerSize( stack.GetResamplerSize() );
-      const Stack::SliceType::SpacingType &originalSpacings( stack.GetOriginalSpacings() );
-      const Stack::VolumeType::SpacingType &spacings( stack.GetSpacings() );
+      const typename StackType::SliceType::SpacingType &originalSpacings( stack.GetOriginalSpacings() );
+      const typename StackType::VolumeType::SpacingType &spacings( stack.GetSpacings() );
 			
 			// rotation in radians
 			parameters[0] = 0;
@@ -70,7 +73,7 @@ namespace StackTransforms {
 			parameters[4] = ( originalSpacings[1] * (double)originalSize[1] - spacings[1] * (double)resamplerSize[1] ) / 2.0;
 			
 			// set them to new transform
-      Stack::TransformType::Pointer transform( TransformType::New() );
+      typename StackType::TransformType::Pointer transform( TransformType::New() );
       transform->SetParametersByValue( parameters );
       newTransforms.push_back( transform );
 		}
@@ -78,17 +81,18 @@ namespace StackTransforms {
     stack.SetTransforms(newTransforms);
   }
   
-  void SetMovingStackCORWithFixedStack( Stack& fixedStack, Stack& movingStack )
+  template <typename StackType>
+  void SetMovingStackCORWithFixedStack( StackType& fixedStack, StackType& movingStack )
   {
-    const Stack::TransformVectorType& movingTransforms = movingStack.GetTransforms();
+    const typename StackType::TransformVectorType& movingTransforms = movingStack.GetTransforms();
     
     // set the moving slices' centre of rotation to the centre of the fixed image
     for(unsigned int i=0; i<movingStack.GetSize(); i++)
     {
-      Stack::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
+      typename StackType::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
      
-      const Stack::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
-      const Stack::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
+      const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
+      const typename StackType::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
       
       // centre of rotation, before translation is applied
       params[1] = spacings[0] * (double)resamplerSize[0] / 2.0;
@@ -99,9 +103,9 @@ namespace StackTransforms {
     
   }
   
-  template< typename NewTransformType >
-  void InitializeFromCurrentTransforms(Stack& stack) {
-    Stack::TransformVectorType newTransforms;
+  template <typename StackType, typename NewTransformType>
+  void InitializeFromCurrentTransforms(StackType& stack) {
+    typename StackType::TransformVectorType newTransforms;
     
     for(unsigned int i=0; i<stack.GetSize(); i++) {
       typename NewTransformType::Pointer newTransform = NewTransformType::New();
@@ -111,7 +115,7 @@ namespace StackTransforms {
       LinearTransformType::Pointer oldTransform( dynamic_cast< LinearTransformType* >( stack.GetTransform(i).GetPointer() ) );
       newTransform->SetCenter( oldTransform->GetCenter() );
       newTransform->Compose( oldTransform );
-      Stack::TransformType::Pointer baseTransform( newTransform );
+      typename StackType::TransformType::Pointer baseTransform( newTransform );
       newTransforms.push_back( baseTransform );
     }
     
@@ -120,15 +124,16 @@ namespace StackTransforms {
     
   }
   
-  void InitializeBSplineDeformableFromBulk(Stack& LoResStack, Stack& HiResStack)
+  template <typename StackType>
+  void InitializeBSplineDeformableFromBulk(StackType& LoResStack, StackType& HiResStack)
   {
     // Perform non-rigid registration
     typedef double CoordinateRepType;
     const unsigned int SpaceDimension = 2;
     const unsigned int SplineOrder = 3;
     typedef itk::BSplineDeformableTransform< CoordinateRepType, SpaceDimension, SplineOrder > TransformType;
-    typedef itk::BSplineDeformableTransformInitializer< TransformType, Stack::SliceType > InitializerType;
-    Stack::TransformVectorType newTransforms;
+    typedef itk::BSplineDeformableTransformInitializer< TransformType, typename StackType::SliceType > InitializerType;
+    typename StackType::TransformVectorType newTransforms;
     
     for(unsigned int slice_number=0; slice_number<HiResStack.GetSize(); slice_number++)
     {
@@ -136,7 +141,7 @@ namespace StackTransforms {
       TransformType::Pointer transform( TransformType::New() );
       
       // initialise transform
-      InitializerType::Pointer initializer = InitializerType::New();
+      typename InitializerType::Pointer initializer = InitializerType::New();
       initializer->SetTransform( transform );
       initializer->SetImage( LoResStack.GetResampledSlice(slice_number) );
       unsigned int gridSize;
@@ -156,7 +161,7 @@ namespace StackTransforms {
       transform->SetParametersByValue( initialDeformableTransformParameters );
       
       // add transform to vector
-      Stack::TransformType::Pointer baseTransform( transform );
+      typename StackType::TransformType::Pointer baseTransform( transform );
       newTransforms.push_back( baseTransform );
     }
     HiResStack.SetTransforms(newTransforms);
@@ -212,6 +217,7 @@ namespace StackTransforms {
     optimizer->SetScales( scales );
   }
 
+  template <typename StackType>
   void ConfigureLBFGSBOptimizer(unsigned int numberOfParameters, itk::LBFGSBOptimizer::Pointer optimizer)
   {
     // From Example
@@ -240,7 +246,8 @@ namespace StackTransforms {
     
   }
   
-  void SetOptimizerScalesForBSplineDeformableTransform(Stack &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  template <typename StackType>
+  void SetOptimizerScalesForBSplineDeformableTransform(StackType &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   {
     typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
     ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );

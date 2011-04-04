@@ -9,13 +9,14 @@
 #include "itkImageRegistrationMethod.h"
 
 
+template <typename StackType>
 class StackAligner {
 public:
-	typedef itk::ImageRegistrationMethod< Stack::SliceType, Stack::SliceType > RegistrationType;
+	typedef itk::ImageRegistrationMethod< typename StackType::SliceType, typename StackType::SliceType > RegistrationType;
 	
-  StackAligner(Stack &LoResStack,
-               Stack &HiResStack,
-               RegistrationType::Pointer registration);
+  StackAligner(StackType &LoResStack,
+               StackType &HiResStack,
+               typename RegistrationType::Pointer registration);
 
 void Update();
 	
@@ -31,8 +32,9 @@ private:
   StackAligner(const StackAligner&);
   StackAligner& operator=(const StackAligner&);
   
-  Stack &m_LoResStack, &m_HiResStack;
-  RegistrationType::Pointer m_registration;
+  StackType &m_LoResStack, &m_HiResStack;
+  typename RegistrationType::Pointer m_registration;
 };
 
+#include "StackAligner.txx"
 #endif
