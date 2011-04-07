@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "ProjectRootDir.h"
+#include "Parameters.hpp"
 
 
 string Dirs::_dataSet = "";
@@ -64,12 +65,20 @@ string Dirs::DTMRIDir()
 
 string Dirs::BlockDir()
 {
-  return ImagesDir() + "LoRes_rgb/downsamples_8/";
+  CheckDataSet();
+  string ratio;
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(_dataSet + "/downsample_ratios.yml");
+  (*(downsample_ratios.get()))["LoRes"] >> ratio;
+  return ImagesDir() + "LoRes/downsamples_" + ratio + "/";
 }
 
 string Dirs::SliceDir()
 {
-  return ImagesDir() + "HiRes/downsamples_64/";
+  CheckDataSet();
+  string ratio;
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(_dataSet + "/downsample_ratios.yml");
+  (*(downsample_ratios.get()))["HiRes"] >> ratio;
+  return ImagesDir() + "HiRes/downsamples_" + ratio + "/";
 }
 
 string Dirs::SegmentationDir()

@@ -7,8 +7,11 @@ CONFIGURE_FILE(
 INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}")
 
 # Build libraries
-ADD_LIBRARY(Dirs Dirs.cxx)
 ADD_LIBRARY(Parameters Parameters.cxx)
+TARGET_LINK_LIBRARIES(Parameters ${YAML_LIBRARY})
+
+ADD_LIBRARY(Dirs Dirs.cxx)
+TARGET_LINK_LIBRARIES(Dirs Parameters)
 
 ADD_SUBDIRECTORY(Builders)
 ADD_SUBDIRECTORY(StackAligners)

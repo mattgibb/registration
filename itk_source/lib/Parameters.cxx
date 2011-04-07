@@ -6,6 +6,7 @@
 #include "yaml-cpp/yaml.h"
 #include "Dirs.hpp"
 
+
 YAML::Node& imageDimensions()
 {
   // only initialize statics when registrationParameters is first called
@@ -44,6 +45,7 @@ YAML::Node& registrationParameters()
   // return reference to singleton
   return registrationParameters;
 }
+
 
 boost::shared_ptr<YAML::Node> config(const string& filename)
 {
