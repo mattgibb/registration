@@ -69,7 +69,7 @@ string Dirs::BlockDir()
   string ratio;
   boost::shared_ptr<YAML::Node> downsample_ratios = config(_dataSet + "/downsample_ratios.yml");
   (*(downsample_ratios.get()))["LoRes"] >> ratio;
-  return ImagesDir() + "LoRes/downsamples_" + ratio + "/";
+  return ImagesDir() + "LoRes_rgb/downsamples_" + ratio + "/";
 }
 
 string Dirs::SliceDir()
