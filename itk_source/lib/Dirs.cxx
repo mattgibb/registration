@@ -12,6 +12,12 @@ string Dirs::_dataSet = "";
 string Dirs::_paramsFile = ConfigDir() + "registration_parameters.yml";
 Dirs* Dirs::_instance = 0;
 
+string Dirs::GetDataSet()
+{
+  CheckDataSet();
+  return _dataSet;
+}
+
 void Dirs::SetDataSet(string dataSet)
 {
   _dataSet = dataSet;

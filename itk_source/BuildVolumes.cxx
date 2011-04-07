@@ -51,6 +51,11 @@ int main(int argc, char const *argv[]) {
 	// initialise stack objects
   typedef Stack< float > StackType;
   StackType::VolumeType::SpacingType LoResSpacings, HiResSpacings;
+  unsigned int LoResDownsampleRatio, HiResDownsampleRatio;
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  
 	for(unsigned int i=0; i<3; i++) {
     imageDimensions()["LoResSpacings"][i] >> LoResSpacings[i];
     imageDimensions()["HiResSpacings"][i] >> HiResSpacings[i];
@@ -58,8 +63,12 @@ int main(int argc, char const *argv[]) {
   
   StackType::SliceType::SizeType LoResSize;
   itk::Vector< double, 2 > LoResTranslation;
+  
   for(unsigned int i=0; i<2; i++) {
+    LoResSpacings[i] *= LoResDownsampleRatio;
+    HiResSpacings[i] *= HiResDownsampleRatio;
     imageDimensions()["LoResSize"][i] >> LoResSize[i];
+    LoResSize[i] /= LoResDownsampleRatio;
     imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
   }
   

@@ -14,6 +14,8 @@ class Dirs {
   static Dirs* _instance;
   
 public:
+  static string GetDataSet();
+  
   static void SetDataSet(string dataSet);
   
   static void SetParamsFile(string paramsFile);
