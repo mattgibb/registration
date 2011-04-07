@@ -21,7 +21,7 @@
 using namespace std;
 
 template <typename TPixel>
-class Stack : public itk::Object {
+class Stack {
 public:
   typedef TPixel PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
