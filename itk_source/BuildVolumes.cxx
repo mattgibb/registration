@@ -64,7 +64,7 @@ int main(int argc, char const *argv[]) {
   StackTransforms::SetMovingStackCORWithFixedStack( *LoResStack, *HiResStack );
 
   // Generate fixed images to register against
-  LoResStack.updateVolumes();
+  LoResStack->updateVolumes();
   if( argc < 4)
   {
     writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResStack.mha" );
