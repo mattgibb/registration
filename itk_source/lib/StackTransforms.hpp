@@ -18,6 +18,14 @@
 using namespace std;
 
 namespace StackTransforms {
+  itk::Vector< double, 2 > GetLoResTranslation() {
+    itk::Vector< double, 2 > LoResTranslation;
+    for(unsigned int i=0; i<2; i++) {
+      imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
+    }
+    return LoResTranslation;
+  }
+  
   template <typename StackType>
   void InitializeToIdentity(StackType& stack) {
     typedef itk::IdentityTransform< double, 2 > TransformType;

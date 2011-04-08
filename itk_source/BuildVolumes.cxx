@@ -10,6 +10,7 @@
 
 // my files
 #include "Stack.hpp"
+#include "StackInitializers.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
@@ -48,58 +49,32 @@ int main(int argc, char const *argv[]) {
     HiResFileNames = getFileNames(Dirs::SliceDir(), Dirs::SliceFile());
   }
 	
-	// initialise stack objects
+  // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float > StackType;
-  StackType::VolumeType::SpacingType LoResSpacings, HiResSpacings;
-  unsigned int LoResDownsampleRatio, HiResDownsampleRatio;
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
-  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
-  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
-  
-	for(unsigned int i=0; i<3; i++) {
-    imageDimensions()["LoResSpacings"][i] >> LoResSpacings[i];
-    imageDimensions()["HiResSpacings"][i] >> HiResSpacings[i];
-  }
-  
-  StackType::SliceType::SizeType LoResSize;
-  itk::Vector< double, 2 > LoResTranslation;
-  
-  for(unsigned int i=0; i<2; i++) {
-    LoResSpacings[i] *= LoResDownsampleRatio;
-    HiResSpacings[i] *= HiResDownsampleRatio;
-    imageDimensions()["LoResSize"][i] >> LoResSize[i];
-    LoResSize[i] /= LoResDownsampleRatio;
-    imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
-  }
-  
-  StackType LoResStack(LoResFileNames, LoResSpacings , LoResSize);
-  
-  StackType::SliceType::SpacingType HiResOriginalSpacings;
-  for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
-  
-  StackType HiResStack(HiResFileNames, HiResOriginalSpacings,
-        LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
+  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResFileNames);
+  // boost::shared_ptr< StackType > LoResStack = InitializeLoResStack(LoResFileNames);
+  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResFileNames);
   
   // Assert stacks have the same number of slices
-  assert(LoResStack.GetSize() == HiResStack.GetSize());
+  assert(LoResStack->GetSize() == HiResStack->GetSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeWithTranslation( LoResStack, LoResTranslation );
-  StackTransforms::InitializeToCommonCentre( HiResStack );
-  StackTransforms::SetMovingStackCORWithFixedStack( LoResStack, HiResStack );
+  StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation() );
+  StackTransforms::InitializeToCommonCentre( *HiResStack );
+  StackTransforms::SetMovingStackCORWithFixedStack( *LoResStack, *HiResStack );
 
   // Generate fixed images to register against
   if( argc < 4)
   {
-    LoResStack.updateVolumes();
-    writeImage< StackType::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResStack.mha" );
+    LoResStack->updateVolumes();
+    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResStack.mha" );
   }
   
   // initialise registration framework
   typedef RegistrationBuilder< StackType > RegistrationBuilderType;
   RegistrationBuilderType registrationBuilder;
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
-  StackAligner< StackType > stackAligner(LoResStack, HiResStack, registration);
+  StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
   // Scale parameter space
   StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
@@ -118,11 +93,11 @@ int main(int argc, char const *argv[]) {
   // write rigid transforms
   if( argc < 4)
   {
-    HiResStack.updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResRigidStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
+    HiResStack->updateVolumes();
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResRigidStack.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
   }
-  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(HiResStack);
+  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
   
   // Scale parameter space
   StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
@@ -133,27 +108,27 @@ int main(int argc, char const *argv[]) {
   // write similarity transforms
   if(argc < 4)
   {
-    HiResStack.updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResSimilarityStack.mha" );
+    HiResStack->updateVolumes();
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResSimilarityStack.mha" );
   }
   
   // repeat registration with affine transform
-  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredAffineTransform< double, 2 > >(HiResStack);
+  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredAffineTransform< double, 2 > >(*HiResStack);
   StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
   stackAligner.Update();
   
   if(argc < 4)
   {
-    HiResStack.updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResAffineStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
+    HiResStack->updateVolumes();
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResAffineStack.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
   }
   
   // Update LoRes as the masks might have shrunk
-  LoResStack.updateVolumes();
+  LoResStack->updateVolumes();
   
   // persist mask numberOfTimesTooBig
-  saveNumberOfTimesTooBig(HiResStack, outputDir + "numberOfTimesTooBig.txt");
+  saveNumberOfTimesTooBig(*HiResStack, outputDir + "numberOfTimesTooBig.txt");
   
   // Write final transforms to file
   using namespace boost::filesystem;
@@ -161,8 +136,8 @@ int main(int argc, char const *argv[]) {
   string HiResTransformsDir = outputDir + "HiResTransforms";
   create_directory(LoResTransformsDir);
   create_directory(HiResTransformsDir);
-  Save(LoResStack, LoResTransformsDir);
-  Save(HiResStack, HiResTransformsDir);
+  Save(*LoResStack, LoResTransformsDir);
+  Save(*HiResStack, HiResTransformsDir);
   
   return EXIT_SUCCESS;
 }
