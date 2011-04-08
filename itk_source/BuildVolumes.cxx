@@ -2,11 +2,6 @@
 
 #include <assert.h>
 #include "itkCenteredSimilarity2DTransform.h"
-#include "itkLBFGSBOptimizer.h"
-// TEMP
-#include "itkNormalizedCorrelationImageToImageMetric.h"
-#include "itkMattesMutualInformationImageToImageMetric.h"
-// TEMP
 
 // my files
 #include "Stack.hpp"
