@@ -5,6 +5,7 @@
 
 // my files
 #include "Stack.hpp"
+#include "NormalizeImages.hpp"
 #include "StackInitializers.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
@@ -47,6 +48,8 @@ int main(int argc, char const *argv[]) {
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
+  normalizeImages< StackType >(LoResImages);
+  normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   

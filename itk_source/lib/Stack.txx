@@ -9,7 +9,6 @@ template <typename TPixel,
 Stack< TPixel, ResampleImageFilterType, InterpolatorType >::Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings):
 originalImages(images),
 spacings(inputSpacings) {
-  // normalizeImages();
   initializeVectors();
 	// scale slices and initialise volume and mask
   resamplerSize.Fill(0);
@@ -29,7 +28,6 @@ Stack< TPixel, ResampleImageFilterType, InterpolatorType >::Stack(const SliceVec
 originalImages(images),
 resamplerSize(inputSize),
 spacings(inputSpacings) {
-  // normalizeImages();
   initializeVectors();
 	// scale slices and initialise volume and mask
 	for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
@@ -48,7 +46,6 @@ originalImages(images),
 resamplerSize(inputSize),
 originalSpacings(inputOriginalSpacings),
 spacings(inputSpacings) {
-  // normalizeImages();
   initializeVectors();
  // scale slices and initialise volume and mask
   scaleOriginalSlices();
@@ -56,32 +53,6 @@ spacings(inputSpacings) {
   calculateMaxSize();
   initializeFilters();
 }
-	
-// template <typename TPixel,
-//          template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
-//          template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-// void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::normalizeImages() {
-//   // test if configured to normalise images
-//   bool normalizeImages;
-//   registrationParameters()["normalizeImages"] >> normalizeImages;
-//   cout << "normalizeImages: " << normalizeImages << endl;
-//   
-//   // apply normalisation
-//   if(normalizeImages)
-//   {
-//     for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++)
-//     {
-//       normalizer = NormalizerType::New();
-//       normalizer->SetInput( originalImages[slice_number] );
-//       normalizer->Update();
-//       originalImages[slice_number] = normalizer->GetOutput();
-//       originalImages[slice_number]->DisconnectPipeline();
-//     }
-//     
-//   cout << "finished normalising" << endl;
-//   }
-//   
-// }
   
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,

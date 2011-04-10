@@ -7,7 +7,6 @@
 
 #include "itkImage.h"
 #include "itkTileImageFilter.h"
-#include "itkNormalizeImageFilter.h"
 #include "itkResampleImageFilter.h"
 #include "itkVectorResampleImageFilter.h"
 #include "itkTransform.h"
@@ -38,7 +37,6 @@ public:
 	typedef vector< TransformType::Pointer > TransformVectorType;
   typedef InterpolatorType< SliceType, double > LinearInterpolatorType;
   typedef itk::NearestNeighborInterpolateImageFunction< MaskSliceType, double > NearestNeighborInterpolatorType;
-  // typedef itk::NormalizeImageFilter< SliceType, SliceType > NormalizerType;
 	typedef ResampleImageFilterType< SliceType, SliceType, double > ResamplerType;
 	typedef itk::ResampleImageFilter< MaskSliceType, MaskSliceType, double > MaskResamplerType;
   typedef itk::TileImageFilter< SliceType, VolumeType > TileFilterType;
@@ -65,7 +63,6 @@ private:
 	TransformVectorType transforms;
 	typename LinearInterpolatorType::Pointer linearInterpolator;
 	typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
-  // typename NormalizerType::Pointer normalizer;
 	typename ResamplerType::Pointer resampler;
 	typename MaskResamplerType::Pointer maskResampler;
 	typename TileFilterType::Pointer tileFilter;
