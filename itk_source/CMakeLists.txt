@@ -58,6 +58,10 @@ ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs Parameters)
 
+ADD_EXECUTABLE(ResampleBMP ResampleBMP.cxx )
+TARGET_LINK_LIBRARIES(ResampleBMP ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                   Dirs Parameters)
+
 ADD_EXECUTABLE(DeformableRegistration DeformableRegistration.cxx )
 TARGET_LINK_LIBRARIES(DeformableRegistration ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)

@@ -9,7 +9,7 @@
 
 
 template <typename StackType>
-boost::shared_ptr< StackType > InitializeLoResStack(vector< string > FileNames)
+boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images)
 {
   // get downsample ratio
   unsigned int DownsampleRatio;
@@ -36,11 +36,11 @@ boost::shared_ptr< StackType > InitializeLoResStack(vector< string > FileNames)
     imageDimensions()["LoResTranslation"][i] >> Translation[i];
   }
   
-  return boost::make_shared< StackType >(FileNames, Spacings , Size);
+  return boost::make_shared< StackType >(Images, Spacings, Size);
 }
 
 template <typename StackType>
-boost::shared_ptr< StackType > InitializeHiResStack(vector< string > FileNames)
+boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVectorType Images)
 {
   // get downsample ratios
   unsigned int LoResDownsampleRatio, HiResDownsampleRatio;
@@ -68,7 +68,7 @@ boost::shared_ptr< StackType > InitializeHiResStack(vector< string > FileNames)
     LoResSize[i] /= LoResDownsampleRatio;
   }
   
-  return boost::make_shared< StackType >(FileNames, HiResOriginalSpacings, LoResSpacings, LoResSize);
+  return boost::make_shared< StackType >(Images, HiResOriginalSpacings, LoResSpacings, LoResSize);
 }
 
 #endif

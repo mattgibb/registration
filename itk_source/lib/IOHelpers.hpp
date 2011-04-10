@@ -1,12 +1,14 @@
 #ifndef IO_HELPERS_HPP_
 #define IO_HELPERS_HPP_
 
+#include <sys/stat.h> // for fileExists
 #include "boost/filesystem.hpp"
 
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
+
 
 using namespace std;
 using namespace boost::filesystem;
@@ -26,6 +28,61 @@ inline vector< string > getFileNames(const string& directory, const string& file
   
   return fileNames;
 }
+
+
+bool fileExists(const string& strFilename)
+{
+  struct stat stFileInfo;
+  bool blnReturn;
+  int intStat;
+  
+  // Attempt to get the file attributes 
+  intStat = stat(strFilename.c_str(),&stFileInfo); 
+  if(intStat == 0) { 
+    // We were able to get the file attributes 
+    // so the file obviously exists.
+    blnReturn = true; 
+  } else { 
+    // We were not able to get the file attributes. 
+    // This may mean that we don't have permission to 
+    // access the folder which contains this file. If you 
+    // need to do that level of checking, lookup the 
+    // return values of stat which will give you 
+    // more details on why stat failed.
+    blnReturn = false; 
+  } 
+  
+  return(blnReturn); 
+}
+
+
+template <typename StackType>
+typename StackType::SliceVectorType readImages(vector< string > fileNames)
+{
+  typename StackType::SliceVectorType originalImages;
+  typedef itk::ImageFileReader< typename StackType::SliceType > ReaderType;
+  typename ReaderType::Pointer reader;
+	
+	for(unsigned int i=0; i<fileNames.size(); i++)
+	{
+	  if( fileExists(fileNames[i]) )
+	  {
+			reader = ReaderType::New();
+			reader->SetFileName( fileNames[i] );
+			reader->Update();
+			originalImages.push_back( reader->GetOutput() );
+			originalImages.back()->DisconnectPipeline();
+	  }
+	  else
+	  {
+	    // create a new image of zero size
+      originalImages.push_back( StackType::SliceType::New() );
+	  }
+	}
+	
+  return originalImages;
+}
+
 
 // Reader helper
 template<typename ImageType>

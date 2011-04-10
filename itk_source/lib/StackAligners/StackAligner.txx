@@ -19,7 +19,6 @@ void StackAligner< StackType >::Update() {
   
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
     cout << "slice number: " << slice_number << endl;
-    cout << "file name: " << m_LoResStack.GetFileName(slice_number) << endl;
     
     if( bothImagesExist(slice_number) ) {
       // Could change this to register against original fixed image and fixed image masks,

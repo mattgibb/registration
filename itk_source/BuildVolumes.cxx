@@ -15,7 +15,6 @@
 #include "Parameters.hpp"
 #include "Profiling.hpp"
 
-
 void checkUsage(int argc, char const *argv[]) {
   if( argc < 3 )
   {
@@ -45,10 +44,11 @@ int main(int argc, char const *argv[]) {
   }
 	
   // initialise stack objects with correct spacings, sizes etc
-  typedef Stack< float > StackType;
-  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResFileNames);
-  // boost::shared_ptr< StackType > LoResStack = InitializeLoResStack(LoResFileNames);
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResFileNames);
+  typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
+  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
+  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
+  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
+  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
   // Assert stacks have the same number of slices
   assert(LoResStack->GetSize() == HiResStack->GetSize());
@@ -131,8 +131,8 @@ int main(int argc, char const *argv[]) {
   string HiResTransformsDir = outputDir + "HiResTransforms";
   create_directory(LoResTransformsDir);
   create_directory(HiResTransformsDir);
-  Save(*LoResStack, LoResTransformsDir);
-  Save(*HiResStack, HiResTransformsDir);
+  Save(*LoResStack, LoResFileNames, LoResTransformsDir);
+  Save(*HiResStack, HiResFileNames, HiResTransformsDir);
   
   return EXIT_SUCCESS;
 }

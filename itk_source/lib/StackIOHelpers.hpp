@@ -12,7 +12,7 @@
 #include "Stack.hpp"
 
 // helper to construct transform file path
-const string TransformFileName(const string& imageFileName, const string& transformDirName) {
+const string TransformFilePath(const string& imageFileName, const string& transformDirName) {
   using namespace boost::filesystem;
   path slicePath( imageFileName );
   string transformFileName( basename( slicePath.leaf() ) + ".meta" );
@@ -23,14 +23,14 @@ const string TransformFileName(const string& imageFileName, const string& transf
 
 // Stack Persistence
 template <typename StackType>
-void Save(StackType& stack, const string& dirName)
+void Save(StackType& stack, vector< string > fileNames, const string& dirName)
 {
   typedef itk::TransformFileWriter WriterType;
 
   for(int slice_number=0; slice_number < stack.GetSize(); ++slice_number)
 	{
     WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( TransformFileName(stack.GetFileName(slice_number), dirName).c_str() );
+    writer->SetFileName( TransformFilePath(fileNames[slice_number], dirName).c_str() );
     writer->AddTransform( stack.GetTransform(slice_number) );
     
     try
@@ -50,7 +50,7 @@ void Save(StackType& stack, const string& dirName)
 
 
 template <typename StackType>
-void Load(StackType& stack, const string& dirName)
+void Load(StackType& stack, vector< string > fileNames, const string& dirName)
 {
   typedef itk::TransformFileReader ReaderType;
   
@@ -65,7 +65,7 @@ void Load(StackType& stack, const string& dirName)
   for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
   {
     ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName( TransformFileName(stack.GetFileName(slice_number), dirName).c_str() );
+    reader->SetFileName( TransformFilePath(fileNames[slice_number], dirName).c_str() );
     
     try
     {

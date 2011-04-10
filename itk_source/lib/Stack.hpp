@@ -6,12 +6,13 @@
 #define STACK_HPP_
 
 #include "itkImage.h"
-#include "itkImageFileReader.h"
 #include "itkTileImageFilter.h"
 #include "itkNormalizeImageFilter.h"
 #include "itkResampleImageFilter.h"
+#include "itkVectorResampleImageFilter.h"
 #include "itkTransform.h"
 #include "itkLinearInterpolateImageFunction.h"
+#include "itkVectorLinearInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
 #include "itkChangeInformationImageFilter.h"
 #include "itkImageMaskSpatialObject.h"
@@ -20,7 +21,9 @@
 
 using namespace std;
 
-template <typename TPixel>
+template <typename TPixel,
+          template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
+          template<typename TInputImage, typename TCoordRep> class InterpolatorType >
 class Stack {
 public:
   typedef TPixel PixelType;
@@ -31,14 +34,13 @@ public:
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
 	typedef vector< typename SliceType::Pointer > SliceVectorType;
   typedef vector< MaskSliceType::Pointer > MaskSliceVectorType;
-  typedef itk::ImageFileReader< SliceType > ReaderType;
 	typedef itk::Transform< double, 2, 2 > TransformType;
 	typedef vector< TransformType::Pointer > TransformVectorType;
-  typedef itk::LinearInterpolateImageFunction< SliceType, double > LinearInterpolatorType;
+  typedef InterpolatorType< SliceType, double > LinearInterpolatorType;
   typedef itk::NearestNeighborInterpolateImageFunction< MaskSliceType, double > NearestNeighborInterpolatorType;
-  typedef itk::NormalizeImageFilter< SliceType, SliceType > NormalizerType;
-	typedef itk::ResampleImageFilter< SliceType, SliceType > ResamplerType;
-	typedef itk::ResampleImageFilter< MaskSliceType, MaskSliceType > MaskResamplerType;
+  // typedef itk::NormalizeImageFilter< SliceType, SliceType > NormalizerType;
+	typedef ResampleImageFilterType< SliceType, SliceType, double > ResamplerType;
+	typedef itk::ResampleImageFilter< MaskSliceType, MaskSliceType, double > MaskResamplerType;
   typedef itk::TileImageFilter< SliceType, VolumeType > TileFilterType;
   typedef itk::TileImageFilter< MaskSliceType, MaskVolumeType > MaskTileFilterType;
   typedef itk::ChangeInformationImageFilter< SliceType > XYScaleType;
@@ -49,7 +51,6 @@ public:
 	typedef vector< MaskType2D::Pointer > MaskVectorType2D;
 	
 private:
-  const vector< string > fileNames;
 	SliceVectorType originalImages;
 	typename XYScaleType::Pointer xyScaler;
   SliceVectorType slices;
@@ -64,7 +65,7 @@ private:
 	TransformVectorType transforms;
 	typename LinearInterpolatorType::Pointer linearInterpolator;
 	typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
-	typename NormalizerType::Pointer normalizer;
+  // typename NormalizerType::Pointer normalizer;
 	typename ResamplerType::Pointer resampler;
 	typename MaskResamplerType::Pointer maskResampler;
 	typename TileFilterType::Pointer tileFilter;
@@ -76,20 +77,20 @@ private:
 	
 public:
   // constructor to center images and size stack to fit in the longest and widest image
-  Stack(const vector< string >& inputFileNames, const typename VolumeType::SpacingType& inputSpacings);
+  Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings);
 
 	// constructor to specify size and start index explicitly
-  Stack(const vector< string >& inputFileNames, const typename VolumeType::SpacingType& inputSpacings,
+  Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings,
         const typename SliceType::SizeType& inputSize);
 	
 	// constructor to specify stack size and spacing, and spacing of original images
-  Stack(const vector< string >& inputFileNames, const typename SliceType::SpacingType& inputOriginalSpacings,
+  Stack(const SliceVectorType& images, const typename SliceType::SpacingType& inputOriginalSpacings,
         const typename VolumeType::SpacingType& inputSpacings, const typename SliceType::SizeType& inputSize);
 	
 protected:
   void readImages();
   
-  void normalizeImages();
+  // void normalizeImages();
   
   void initializeVectors();
   
@@ -122,11 +123,6 @@ protected:
 	
 public:
   // Getter methods
-  const string& GetFileName(unsigned int slice_number) const {
-    checkSliceNumber(slice_number);
-    return fileNames[slice_number];
-  }
-    
   unsigned short GetSize() const { return originalImages.size(); }
   
   const typename SliceType::SizeType& GetMaxSize() const { return maxSize; }
@@ -165,10 +161,6 @@ public:
     checkSliceNumber(slice_number);
     return transforms[slice_number];
   }
-	
-	const string& GetFileName(unsigned int slice_number) {
-    return fileNames[slice_number];
-	}
 	
   const TransformVectorType& GetTransforms() { return transforms; }
 	

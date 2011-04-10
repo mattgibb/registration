@@ -2,6 +2,7 @@
 
 // my files
 #include "Stack.hpp"
+#include "StackInitializers.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "IOHelpers.hpp"
@@ -12,10 +13,10 @@
 #include "Profiling.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
-  if( argc != 3 )
+  if( argc < 3 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet resultsDir\n\n";
+    cerr << argv[0] << " dataSet resultsDir (slice)\n\n";
     exit(EXIT_FAILURE);
   }
 }
@@ -27,61 +28,57 @@ int main(int argc, char const *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  vector< string > LoResFileNames, HiResFileNames;
+  if( argc >= 4)
+  {
+    LoResFileNames.push_back(Dirs::BlockDir() + argv[3]);
+    HiResFileNames.push_back(Dirs::SliceDir() + argv[3]);
+  }
+  else
+  {
+    LoResFileNames = getFileNames(Dirs::BlockDir(), Dirs::SliceFile());
+    HiResFileNames = getFileNames(Dirs::SliceDir(), Dirs::SliceFile());
+  }
 	
 	// initialise stack objects
-	typedef Stack< float > StackType;
-  StackType::VolumeType::SpacingType LoResSpacings, HiResSpacings;
-	for(unsigned int i=0; i<3; i++) {
-    imageDimensions()["LoResSpacings"][i] >> LoResSpacings[i];
-    imageDimensions()["HiResSpacings"][i] >> HiResSpacings[i];
-  }
-  
-  StackType::SliceType::SizeType LoResSize;
-  itk::Vector< double, 2 > LoResTranslation;
-  for(unsigned int i=0; i<2; i++) {
-    imageDimensions()["LoResSize"][i] >> LoResSize[i];
-    imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
-  }
-  
-  StackType LoResStack( getFileNames(Dirs::BlockDir(), Dirs::SliceFile()), LoResSpacings , LoResSize);
-  
-  StackType::SliceType::SpacingType HiResOriginalSpacings;
-  for(unsigned int i=0; i<2; i++) HiResOriginalSpacings[i] = HiResSpacings[i];
-  
-  StackType HiResStack(getFileNames(Dirs::SliceDir(), Dirs::SliceFile()), HiResOriginalSpacings,
-            LoResStack.GetSpacings(), LoResStack.GetResamplerSize());
+  typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
+  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
+  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
+  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
+  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
   // initialise stacks' transforms with saved transform files
-  Load(LoResStack, outputDir + "LoResTransforms");
-  Load(HiResStack, outputDir + "HiResTransforms");  
+  Load(*LoResStack, LoResFileNames, outputDir + "LoResTransforms");
+  Load(*HiResStack, HiResFileNames, outputDir + "HiResTransforms");
   
   // shrink mask slices
   cout << "Test mask load.\n";
-  loadNumberOfTimesTooBig(HiResStack, outputDir + "numberOfTimesTooBig.txt");
+  cout << "THE LINE BELOW SHOULD BE LoResStack...?\n";
+  loadNumberOfTimesTooBig(*HiResStack, outputDir + "numberOfTimesTooBig.txt");
   
   // Generate fixed images to register against
-  LoResStack.updateVolumes();
-  writeImage< StackType::VolumeType >( LoResStack.GetVolume(), outputDir + "LoResPersistedStack.mha" );
+  LoResStack->updateVolumes();
+  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResPersistedStack.mha" );
   
-  HiResStack.updateVolumes();
-  writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResPersistedStack.mha" );
+  HiResStack->updateVolumes();
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResPersistedStack.mha" );
   
   // initialise registration framework
   boost::shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
   typedef RegistrationBuilder< StackType > RegistrationBuilderType;
   RegistrationBuilderType registrationBuilder(*pDeformableParameters);
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
-  StackAligner< StackType > stackAligner(LoResStack, HiResStack, registration);
+  StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
   // Perform non-rigid registration
-  StackTransforms::InitializeBSplineDeformableFromBulk(LoResStack, HiResStack);
-  StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(HiResStack, registration->GetOptimizer());
+  StackTransforms::InitializeBSplineDeformableFromBulk(*LoResStack, *HiResStack);
+  StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(*HiResStack, registration->GetOptimizer());
   
   // typedef itk::LBFGSBOptimizer DeformableOptimizerType;
   // DeformableOptimizerType::Pointer deformableOptimizer = DeformableOptimizerType::New();
   // 
-  // StackTransforms::ConfigureLBFGSBOptimizer(LoResStack.GetTransform(0)->GetNumberOfParameters(), deformableOptimizer);
-  // unsigned int numberOfParameters = HiResStack.GetTransform(0)->GetNumberOfParameters();
+  // StackTransforms::ConfigureLBFGSBOptimizer(LoResStack->GetTransform(0)->GetNumberOfParameters(), deformableOptimizer);
+  // unsigned int numberOfParameters = HiResStack->GetTransform(0)->GetNumberOfParameters();
   // itk::LBFGSBOptimizer::BoundSelectionType boundSelect( numberOfParameters );
   // itk::LBFGSBOptimizer::BoundValueType upperBound( numberOfParameters );
   // itk::LBFGSBOptimizer::BoundValueType lowerBound( numberOfParameters );
@@ -114,10 +111,10 @@ int main(int argc, char const *argv[]) {
   itkProbesStop( "Aligning stacks" );
   itkProbesReport( std::cout );
   
-  HiResStack.updateVolumes();
+  HiResStack->updateVolumes();
   
-  writeImage< StackType::VolumeType >( HiResStack.GetVolume(), outputDir + "HiResDeformedStack.mha" );
-  writeImage< StackType::MaskVolumeType >( HiResStack.Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResDeformedStack.mha" );
+  writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
   
   return EXIT_SUCCESS;
 }
