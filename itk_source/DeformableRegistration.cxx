@@ -37,8 +37,8 @@ int main(int argc, char const *argv[]) {
   }
   else
   {
-    LoResFileNames = getFileNames(Dirs::BlockDir(), Dirs::SliceFile());
-    HiResFileNames = getFileNames(Dirs::SliceDir(), Dirs::SliceFile());
+    LoResFileNames = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
+    HiResFileNames = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
   }
 	
 	// initialise stack objects

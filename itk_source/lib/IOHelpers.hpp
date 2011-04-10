@@ -13,20 +13,32 @@
 using namespace std;
 using namespace boost::filesystem;
 
-inline vector< string > getFileNames(const string& directory, const string& fileList) {
-  // use boost filesystem to handle presence/absence of trailing slash on directory
-  path directoryPath(directory);
-  
+inline vector < string > getFileNames(const string& fileList)
+{
   vector< string > fileNames;
-  fileNames.clear();
   ifstream infile(fileList.c_str(), ios_base::in);
   string fileName;
   
-  while (getline(infile, fileName)) {
-    fileNames.push_back( (directoryPath / fileName).string() );
+  while (getline(infile, fileName))
+  {
+    fileNames.push_back( fileName );
   }
   
   return fileNames;
+}
+
+
+inline vector< string > getFilePaths(const string& directory, const string& fileList) {
+  // use boost filesystem to handle presence/absence of trailing slash on directory
+  path directoryPath(directory);
+  
+  vector< string > fileNames = getFileNames(fileList), filePaths;  
+  for(vector< string >::iterator it = fileNames.begin(); it != fileNames.end(); ++it)
+  {
+    filePaths.push_back( (directoryPath / *it).string() );
+  }
+  
+  return filePaths;
 }
 
 

@@ -33,31 +33,33 @@ int main(int argc, char const *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
-  vector< string > HiResFileNames;
+  vector< string > HiResFilePaths, HiResFileNames;
   if( argc >= 4)
   {
-    HiResFileNames.push_back(Dirs::SliceDir() + argv[3]);
+    HiResFileNames.push_back(argv[3]);
+    HiResFilePaths.push_back(Dirs::SliceDir() + argv[3]);
   }
   else
   {
-    HiResFileNames = getFileNames(Dirs::SliceDir(), Dirs::SliceFile());
+    HiResFileNames = getFileNames(Dirs::SliceFile());
+    HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
   }
 	
   // initialise stack with correct spacings, sizes, transforms etc
   typedef Stack< itk::RGBPixel< unsigned char >, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
+  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
-  Load(*HiResStack, HiResFileNames, outputDir + "HiResTransforms");
+  Load(*HiResStack, HiResFilePaths, outputDir + "HiResTransforms");
   HiResStack->updateVolumes();
   
   // Write bmps
   using namespace boost::filesystem;
-  string HiResBMPDir = outputDir + "ColourResamples";
+  path HiResBMPDir = outputDir + "ColourResamples";
   create_directory(HiResBMPDir);
   for(unsigned int slice_number=0; slice_number < HiResStack->GetSize(); ++slice_number)
   {
-    writeImage< StackType::SliceType >( HiResStack->GetResampledSlice(slice_number), outputDir + HiResFileNames[slice_number] );
+    writeImage< StackType::SliceType >( HiResStack->GetResampledSlice(slice_number), (HiResBMPDir / HiResFileNames[slice_number]).string() );
   }
   
   return EXIT_SUCCESS;
