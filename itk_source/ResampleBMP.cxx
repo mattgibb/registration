@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]) {
   }
 	
   // initialise stack with correct spacings, sizes, transforms etc
-  typedef Stack< itk::RGBPixel< float >, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
+  typedef Stack< itk::RGBPixel< unsigned char >, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
