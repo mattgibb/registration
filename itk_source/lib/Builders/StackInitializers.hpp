@@ -12,7 +12,7 @@ template <typename StackType>
 boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images)
 {
   // get downsample ratio
-  unsigned int DownsampleRatio;
+  float DownsampleRatio;
   boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
   (*downsample_ratios)["LoRes"] >> DownsampleRatio;
   
@@ -29,11 +29,9 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
 
   // get size and translation
   typename StackType::SliceType::SizeType Size;
-  itk::Vector< double, 2 > Translation;
   for(unsigned int i=0; i<2; i++) {
     imageDimensions()["LoResSize"][i] >> Size[i];
     Size[i] /= DownsampleRatio;
-    imageDimensions()["LoResTranslation"][i] >> Translation[i];
   }
   
   return boost::make_shared< StackType >(Images, Spacings, Size);
@@ -43,7 +41,7 @@ template <typename StackType>
 boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVectorType Images)
 {
   // get downsample ratios
-  unsigned int LoResDownsampleRatio, HiResDownsampleRatio;
+  float LoResDownsampleRatio, HiResDownsampleRatio;
   boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
   (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
   (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;

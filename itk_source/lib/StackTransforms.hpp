@@ -226,6 +226,17 @@ namespace StackTransforms {
   }
 
   template <typename StackType>
+  void SetOptimizerScalesForBSplineDeformableTransform(StackType &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  {
+    typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
+    ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );
+    optimizerScales.Fill( 1.0 );
+    
+    optimizer->SetScales( optimizerScales );
+    
+  }
+  
+  template <typename StackType>
   void ConfigureLBFGSBOptimizer(unsigned int numberOfParameters, itk::LBFGSBOptimizer::Pointer optimizer)
   {
     // From Example
@@ -251,17 +262,6 @@ namespace StackTransforms {
     typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
     StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
     optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
-    
-  }
-  
-  template <typename StackType>
-  void SetOptimizerScalesForBSplineDeformableTransform(StackType &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
-  {
-    typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
-    ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );
-    optimizerScales.Fill( 1.0 );
-    
-    optimizer->SetScales( optimizerScales );
     
   }
   
