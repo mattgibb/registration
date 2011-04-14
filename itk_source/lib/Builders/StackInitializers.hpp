@@ -27,10 +27,11 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
     Spacings[i] *= DownsampleRatio;
   }
 
-  // get size and translation
+  // get size
+  boost::shared_ptr<YAML::Node> roi = config(Dirs::GetDataSet() + "/ROIs/whole_heart.yml");
   typename StackType::SliceType::SizeType Size;
   for(unsigned int i=0; i<2; i++) {
-    imageDimensions()["LoResSize"][i] >> Size[i];
+    (*roi)["Size"][i] >> Size[i];
     Size[i] /= DownsampleRatio;
   }
   
@@ -59,10 +60,11 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
     HiResOriginalSpacings[i] *= HiResDownsampleRatio;
   }
   
-  // get sizes
+  // get size
+  boost::shared_ptr<YAML::Node> roi = config(Dirs::GetDataSet() + "/ROIs/whole_heart.yml");
   typename StackType::SliceType::SizeType LoResSize;
   for(unsigned int i=0; i<2; i++) {
-    imageDimensions()["LoResSize"][i] >> LoResSize[i];
+    (*roi)["Size"][i] >> LoResSize[i];
     LoResSize[i] /= LoResDownsampleRatio;
   }
   

@@ -1,6 +1,9 @@
 #ifndef STACKTRANSFORMS_HPP_
 #define STACKTRANSFORMS_HPP_
 
+
+#include "boost/filesystem.hpp"
+
 #include "itkIdentityTransform.h"
 #include "itkTranslationTransform.h"
 #include "itkCenteredRigid2DTransform.h"
@@ -12,6 +15,7 @@
 
 
 #include "Stack.hpp"
+#include "Dirs.hpp"
 #include "Parameters.hpp"
 #include "StdOutIterationUpdate.hpp"
 
@@ -20,8 +24,9 @@ using namespace std;
 namespace StackTransforms {
   itk::Vector< double, 2 > GetLoResTranslation() {
     itk::Vector< double, 2 > LoResTranslation;
+    boost::shared_ptr< YAML::Node > roi = config(Dirs::GetDataSet() + "/ROIs/whole_heart.yml");
     for(unsigned int i=0; i<2; i++) {
-      imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
+      (*roi)["Translation"][i] >> LoResTranslation[i];
     }
     return LoResTranslation;
   }
