@@ -11,7 +11,7 @@ end
 
 desc "Build registered rat volumes from 2D histology and block face images"
 task :build_volumes => [:make] do
-  sh "itk_build/BuildVolumes Rat24 BuildVolumes"
+  sh "itk_build/BuildVolumes Rat24 BuildVolumes 0250.bmp"
   begin
     sh "say done"
   rescue
@@ -19,7 +19,7 @@ task :build_volumes => [:make] do
 end
 
 task :deformable_registration => [:make] do
-  sh "itk_build/DeformableRegistration Rat24 BuildVolumes"
+  sh "itk_build/DeformableRegistration Rat24 BuildVolumes 0250.bmp"
   begin
     sh "say done"
   rescue
@@ -61,7 +61,7 @@ namespace :test do
   desc "Run refactored code and test output against original output"
   task :refactor => [:make] do
     %x{rm -rf results/Rat24/BuildVolumes_refactor/*}
-    sh "itk_build/BuildVolumes Rat24 BuildVolumes_refactor"
+    sh "itk_build/BuildVolumes Rat24 BuildVolumes_refactor 0250.bmp"
     diff_output = `diff -r -x .DS_Store results/Rat24/BuildVolumes{,_refactor}`
     test_success(diff_output)
   end
