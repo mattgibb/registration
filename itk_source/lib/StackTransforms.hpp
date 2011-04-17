@@ -22,6 +22,8 @@
 using namespace std;
 
 namespace StackTransforms {
+  typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
+  
   itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
     boost::shared_ptr< YAML::Node > roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
@@ -94,24 +96,40 @@ namespace StackTransforms {
     stack.SetTransforms(newTransforms);
   }
   
+  // Moves centre of rotation without changing the transform
+  void MoveCenter(LinearTransformType * transform, const LinearTransformType::CenterType& newCenter)
+  {
+    LinearTransformType::OffsetType offset = transform->GetOffset();
+    transform->SetCenter(newCenter);
+    transform->SetOffset(offset);
+  }
+  
   template <typename StackType>
-  void SetMovingStackCORWithFixedStack( StackType& fixedStack, StackType& movingStack )
+  void SetMovingStackCenterWithFixedStack( StackType& fixedStack, StackType& movingStack )
   {
     const typename StackType::TransformVectorType& movingTransforms = movingStack.GetTransforms();
     
     // set the moving slices' centre of rotation to the centre of the fixed image
     for(unsigned int i=0; i<movingStack.GetSize(); ++i)
     {
-      typename StackType::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
-     
-      const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
-      const typename StackType::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
+      LinearTransformType::Pointer transform = dynamic_cast< LinearTransformType* >( movingTransforms[i].GetPointer() );
+      if(transform)
+      {
+        const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
+        const typename StackType::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
+        LinearTransformType::CenterType center;
+
+        center[0] = spacings[0] * (double)resamplerSize[0] / 2.0;
+        center[1] = spacings[1] * (double)resamplerSize[1] / 2.0;
+        
+        MoveCenter(transform, center);
+      }
+      else
+      {
+        cerr << "Matrix isn't a MatrixOffsetTransformBase :-(\n";
+        std::abort();
+      }
       
-      // centre of rotation, before translation is applied
-      params[1] = spacings[0] * (double)resamplerSize[0] / 2.0;
-      params[2] = spacings[1] * (double)resamplerSize[1] / 2.0;
-      
-      movingTransforms[i]->SetParameters(params);
     }
     
   }
@@ -126,7 +144,6 @@ namespace StackTransforms {
       typename NewTransformType::Pointer newTransform = NewTransformType::New();
       newTransform->SetIdentity();
       // specialize from vanilla Transform to lowest common denominator in order to call GetCenter()
-      typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
       LinearTransformType::Pointer oldTransform( dynamic_cast< LinearTransformType* >( stack.GetTransform(i).GetPointer() ) );
       newTransform->SetCenter( oldTransform->GetCenter() );
       newTransform->Compose( oldTransform );

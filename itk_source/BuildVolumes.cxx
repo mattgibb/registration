@@ -59,7 +59,7 @@ int main(int argc, char const *argv[]) {
   // initialize stacks' transforms so that 2D images line up at their centres.
   StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
   StackTransforms::InitializeToCommonCentre( *HiResStack );
-  StackTransforms::SetMovingStackCORWithFixedStack( *LoResStack, *HiResStack );
+  StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
 
   // Generate fixed images to register against
   LoResStack->updateVolumes();
