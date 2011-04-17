@@ -23,6 +23,7 @@ using namespace std;
 
 namespace StackTransforms {
   typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
+  typedef itk::TranslationTransform< double, 2 > TranslationTransformType;
   
   itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
@@ -197,6 +198,32 @@ namespace StackTransforms {
       newTransforms.push_back( baseTransform );
     }
     HiResStack.SetTransforms(newTransforms);
+  }
+  
+  template <typename StackType>
+  void Translate(StackType& stack, itk::Vector< double, 2 > translation)
+  {
+    // attempt to cast stack transforms and apply translation
+    for(unsigned int i=0; i<stack.GetSize(); i++)
+    {
+      LinearTransformType::Pointer linearTransform
+        = dynamic_cast< LinearTransformType* >( stack.GetTransform(i).GetPointer() );
+      TranslationTransformType::Pointer translationTransform
+        = dynamic_cast< TranslationTransformType* >( stack.GetTransform(i).GetPointer() );
+      if(linearTransform)
+      {
+        linearTransform->SetOffset(linearTransform->GetOffset() + translation);
+      }
+      else if(translationTransform)
+      {
+        translationTransform->SetOffset(translationTransform->GetOffset() + translation);
+      }
+      else
+      {
+        cerr << "Matrix isn't a MatrixOffsetTransformBase or a TranslationTransform :-(\n";
+        std::abort();
+      }
+    }
   }
   
   void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
