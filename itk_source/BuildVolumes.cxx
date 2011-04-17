@@ -57,7 +57,7 @@ int main(int argc, char const *argv[]) {
   assert(LoResStack->GetSize() == HiResStack->GetSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation() );
+  StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
   StackTransforms::InitializeToCommonCentre( *HiResStack );
   StackTransforms::SetMovingStackCORWithFixedStack( *LoResStack, *HiResStack );
 

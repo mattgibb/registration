@@ -22,11 +22,11 @@
 using namespace std;
 
 namespace StackTransforms {
-  itk::Vector< double, 2 > GetLoResTranslation() {
+  itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
-    boost::shared_ptr< YAML::Node > roi = config(Dirs::GetDataSet() + "/ROIs/whole_heart.yml");
+    boost::shared_ptr< YAML::Node > roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
     for(unsigned int i=0; i<2; i++) {
-      (*roi)["Translation"][i] >> LoResTranslation[i];
+      (*roiNode)["Translation"][i] >> LoResTranslation[i];
     }
     return LoResTranslation;
   }
@@ -100,7 +100,7 @@ namespace StackTransforms {
     const typename StackType::TransformVectorType& movingTransforms = movingStack.GetTransforms();
     
     // set the moving slices' centre of rotation to the centre of the fixed image
-    for(unsigned int i=0; i<movingStack.GetSize(); i++)
+    for(unsigned int i=0; i<movingStack.GetSize(); ++i)
     {
       typename StackType::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
      
@@ -117,10 +117,12 @@ namespace StackTransforms {
   }
   
   template <typename StackType, typename NewTransformType>
-  void InitializeFromCurrentTransforms(StackType& stack) {
+  void InitializeFromCurrentTransforms(StackType& stack)
+  {
     typename StackType::TransformVectorType newTransforms;
     
-    for(unsigned int i=0; i<stack.GetSize(); i++) {
+    for(unsigned int i=0; i<stack.GetSize(); i++)
+    {
       typename NewTransformType::Pointer newTransform = NewTransformType::New();
       newTransform->SetIdentity();
       // specialize from vanilla Transform to lowest common denominator in order to call GetCenter()
@@ -132,7 +134,7 @@ namespace StackTransforms {
       newTransforms.push_back( baseTransform );
     }
     
-    // set stack's transforms to newTransforms and update volumes
+    // set stack's transforms to newTransforms
     stack.SetTransforms(newTransforms);
     
   }

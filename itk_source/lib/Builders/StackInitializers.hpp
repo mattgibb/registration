@@ -9,7 +9,7 @@
 
 
 template <typename StackType>
-boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images)
+boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images, const string& roi = "whole_heart")
 {
   // get downsample ratio
   float DownsampleRatio;
@@ -28,10 +28,10 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
   }
 
   // get size
-  boost::shared_ptr<YAML::Node> roi = config(Dirs::GetDataSet() + "/ROIs/whole_heart.yml");
+  boost::shared_ptr<YAML::Node> roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType Size;
   for(unsigned int i=0; i<2; i++) {
-    (*roi)["Size"][i] >> Size[i];
+    (*roiNode)["Size"][i] >> Size[i];
     Size[i] /= DownsampleRatio;
   }
   
@@ -39,7 +39,7 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
 }
 
 template <typename StackType>
-boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVectorType Images)
+boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVectorType Images, const string& roi = "whole_heart")
 {
   // get downsample ratios
   float LoResDownsampleRatio, HiResDownsampleRatio;
@@ -61,10 +61,10 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
   }
   
   // get size
-  boost::shared_ptr<YAML::Node> roi = config(Dirs::GetDataSet() + "/ROIs/whole_heart.yml");
+  boost::shared_ptr<YAML::Node> roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType LoResSize;
   for(unsigned int i=0; i<2; i++) {
-    (*roi)["Size"][i] >> LoResSize[i];
+    (*roiNode)["Size"][i] >> LoResSize[i];
     LoResSize[i] /= LoResDownsampleRatio;
   }
   
