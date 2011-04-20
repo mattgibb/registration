@@ -1,13 +1,14 @@
 #!/bin/bash
 #PBS -V
-#PBS -l walltime=24:00:00
+#PBS -l walltime=0:10:00
 #PBS -l select=1:mpiprocs=8
 #PBS -N build_volumes
-#PBS -p 1023
 
-# use tracejob or date to time jobs
 cd $PBS_O_WORKDIR
-# date +%s > dates
-~/registration/itk_build_sal/BuildVolumes Rat24 BuildVolumes
+export LIBRARY_PATH=/home/comp-card/mattgibb/sal/lib:$LIBRARY_PATH
+export LD_LIBRARY_PATH=/home/comp-card/mattgibb/sal/lib:$LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/home/comp-card/mattgibb/sal/lib:$DYLD_LIBRARY_PATH
+
+~/registration/itk_build_sal/BuildVolumes Rat24 BuildVolumes $1
 echo "finished."
 # date +%s >> dates
