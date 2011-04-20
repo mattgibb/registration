@@ -9,10 +9,10 @@
 
 
 template <typename StackType>
-boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images)
+boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images, const string& roi = "whole_heart")
 {
   // get downsample ratio
-  unsigned int DownsampleRatio;
+  float DownsampleRatio;
   boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
   (*downsample_ratios)["LoRes"] >> DownsampleRatio;
   
@@ -27,23 +27,22 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
     Spacings[i] *= DownsampleRatio;
   }
 
-  // get size and translation
+  // get size
+  boost::shared_ptr<YAML::Node> roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType Size;
-  itk::Vector< double, 2 > Translation;
   for(unsigned int i=0; i<2; i++) {
-    imageDimensions()["LoResSize"][i] >> Size[i];
+    (*roiNode)["Size"][i] >> Size[i];
     Size[i] /= DownsampleRatio;
-    imageDimensions()["LoResTranslation"][i] >> Translation[i];
   }
   
   return boost::make_shared< StackType >(Images, Spacings, Size);
 }
 
 template <typename StackType>
-boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVectorType Images)
+boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVectorType Images, const string& roi = "whole_heart")
 {
   // get downsample ratios
-  unsigned int LoResDownsampleRatio, HiResDownsampleRatio;
+  float LoResDownsampleRatio, HiResDownsampleRatio;
   boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
   (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
   (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
@@ -61,10 +60,11 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
     HiResOriginalSpacings[i] *= HiResDownsampleRatio;
   }
   
-  // get sizes
+  // get size
+  boost::shared_ptr<YAML::Node> roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType LoResSize;
   for(unsigned int i=0; i<2; i++) {
-    imageDimensions()["LoResSize"][i] >> LoResSize[i];
+    (*roiNode)["Size"][i] >> LoResSize[i];
     LoResSize[i] /= LoResDownsampleRatio;
   }
   

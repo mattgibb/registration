@@ -187,7 +187,7 @@ private:
   // Made private so that nobody can use them
   Stack(const Stack&);
   Stack& operator=(const Stack&);
-
+  
 };
 
 #include "Stack.txx"

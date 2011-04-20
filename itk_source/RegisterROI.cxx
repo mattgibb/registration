@@ -50,22 +50,26 @@ int main(int argc, char const *argv[]) {
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
   normalizeImages< StackType >(LoResImages);
   normalizeImages< StackType >(HiResImages);
-  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages, "ROI");
+  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, "ROI");
   
-  // Assert stacks have the same number of slices
-  assert(LoResStack->GetSize() == HiResStack->GetSize());
+  // initialise stacks' transforms with saved transform files
+  Load(*LoResStack, LoResFileNames, outputDir + "LoResTransforms");
+  Load(*HiResStack, HiResFileNames, outputDir + "HiResTransforms");
   
-  // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
-  StackTransforms::InitializeToCommonCentre( *HiResStack );
+  // move stack origins to ROI
+  itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
+  StackTransforms::Translate(*LoResStack, translation);
+  StackTransforms::Translate(*HiResStack, translation);
   StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
-
+  
   // Generate fixed images to register against
   LoResStack->updateVolumes();
   if( argc < 4)
   {
-    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResStack.mha" );
+    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResROI.mha" );
+    HiResStack->updateVolumes();
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResInitialROI.mha" );
   }
   
   // initialise registration framework
@@ -74,64 +78,34 @@ int main(int argc, char const *argv[]) {
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
   StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
+  // make sure loaded transforms are centered affine
+  typedef itk::CenteredAffineTransform< double, 2 > AffineTransformType;
+  AffineTransformType::Pointer affineTransform = dynamic_cast< AffineTransformType* >( HiResStack->GetTransform(0).GetPointer() );
+  assert( affineTransform );
+  
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
-  
-  // Add time and memory probes
+  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
+
   itkProbesCreate();
-  
-  // perform centered rigid 2D registration on each pair of slices
   itkProbesStart( "Aligning stacks" );
   stackAligner.Update();
   itkProbesStop( "Aligning stacks" );
-  
-  // Report the time and memory taken by the registration
   itkProbesReport( std::cout );
   
-  // write rigid transforms
-  if( argc < 4)
-  {
-    HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResRigidStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
-  }
-  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
-  
-  // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
-  
-  // perform similarity rigid 2D registration
-  stackAligner.Update();
-  
-  // write similarity transforms
   if(argc < 4)
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResSimilarityStack.mha" );
-  }
-  
-  // repeat registration with affine transform
-  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredAffineTransform< double, 2 > >(*HiResStack);
-  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
-  stackAligner.Update();
-  
-  if(argc < 4)
-  {
-    HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResAffineStack.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResAffineROI.mha" );
     // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
   }
   
   // Update LoRes as the masks might have shrunk
   LoResStack->updateVolumes();
   
-  // persist mask numberOfTimesTooBig
-  saveNumberOfTimesTooBig(*HiResStack, outputDir + "numberOfTimesTooBig.txt");
-  
   // Write final transforms to file
   using namespace boost::filesystem;
-  string LoResTransformsDir = outputDir + "LoResTransforms";
-  string HiResTransformsDir = outputDir + "HiResTransforms";
+  string LoResTransformsDir = outputDir + "LoResROITransforms";
+  string HiResTransformsDir = outputDir + "HiResROITransforms";
   create_directory(LoResTransformsDir);
   create_directory(HiResTransformsDir);
   Save(*LoResStack, LoResFileNames, LoResTransformsDir);

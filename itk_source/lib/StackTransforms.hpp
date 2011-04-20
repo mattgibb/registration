@@ -1,6 +1,9 @@
 #ifndef STACKTRANSFORMS_HPP_
 #define STACKTRANSFORMS_HPP_
 
+
+#include "boost/filesystem.hpp"
+
 #include "itkIdentityTransform.h"
 #include "itkTranslationTransform.h"
 #include "itkCenteredRigid2DTransform.h"
@@ -12,16 +15,21 @@
 
 
 #include "Stack.hpp"
+#include "Dirs.hpp"
 #include "Parameters.hpp"
 #include "StdOutIterationUpdate.hpp"
 
 using namespace std;
 
 namespace StackTransforms {
-  itk::Vector< double, 2 > GetLoResTranslation() {
+  typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
+  typedef itk::TranslationTransform< double, 2 > TranslationTransformType;
+  
+  itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
+    boost::shared_ptr< YAML::Node > roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
     for(unsigned int i=0; i<2; i++) {
-      imageDimensions()["LoResTranslation"][i] >> LoResTranslation[i];
+      (*roiNode)["Translation"][i] >> LoResTranslation[i];
     }
     return LoResTranslation;
   }
@@ -89,37 +97,54 @@ namespace StackTransforms {
     stack.SetTransforms(newTransforms);
   }
   
+  // Moves centre of rotation without changing the transform
+  void MoveCenter(LinearTransformType * transform, const LinearTransformType::CenterType& newCenter)
+  {
+    LinearTransformType::OffsetType offset = transform->GetOffset();
+    transform->SetCenter(newCenter);
+    transform->SetOffset(offset);
+  }
+  
   template <typename StackType>
-  void SetMovingStackCORWithFixedStack( StackType& fixedStack, StackType& movingStack )
+  void SetMovingStackCenterWithFixedStack( StackType& fixedStack, StackType& movingStack )
   {
     const typename StackType::TransformVectorType& movingTransforms = movingStack.GetTransforms();
     
     // set the moving slices' centre of rotation to the centre of the fixed image
-    for(unsigned int i=0; i<movingStack.GetSize(); i++)
+    for(unsigned int i=0; i<movingStack.GetSize(); ++i)
     {
-      typename StackType::TransformType::ParametersType params = movingTransforms[i]->GetParameters();
-     
-      const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
-      const typename StackType::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
+      LinearTransformType::Pointer transform = dynamic_cast< LinearTransformType* >( movingTransforms[i].GetPointer() );
+      if(transform)
+      {
+        const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
+        const typename StackType::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
+        LinearTransformType::CenterType center;
+
+        center[0] = spacings[0] * (double)resamplerSize[0] / 2.0;
+        center[1] = spacings[1] * (double)resamplerSize[1] / 2.0;
+        
+        MoveCenter(transform, center);
+      }
+      else
+      {
+        cerr << "Matrix isn't a MatrixOffsetTransformBase :-(\n";
+        std::abort();
+      }
       
-      // centre of rotation, before translation is applied
-      params[1] = spacings[0] * (double)resamplerSize[0] / 2.0;
-      params[2] = spacings[1] * (double)resamplerSize[1] / 2.0;
-      
-      movingTransforms[i]->SetParameters(params);
     }
     
   }
   
   template <typename StackType, typename NewTransformType>
-  void InitializeFromCurrentTransforms(StackType& stack) {
+  void InitializeFromCurrentTransforms(StackType& stack)
+  {
     typename StackType::TransformVectorType newTransforms;
     
-    for(unsigned int i=0; i<stack.GetSize(); i++) {
+    for(unsigned int i=0; i<stack.GetSize(); i++)
+    {
       typename NewTransformType::Pointer newTransform = NewTransformType::New();
       newTransform->SetIdentity();
       // specialize from vanilla Transform to lowest common denominator in order to call GetCenter()
-      typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
       LinearTransformType::Pointer oldTransform( dynamic_cast< LinearTransformType* >( stack.GetTransform(i).GetPointer() ) );
       newTransform->SetCenter( oldTransform->GetCenter() );
       newTransform->Compose( oldTransform );
@@ -127,7 +152,7 @@ namespace StackTransforms {
       newTransforms.push_back( baseTransform );
     }
     
-    // set stack's transforms to newTransforms and update volumes
+    // set stack's transforms to newTransforms
     stack.SetTransforms(newTransforms);
     
   }
@@ -173,6 +198,32 @@ namespace StackTransforms {
       newTransforms.push_back( baseTransform );
     }
     HiResStack.SetTransforms(newTransforms);
+  }
+  
+  template <typename StackType>
+  void Translate(StackType& stack, itk::Vector< double, 2 > translation)
+  {
+    // attempt to cast stack transforms and apply translation
+    for(unsigned int i=0; i<stack.GetSize(); i++)
+    {
+      LinearTransformType::Pointer linearTransform
+        = dynamic_cast< LinearTransformType* >( stack.GetTransform(i).GetPointer() );
+      TranslationTransformType::Pointer translationTransform
+        = dynamic_cast< TranslationTransformType* >( stack.GetTransform(i).GetPointer() );
+      if(linearTransform)
+      {
+        linearTransform->SetOffset(linearTransform->GetOffset() + translation);
+      }
+      else if(translationTransform)
+      {
+        translationTransform->SetOffset(translationTransform->GetOffset() + translation);
+      }
+      else
+      {
+        cerr << "Matrix isn't a MatrixOffsetTransformBase or a TranslationTransform :-(\n";
+        std::abort();
+      }
+    }
   }
   
   void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
@@ -226,6 +277,17 @@ namespace StackTransforms {
   }
 
   template <typename StackType>
+  void SetOptimizerScalesForBSplineDeformableTransform(StackType &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  {
+    typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
+    ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );
+    optimizerScales.Fill( 1.0 );
+    
+    optimizer->SetScales( optimizerScales );
+    
+  }
+  
+  template <typename StackType>
   void ConfigureLBFGSBOptimizer(unsigned int numberOfParameters, itk::LBFGSBOptimizer::Pointer optimizer)
   {
     // From Example
@@ -251,17 +313,6 @@ namespace StackTransforms {
     typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
     StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
     optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
-    
-  }
-  
-  template <typename StackType>
-  void SetOptimizerScalesForBSplineDeformableTransform(StackType &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
-  {
-    typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
-    ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );
-    optimizerScales.Fill( 1.0 );
-    
-    optimizer->SetScales( optimizerScales );
     
   }
   

@@ -108,7 +108,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildOriginalMa
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::calculateMaxSize() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::calculateMaxSize()
+{
 	typename SliceType::SizeType size;
 	maxSize.Fill(0);
 	unsigned int dimension = size.GetSizeDimension();
@@ -126,7 +127,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::calculateMaxSiz
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::setResamplerSizeToMaxSize() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::setResamplerSizeToMaxSize()
+{
   for(unsigned int i=0; i<2; i++) {
     resamplerSize[i] = maxSize[i];
   }
@@ -135,7 +137,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::setResamplerSiz
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::initializeFilters() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::initializeFilters()
+{
 	// resamplers
 	linearInterpolator = LinearInterpolatorType::New();
 	nearestNeighborInterpolator = NearestNeighborInterpolatorType::New();
@@ -174,7 +177,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::initializeFilte
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::updateVolumes() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::updateVolumes()
+{
   buildSlices();
   buildVolume();
   buildMaskSlices();
@@ -184,7 +188,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::updateVolumes()
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildSlices() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildSlices()
+{
   for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
 		// resample transformed image
 		resampler->SetInput( originalImages[slice_number] );
@@ -200,7 +205,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildSlices() {
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildVolume() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildVolume()
+{
   // construct tile filter
 	tileFilter = TileFilterType::New();
 	tileFilter->SetLayout( layout );
@@ -218,7 +224,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildVolume() {
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlices() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlices()
+{
 	// make new 2D masks and assign mask slices to them      
 	for(unsigned int slice_number=0; slice_number<GetSize(); slice_number++)
 	{
@@ -229,7 +236,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlices
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlice(unsigned int slice_number) {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlice(unsigned int slice_number)
+{
   // generate mask slice
 	maskResampler->SetInput( original2DMasks[slice_number]->GetImage() );
 	maskResampler->SetTransform( transforms[slice_number] );
@@ -247,7 +255,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlice(
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskVolume() {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskVolume()
+{
   // construct tile filter
 	maskTileFilter = MaskTileFilterType::New();
 	maskTileFilter->SetLayout( layout );
@@ -266,7 +275,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskVolume
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::checkSliceNumber(unsigned int slice_number) const {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::checkSliceNumber(unsigned int slice_number) const
+{
   if( slice_number >= this->GetSize() ) {
     cerr << "Wait a minute, trying to access slice number bigger than this stack!" << endl;
     exit(EXIT_FAILURE);
@@ -276,7 +286,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::checkSliceNumbe
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::ShrinkMaskSlice(unsigned int slice_number) {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::ShrinkMaskSlice(unsigned int slice_number)
+{
   // increment numberOfTimesTooBig
   numberOfTimesTooBig[slice_number]++;
   
@@ -287,7 +298,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::ShrinkMaskSlice
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::GenerateMaskSlice(unsigned int slice_number) {
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::GenerateMaskSlice(unsigned int slice_number)
+{
   // retrieve mask image and region
   MaskSliceType::ConstPointer oldMaskSlice = resampled2DMasks[slice_number]->GetImage();
   MaskSliceType::RegionType region = oldMaskSlice->GetLargestPossibleRegion();
