@@ -26,6 +26,15 @@ task :deformable_registration => [:make] do
   end
 end
 
+desc "Register Region of interest"
+task :register_roi => [:make] do
+  sh "itk_build/RegisterROI Rat24 BuildVolumes"
+  begin
+    sh "say done"
+  rescue
+  end
+end
+
 namespace :test do
   task :default => [:brain, :refactor]
   
