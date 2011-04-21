@@ -129,9 +129,16 @@ int main(int argc, char const *argv[]) {
   saveNumberOfTimesTooBig(*HiResStack, outputDir + "numberOfTimesTooBig.txt");
   
   // Write final transforms to file
+  // get downsample ratios
+  string LoResDownsampleRatio, HiResDownsampleRatio;
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  
+  // write transforms to directories labeled by both ds ratios
   using namespace boost::filesystem;
-  string LoResTransformsDir = outputDir + "LoResTransforms";
-  string HiResTransformsDir = outputDir + "HiResTransforms";
+  string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   create_directory(LoResTransformsDir);
   create_directory(HiResTransformsDir);
   Save(*LoResStack, LoResFileNames, LoResTransformsDir);
