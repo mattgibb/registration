@@ -3,7 +3,6 @@
 #PBS -l walltime=1:00:00
 #PBS -l ncpus=4
 #PBS -N BuildVolumes
-#PBS -p 1023
 
 # 4 cores per node on orac, so take total memory usage, divide by 12GB or 24GB, then multiply by 4
 # total orac cores is 256?

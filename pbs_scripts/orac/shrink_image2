@@ -3,7 +3,6 @@
 #PBS -l walltime=3:00:00
 #PBS -l ncpus=4:mem=13gb
 #PBS -N default
-#PBS -p 1023
 
 # check out -l mem directive
 # 4 cores per node on orac, so take total memory usage, divide by 12GB or 24GB, then multiply by 4
