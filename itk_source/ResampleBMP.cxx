@@ -50,7 +50,19 @@ int main(int argc, char const *argv[]) {
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
-  Load(*HiResStack, HiResFilePaths, outputDir + "HiResTransforms");
+  // Load transforms from files
+  // get downsample ratios
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  string LoResDownsampleRatio, HiResDownsampleRatio;
+  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  
+  // write transforms to directories labeled by both ds ratios
+  using namespace boost::filesystem;
+  string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  
+  Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
   HiResStack->updateVolumes();
   
   // Write bmps
