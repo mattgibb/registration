@@ -46,9 +46,11 @@ int main(int argc, char const *argv[]) {
   }
 	
   // initialise stack with correct spacings, sizes, transforms etc
-  typedef Stack< itk::RGBPixel< unsigned char >, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
+  typedef itk::RGBPixel< unsigned char > PixelType;
+  typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  HiResStack->SetDefaultPixelValue( 255 );
   
   // Load transforms from files
   // get downsample ratios
@@ -71,8 +73,10 @@ int main(int argc, char const *argv[]) {
   create_directory(HiResBMPDir);
   for(unsigned int slice_number=0; slice_number < HiResStack->GetSize(); ++slice_number)
   {
-    writeImage< StackType::SliceType >( HiResStack->GetResampledSlice(slice_number), (HiResBMPDir / HiResFileNames[slice_number]).string() );
+    // writeImage< StackType::SliceType >( HiResStack->GetResampledSlice(slice_number), (HiResBMPDir / HiResFileNames[slice_number]).replace_extension("vtk").string() );
   }
+  
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (HiResBMPDir / "volume.mha").string());
   
   return EXIT_SUCCESS;
 }

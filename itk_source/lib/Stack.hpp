@@ -171,6 +171,8 @@ public:
   
   const vector< unsigned int >& GetNumberOfTimesTooBig() { return numberOfTimesTooBig; }
   
+  void SetDefaultPixelValue(PixelType p) { resampler->SetDefaultPixelValue(p); }
+  
 protected:
   void GenerateMaskSlice(unsigned int slice_number);
 	
