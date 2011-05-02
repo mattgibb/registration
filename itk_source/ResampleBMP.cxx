@@ -21,7 +21,7 @@ void checkUsage(int argc, char const *argv[]) {
   if( argc < 3 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet outputDir (slice)\n\n";
+    cerr << argv[0] << " dataSet outputDir (loResDSRatio hiResDSRatio)\n\n";
     exit(EXIT_FAILURE);
   }
 }
@@ -33,17 +33,11 @@ int main(int argc, char const *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  
+  // get file names
   vector< string > HiResFilePaths, HiResFileNames;
-  if( argc >= 4)
-  {
-    HiResFileNames.push_back(argv[3]);
-    HiResFilePaths.push_back(Dirs::SliceDir() + argv[3]);
-  }
-  else
-  {
-    HiResFileNames = getFileNames(Dirs::SliceFile());
-    HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
-  }
+  HiResFileNames = getFileNames(Dirs::SliceFile());
+  HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
 	
   // initialise stack with correct spacings, sizes, transforms etc
   typedef itk::RGBPixel< unsigned char > PixelType;
@@ -54,12 +48,20 @@ int main(int argc, char const *argv[]) {
   
   // Load transforms from files
   // get downsample ratios
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
   string LoResDownsampleRatio, HiResDownsampleRatio;
-  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
-  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  if( argc >= 5 )
+  {
+    LoResDownsampleRatio = argv[3];
+    HiResDownsampleRatio = argv[4];
+  }
+  else
+  {
+    boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+    (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+    (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  }
   
-  // write transforms to directories labeled by both ds ratios
+  // read transforms from directories labeled by both ds ratios
   using namespace boost::filesystem;
   string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
@@ -69,12 +71,8 @@ int main(int argc, char const *argv[]) {
   
   // Write bmps
   using namespace boost::filesystem;
-  path HiResBMPDir = outputDir + "ColourResamples";
+  path HiResBMPDir = outputDir + "ColourResamples_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   create_directory(HiResBMPDir);
-  for(unsigned int slice_number=0; slice_number < HiResStack->GetSize(); ++slice_number)
-  {
-    // writeImage< StackType::SliceType >( HiResStack->GetResampledSlice(slice_number), (HiResBMPDir / HiResFileNames[slice_number]).replace_extension("vtk").string() );
-  }
   
   writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (HiResBMPDir / "volume.mha").string());
   
