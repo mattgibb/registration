@@ -1,6 +1,5 @@
 #include "boost/filesystem.hpp"
 
-#include <assert.h>
 #include "itkRGBPixel.h"
 #include "itkVectorResampleImageFilter.h"
 
@@ -82,8 +81,12 @@ int main(int argc, char const *argv[]) {
   Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
   Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
   
-  cout << HiResStack->GetTransform(0) << endl;
+  // move stack origins to ROI
+  itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
+  StackTransforms::Translate(*LoResStack, translation);
+  StackTransforms::Translate(*HiResStack, translation);
   
+  // generate images
   LoResStack->updateVolumes();
   HiResStack->updateVolumes();
   
