@@ -21,7 +21,7 @@ void checkUsage(int argc, char const *argv[]) {
   if( argc < 3 )
   {
     cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet outputDir (loResDSRatio hiResDSRatio)\n\n";
+    cerr << argv[0] << " dataSet outputDir (loResDSRatio hiResDSRatio roi)\n\n";
     exit(EXIT_FAILURE);
   }
 }
@@ -35,15 +35,28 @@ int main(int argc, char const *argv[]) {
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
   
   // get file names
-  vector< string > HiResFilePaths, HiResFileNames;
-  HiResFileNames = getFileNames(Dirs::SliceFile());
+  vector< string > LoResFilePaths, HiResFilePaths;
+  LoResFilePaths = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
   HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
 	
   // initialise stack with correct spacings, sizes, transforms etc
   typedef itk::RGBPixel< unsigned char > PixelType;
   typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
+  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFilePaths);
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  
+  boost::shared_ptr< StackType > LoResStack, HiResStack;
+  if( argc >= 6)
+  {
+    LoResStack = InitializeLoResStack<StackType>(LoResImages, argv[5]);
+    HiResStack = InitializeHiResStack<StackType>(HiResImages, argv[5]);
+  }
+  else
+  {
+    LoResStack = InitializeLoResStack<StackType>(LoResImages);
+    HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  }
+  
   HiResStack->SetDefaultPixelValue( 255 );
   
   // Load transforms from files
@@ -65,16 +78,22 @@ int main(int argc, char const *argv[]) {
   using namespace boost::filesystem;
   string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  
+    
+  Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
   Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
+  
+  cout << HiResStack->GetTransform(0) << endl;
+  
+  LoResStack->updateVolumes();
   HiResStack->updateVolumes();
   
   // Write bmps
   using namespace boost::filesystem;
-  path HiResBMPDir = outputDir + "ColourResamples_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  create_directory(HiResBMPDir);
+  path BMPDir = outputDir + "ColourResamples_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  create_directory(BMPDir);
   
-  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (HiResBMPDir / "volume.mha").string());
+  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (BMPDir / "LoRes.mha").string());
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (BMPDir / "HiRes.mha").string());
   
   return EXIT_SUCCESS;
 }
