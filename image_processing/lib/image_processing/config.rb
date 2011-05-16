@@ -52,7 +52,7 @@ module ImageProcessing
     end
     
     def parse_server_config
-      server_config_path = File.join(CONFIG_DIR, @dataset, "server.yml")
+      server_config_path = File.join(CONFIG_DIR, "server", "#{@dataset}.yml")
       server = YAML::load_file(server_config_path)
       @host                 = server[:host]
       @user                 = server[:user]
