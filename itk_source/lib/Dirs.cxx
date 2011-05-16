@@ -104,7 +104,7 @@ string Dirs::ParamsFile()
 
 string Dirs::SliceFile()
 {
-  return ConfigDir() + _dataSet + "/picked_files.txt";
+  return ConfigDir() + _dataSet + "/image_lists/image_list.txt";
 }
 
 string Dirs::TestDir()
