@@ -1,14 +1,10 @@
 #!/bin/bash
 #PBS -V
-#PBS -l walltime=0:10:00
+#PBS -l walltime=1:00:00
 #PBS -l select=1:mpiprocs=8
 #PBS -N build_volumes
 
 cd $PBS_O_WORKDIR
-export LIBRARY_PATH=/home/comp-card/mattgibb/sal/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=/home/comp-card/mattgibb/sal/lib:$LD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=/home/comp-card/mattgibb/sal/lib:$DYLD_LIBRARY_PATH
-
-~/registration/itk_build_sal/BuildVolumes Rat24 BuildVolumes $1
+~/registration/itk_build_sal/BuildVolumes $1 $2 $3
 echo "finished."
 # date +%s >> dates
