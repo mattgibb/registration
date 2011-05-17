@@ -26,10 +26,10 @@ void checkUsage(int argc, char const *argv[]) {
 }
 
 int main(int argc, char const *argv[]) {
-	// Verify the number of parameters in the command line
-	checkUsage(argc, argv);
-	
-	// Process command line arguments
+  // Verify the number of parameters in the command line
+  checkUsage(argc, argv);
+  
+  // Process command line arguments
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
   vector< string > LoResFileNames, HiResFileNames;
@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]) {
     LoResFileNames = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
     HiResFileNames = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
   }
-	
+  
   // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
