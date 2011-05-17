@@ -1,1 +1,0 @@
-LoRes_rgb_files.txt
