@@ -1,1 +1,1 @@
-LoRes_rgb_files.txt
+every_fifth_slice.txt
