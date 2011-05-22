@@ -33,6 +33,11 @@ int main(int argc, char const *argv[]) {
   Dirs::SetDataSet(argv[1]);
   string outputDir(Dirs::ResultsDir() + argv[2] + "/");
   
+  // set region of interest
+  string roi;
+  if(argc >=6) roi = argv[5];
+  else         roi = "whole_heart";
+  
   // get file names
   vector< string > LoResFilePaths, HiResFilePaths;
   LoResFilePaths = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
@@ -43,18 +48,8 @@ int main(int argc, char const *argv[]) {
   typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFilePaths);
   StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
-  
-  boost::shared_ptr< StackType > LoResStack, HiResStack;
-  if( argc >= 6)
-  {
-    LoResStack = InitializeLoResStack<StackType>(LoResImages, argv[5]);
-    HiResStack = InitializeHiResStack<StackType>(HiResImages, argv[5]);
-  }
-  else
-  {
-    LoResStack = InitializeLoResStack<StackType>(LoResImages);
-    HiResStack = InitializeHiResStack<StackType>(HiResImages);
-  }
+  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages, roi);
+  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);
   
   HiResStack->SetDefaultPixelValue( 255 );
   
@@ -82,7 +77,7 @@ int main(int argc, char const *argv[]) {
   Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
   
   // move stack origins to ROI
-  itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
+  itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
   StackTransforms::Translate(*LoResStack, translation);
   StackTransforms::Translate(*HiResStack, translation);
   
