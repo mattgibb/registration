@@ -212,11 +212,17 @@ namespace StackTransforms {
         = dynamic_cast< TranslationTransformType* >( stack.GetTransform(i).GetPointer() );
       if(linearTransform)
       {
-        linearTransform->SetOffset(linearTransform->GetOffset() + translation);
+        // construct transform to represent translation
+        LinearTransformType::Pointer translationTransform = LinearTransformType::New();
+        translationTransform->SetIdentity();
+        translationTransform->SetTranslation(translation);
+        // if second argument is true, translationTransform is applied first,
+        // then linearTransform
+        linearTransform->Compose(translationTransform, true);
       }
       else if(translationTransform)
       {
-        translationTransform->SetOffset(translationTransform->GetOffset() + translation);
+        translationTransform->Translate(translation);
       }
       else
       {
