@@ -7,7 +7,7 @@ optimizer:
     translation: 0.0000001 # What is an appropriate 2D translation scale?
     rotation: 1
     size: 1
-  maxIterations: 10
+  maxIterations: 1000
   # uncomment name of optimizer you wish to use
   regularStepGradientDescent:
     relaxationFactor: 0.8
