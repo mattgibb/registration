@@ -15,5 +15,3 @@ class Qstat < Thor
     run "while [ 1 ]; do qstat | grep mattgibb | wc -l; sleep 2; done", :capture => false
   end
 end
-
-# String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
