@@ -1,7 +1,7 @@
 class Output < Thor
   include Thor::Actions
   
-  desc "find [-e -o]", "find qsub job output files."
+  desc "find [-e | -o]", "find qsub job output files."
   method_options %w(stderr -e) => :boolean, %w(stdout -o) => :boolean
   def find
     # second backslash needed to escape the backslash in the ruby string
