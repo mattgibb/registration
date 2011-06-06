@@ -15,19 +15,19 @@ class Qsub < Thor
 
   desc "build_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
   def build_volumes(dataset, output_dir, image="")
-    invoke :make
+    invoke :make, []
 
     image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
     image_list = image.empty? ? File.read(image_list_file).split.join(' ') : image
     command = %{for image in #{image_list}
-      do echo #{File.join PBS_DIR, 'build_volumes'} {dataset} #{output_dir} $image | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image"
+      do echo #{File.join PBS_DIR, 'build_volumes'} #{dataset} #{output_dir} $image | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
     done}
     run command, :capture => false
   end
   
   desc "resample_bmp DATASET OUTPUT_DIR", "generate registered colour volume"
   def resample_bmp(dataset, output_dir)
-    invoke :make
+    invoke :make, []
     run "echo #{File.join PBS_DIR, 'resample_bmp'} #{dataset} #{output_dir} | qsub -V -l walltime=0:10:00 -l select=1:mpiprocs=8 -N resample_bmp", :capture => false
   end
 

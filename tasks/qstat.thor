@@ -1,4 +1,6 @@
 class Qstat < Thor
+  include Thor::Actions
+
   desc "show", "display my jobs"
   method_options :force => :boolean
   def show

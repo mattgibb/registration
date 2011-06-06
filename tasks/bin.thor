@@ -13,21 +13,21 @@ class Bin < Thor
   
   desc "build_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
   def build_volumes(dataset, output_dir, slice="")
-    invoke :make
+    invoke :make, []
     run "#{BUILD_DIR}/BuildVolumes #{dataset} #{output_dir} #{slice}", :capture => false
     run "say done"
   end
 
   desc "deformable_registration DATASET OUTPUT_DIR", "perform deformable registration, starting from affine bulk transforms"
   def deformable_registration(dataset, output_dir)
-    invoke :make
+    invoke :make, []
     run "#{BUILD_DIR}/DeformableRegistration #{dataset} #{output_dir}", :capture => false
     run "say done"
   end
 
   desc "register_roi DATASET OUTPUT_DIR", "register region of interest"
   def register_roi(dataset, output_dir)
-    invoke :make
+    invoke :make, []
     run "#{BUILD_DIR}/RegisterROI #{dataset} #{output_dir}", :capture => false
     run "say done"
   end
