@@ -1,6 +1,6 @@
 # Binary command-line interface for a mac
 
-require './init'
+require File.expand_path("../init", __FILE__)
 
 class Bin < Thor
   include Thor::Actions

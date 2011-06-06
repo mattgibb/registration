@@ -1,4 +1,4 @@
-require './init'
+require File.expand_path("../init", __FILE__)
 
 class Output < Thor
   include Thor::Actions

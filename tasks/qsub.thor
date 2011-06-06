@@ -1,6 +1,6 @@
 # Binary command-line interface for the supercomputing cluster
 
-require './init'
+require File.expand_path("../init", __FILE__)
 
 class Qsub < Thor
   include Thor::Actions
