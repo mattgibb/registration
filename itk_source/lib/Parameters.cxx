@@ -16,7 +16,7 @@ YAML::Node& imageDimensions()
   // initialize registrationParameters if hasn't been already
   if(!initialized)
   {
-    ifstream config_filestream( (Dirs::ConfigDir() + "/image_dimensions.yml").c_str() );
+    ifstream config_filestream( (Dirs::ConfigDir() + Dirs::GetDataSet() + "/image_dimensions.yml").c_str() );
     YAML::Parser parser(config_filestream);
     parser.GetNextDocument(imageDimensions);
     initialized = true;
