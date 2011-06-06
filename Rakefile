@@ -2,6 +2,14 @@ require 'rake'
 require 'fileutils'
 include FileUtils::Verbose
 
+task :default => [:make]
+
+desc "Build C++ source"
+task :make do
+  build_dir = ENV['HOST'] == 'sal' ? 'itk_build_sal' : 'itk_build'
+  system "cd #{build_dir} && make"
+end
+
 namespace :test do
   task :default => [:brain, :refactor]
   
