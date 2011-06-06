@@ -2,39 +2,6 @@ require 'rake'
 require 'fileutils'
 include FileUtils::Verbose
 
-task :default => [:make]
-
-desc "Build C++ source"
-task :make do
-  system "cd itk_build && make"
-end
-
-desc "Build registered rat volumes from 2D histology and block face images"
-task :build_volumes => [:make] do
-  sh "itk_build/BuildVolumes Rat24 BuildVolumes"
-  begin
-    sh "say done"
-  rescue
-  end
-end
-
-task :deformable_registration => [:make] do
-  sh "itk_build/DeformableRegistration Rat24 BuildVolumes"
-  begin
-    sh "say done"
-  rescue
-  end
-end
-
-desc "Register Region of interest"
-task :register_roi => [:make] do
-  sh "itk_build/RegisterROI Rat24 BuildVolumes"
-  begin
-    sh "say done"
-  rescue
-  end
-end
-
 namespace :test do
   task :default => [:brain, :refactor]
   

@@ -1,29 +1,35 @@
+require './init'
+
 class Output < Thor
   include Thor::Actions
-  
   desc "find [-e | -o]", "find job output files"
   method_options %w(stderr -e) => :boolean, %w(stdout -o) => :boolean
   def find
     # second backslash needed to escape the backslash in the ruby string
-    run "find . | egrep '\\.[#{regexp}][0-9]{5}$'", :capture => false
+    puts __FILE__
+    run find_command, :capture => false
   end
   
   desc "print [-e | -o]", "print job output files"
   method_options %w(stderr -e) => :boolean, %w(stdout -o) => :boolean
   def print
-    run "find . | egrep '\\.[#{regexp}][0-9]{5}$' | xargs cat", :capture => false
+    run find_command + " | xargs cat", :capture => false
   end
 
   desc "clean [-e | -o]", "delete job output files"
   method_options %w(stderr -e) => :boolean, %w(stdout -o) => :boolean
   def clean
-    run "find . | egrep '\\.[#{regexp}][0-9]{5}$' | xargs rm", :capture => false
+    run find_command + " | xargs rm", :capture => false
   end
   
 private
+  def find_command
+    "find #{PROJECT_ROOT} -not -path '*/.git/*' | egrep '\\.[#{regexp}][0-9]{5}$'"
+  end
+
   def regexp
-    regexp = "e" if options.e?
-    regexp = "o" if options.o?
+    regexp = "e" if options.stderr?
+    regexp = "o" if options.stdout?
     regexp ||= "eo"
   end
 end
