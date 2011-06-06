@@ -2,9 +2,13 @@ class Qstat < Thor
   include Thor::Actions
 
   desc "show", "display my jobs"
-  method_options :force => :boolean
   def show
     run "qstat | grep mattgibb", :capture => false
+  end
+  
+  desc "showing", "continuously display my jobs every 2 seconds"
+  def showing
+    run "while [ 1 ]; do qstat | grep mattgibb; sleep 2; done", :capture => false
   end
   
   desc "count", "display the number of jobs left to complete"

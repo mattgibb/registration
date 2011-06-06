@@ -10,9 +10,9 @@ class Output < Thor
     run find_command, :capture => false
   end
   
-  desc "print [-e | -o]", "print job output files"
+  desc "show [-e | -o]", "print job output files"
   method_options %w(stderr -e) => :boolean, %w(stdout -o) => :boolean
-  def print
+  def show
     run find_command + " | xargs cat", :capture => false
   end
 
