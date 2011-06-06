@@ -26,6 +26,8 @@ void checkUsage(int argc, char const *argv[]) {
 }
 
 int main(int argc, char const *argv[]) {
+  using namespace boost::filesystem;
+  
   // Verify the number of parameters in the command line
   checkUsage(argc, argv);
   
@@ -60,7 +62,10 @@ int main(int argc, char const *argv[]) {
   StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
   StackTransforms::InitializeToCommonCentre( *HiResStack );
   StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
-
+  
+  // create output dir before write operations
+  create_directory(outputDir);
+  
   // Generate fixed images to register against
   LoResStack->updateVolumes();
   if( argc < 4)
@@ -136,7 +141,6 @@ int main(int argc, char const *argv[]) {
   (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
   
   // write transforms to directories labeled by both ds ratios
-  using namespace boost::filesystem;
   string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   create_directory(LoResTransformsDir);
