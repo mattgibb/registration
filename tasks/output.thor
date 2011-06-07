@@ -13,7 +13,7 @@ class Output < Thor
   desc "show [-e | -o]", "print job output files"
   method_options %w(stderr -e) => :boolean, %w(stdout -o) => :boolean
   def show
-    run find_command + " | xargs cat", :capture => false
+    run find_command + " | xargs cat | less", :capture => false
   end
 
   desc "clean [-e | -o]", "delete job output files"
