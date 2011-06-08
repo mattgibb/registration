@@ -1,3 +1,5 @@
+// Load transforms and build RGB volumes from images
+
 #include "boost/filesystem.hpp"
 
 #include "itkRGBPixel.h"

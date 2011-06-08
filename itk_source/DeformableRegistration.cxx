@@ -1,3 +1,5 @@
+// Perform non-rigid registration based on bulk transform output of BuildVolumes
+
 #include "itkNormalizedCorrelationImageToImageMetric.h"
 
 // my files

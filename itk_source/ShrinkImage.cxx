@@ -1,3 +1,5 @@
+// Smoothes and Downsamples RGB image
+
 #include "itkImage.h"
 #include "itkRGBPixel.h"
 #include "itkImageFileReader.h"

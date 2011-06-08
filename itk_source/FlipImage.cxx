@@ -1,3 +1,5 @@
+// Reflects RGB image through vertical axis
+
 #include "itkImage.h"
 #include "itkRGBPixel.h"
 #include "itkImageFileReader.h"
