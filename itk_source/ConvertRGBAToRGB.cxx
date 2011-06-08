@@ -1,3 +1,5 @@
+// Deals with offset bug in ITK RGBA reader by permuting RGB channels
+
 #include "itkRGBPixel.h"
 #include "itkRGBAPixel.h"
 #include "IOHelpers.hpp"

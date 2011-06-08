@@ -1,3 +1,5 @@
+// Out of date code, do not use!
+
 // YAML config reader
 #include "yaml-cpp/yaml.h"
 

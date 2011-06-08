@@ -1,3 +1,5 @@
+// Rotate RGB image 90 degrees clockwise
+
 #include "itkImage.h"
 #include "itkRGBPixel.h"
 #include "itkImageFileReader.h"
