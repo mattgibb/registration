@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]) {
 	
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
-  string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  Dirs::SetOutputDirName(argv[2]);
   
   // set region of interest
   string roi;
@@ -72,8 +72,8 @@ int main(int argc, char const *argv[]) {
   
   // read transforms from directories labeled by both ds ratios
   using namespace boost::filesystem;
-  string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
     
   Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
   Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]) {
   
   // Write bmps
   using namespace boost::filesystem;
-  path BMPDir = outputDir + "ColourResamples_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  path BMPDir = Dirs::ResultsDir() + "ColourResamples_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   create_directory(BMPDir);
   
   writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (BMPDir / "LoRes.mha").string());

@@ -31,7 +31,7 @@ int main(int argc, char const *argv[]) {
 	
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
-  string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  Dirs::SetOutputDirName(argv[2]);
   vector< string > LoResFileNames, HiResFileNames;
   if( argc >= 4)
   {
@@ -54,8 +54,8 @@ int main(int argc, char const *argv[]) {
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, "ROI");
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, LoResFileNames, outputDir + "LoResTransforms");
-  Load(*HiResStack, HiResFileNames, outputDir + "HiResTransforms");
+  Load(*LoResStack, LoResFileNames, Dirs::ResultsDir() + "LoResTransforms");
+  Load(*HiResStack, HiResFileNames, Dirs::ResultsDir() + "HiResTransforms");
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
@@ -67,9 +67,9 @@ int main(int argc, char const *argv[]) {
   LoResStack->updateVolumes();
   if( argc < 4)
   {
-    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResROI.mha" );
+    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResROI.mha" );
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResInitialROI.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResInitialROI.mha" );
   }
   
   // initialise registration framework
@@ -95,8 +95,8 @@ int main(int argc, char const *argv[]) {
   if(argc < 4)
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResAffineROI.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResAffineROI.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResAffineMask.mha" );
   }
   
   // Update LoRes as the masks might have shrunk
@@ -111,8 +111,8 @@ int main(int argc, char const *argv[]) {
   
   // write transforms to directories labeled by both ds ratios
   using namespace boost::filesystem;
-  string LoResTransformsDir = outputDir + "LoResROITransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  string HiResTransformsDir = outputDir + "HiResROITransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string LoResTransformsDir = Dirs::ResultsDir() + "LoResROITransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string HiResTransformsDir = Dirs::ResultsDir() + "HiResROITransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   create_directory(LoResTransformsDir);
   create_directory(HiResTransformsDir);
   Save(*LoResStack, LoResFileNames, LoResTransformsDir);

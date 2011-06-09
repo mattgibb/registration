@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]) {
   
   // Process command line arguments
   Dirs::SetDataSet(argv[1]);
-  string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  Dirs::SetOutputDirName(argv[2]);
   vector< string > LoResFileNames, HiResFileNames;
   if( argc >= 4)
   {
@@ -64,13 +64,13 @@ int main(int argc, char const *argv[]) {
   StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
   
   // create output dir before write operations
-  create_directory(outputDir);
+  create_directory( Dirs::ResultsDir() );
   
   // Generate fixed images to register against
   LoResStack->updateVolumes();
   if( argc < 4)
   {
-    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResStack.mha" );
+    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResStack.mha" );
   }
   
   // initialise registration framework
@@ -97,8 +97,8 @@ int main(int argc, char const *argv[]) {
   if( argc < 4)
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResRigidStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResRigidMask.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResRigidStack.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResRigidMask.mha" );
   }
   StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
   
@@ -112,7 +112,7 @@ int main(int argc, char const *argv[]) {
   if(argc < 4)
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResSimilarityStack.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResSimilarityStack.mha" );
   }
   
   // repeat registration with affine transform
@@ -123,15 +123,15 @@ int main(int argc, char const *argv[]) {
   if(argc < 4)
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResAffineStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResAffineMask.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResAffineStack.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResAffineMask.mha" );
   }
   
   // Update LoRes as the masks might have shrunk
   LoResStack->updateVolumes();
   
   // persist mask numberOfTimesTooBig
-  saveNumberOfTimesTooBig(*HiResStack, outputDir + "numberOfTimesTooBig.txt");
+  saveNumberOfTimesTooBig(*HiResStack, Dirs::ResultsDir() + "numberOfTimesTooBig.txt");
   
   // Write final transforms to file
   // get downsample ratios
@@ -141,8 +141,8 @@ int main(int argc, char const *argv[]) {
   (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
   
   // write transforms to directories labeled by both ds ratios
-  string LoResTransformsDir = outputDir + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  string HiResTransformsDir = outputDir + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   create_directory(LoResTransformsDir);
   create_directory(HiResTransformsDir);
   Save(*LoResStack, LoResFileNames, LoResTransformsDir);

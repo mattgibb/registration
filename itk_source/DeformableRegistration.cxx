@@ -30,7 +30,7 @@ int main(int argc, char const *argv[]) {
 	
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
-  string outputDir(Dirs::ResultsDir() + argv[2] + "/");
+  Dirs::SetOutputDirName(argv[2]);
   vector< string > LoResFileNames, HiResFileNames;
   if( argc >= 4)
   {
@@ -53,20 +53,20 @@ int main(int argc, char const *argv[]) {
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, LoResFileNames, outputDir + "LoResTransforms");
-  Load(*HiResStack, HiResFileNames, outputDir + "HiResTransforms");
+  Load(*LoResStack, LoResFileNames, Dirs::ResultsDir() + "LoResTransforms");
+  Load(*HiResStack, HiResFileNames, Dirs::ResultsDir() + "HiResTransforms");
   
   // shrink mask slices
   cout << "Test mask load.\n";
   cout << "THE LINE BELOW SHOULD BE LoResStack...?\n";
-  loadNumberOfTimesTooBig(*HiResStack, outputDir + "numberOfTimesTooBig.txt");
+  loadNumberOfTimesTooBig(*HiResStack, Dirs::ResultsDir() + "numberOfTimesTooBig.txt");
   
   // Generate fixed images to register against
   LoResStack->updateVolumes();
-  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), outputDir + "LoResPersistedStack.mha" );
+  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResPersistedStack.mha" );
   
   HiResStack->updateVolumes();
-  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResPersistedStack.mha" );
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResPersistedStack.mha" );
   
   // initialise registration framework
   boost::shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
@@ -118,8 +118,8 @@ int main(int argc, char const *argv[]) {
   
   HiResStack->updateVolumes();
   
-  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), outputDir + "HiResDeformedStack.mha" );
-  writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), outputDir + "HiResSimilarityMask.mha" );
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResDeformedStack.mha" );
+  writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResSimilarityMask.mha" );
   
   return EXIT_SUCCESS;
 }

@@ -76,7 +76,7 @@ string Dirs::ImagesDir()
 string Dirs::ResultsDir()
 {
   CheckDataSet();
-  return ProjectRootDir() + "results/" + _dataSet + "/";
+  return ProjectRootDir() + "results/" + _dataSet + "/" + _outputDirName + "/";
 }
 
 string Dirs::DTMRIDir()

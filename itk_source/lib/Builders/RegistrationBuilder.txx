@@ -1,9 +1,6 @@
 #ifndef REGISTRATIONBUILDER_CXX_
 #define REGISTRATIONBUILDER_CXX_
 
-
-// registration methods
-
 // metrics
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkMattesMutualInformationImageToImageMetric.h"
