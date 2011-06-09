@@ -9,6 +9,7 @@
 
 
 string Dirs::_dataSet = "";
+string Dirs::_outputDirName = "";
 string Dirs::_paramsFile = ConfigDir() + "registration_parameters.yml";
 Dirs* Dirs::_instance = 0;
 
@@ -18,14 +19,37 @@ string Dirs::GetDataSet()
   return _dataSet;
 }
 
-void Dirs::SetDataSet(string dataSet)
+void Dirs::SetDataSet(const string dataSet)
 {
   _dataSet = dataSet;
+}
+
+void Dirs::SetOutputDirName(const string outputDirName)
+{
+  _outputDirName = outputDirName;
 }
 
 void Dirs::SetParamsFile(string paramsFile)
 {
   _paramsFile = paramsFile;
+}
+
+void Dirs::CheckDataSet()
+{
+  if ( _dataSet.empty())
+  {
+    cerr << "Dirs::dataSet not set!\n";
+    exit(1);
+  }
+}
+
+void Dirs::CheckOutputDirName()
+{
+  if ( _outputDirName.empty())
+  {
+    cerr << "Dirs::outputDirName not set!\n";
+    exit(1);
+  }
 }
 
 Dirs* Dirs::Instance()
@@ -36,15 +60,6 @@ Dirs* Dirs::Instance()
     _instance = new Dirs();
   }
   return _instance;
-}
-
-void Dirs::CheckDataSet()
-{
-  if ( _dataSet.empty())
-  {
-    cerr << "Dirs::dataSet not set!\n";
-    exit(1);
-  }
 }
 
 string Dirs::ProjectRootDir()
@@ -85,11 +100,6 @@ string Dirs::SliceDir()
   boost::shared_ptr<YAML::Node> downsample_ratios = config(_dataSet + "/downsample_ratios.yml");
   (*(downsample_ratios.get()))["HiRes"] >> ratio;
   return ImagesDir() + "HiRes/downsamples_" + ratio + "/";
-}
-
-string Dirs::SegmentationDir()
-{
-  return ResultsDir() + "segmentation/";
 }
 
 string Dirs::ConfigDir()

@@ -10,19 +10,26 @@ using namespace std;
 
 class Dirs {
   static string _dataSet;
+  static string _outputDirName;
   static string _paramsFile;
   static Dirs* _instance;
   
 public:
   static string GetDataSet();
   
-  static void SetDataSet(string dataSet);
+  static void SetDataSet(const string dataSet);
+  
+  static void SetOutputDirName(const string outputDirName);
   
   static void SetParamsFile(string paramsFile);
   
-  // makes sure DataSet has been set
+  // makes sure _dataSet has been set
   // before returning dependent path strings
   static void CheckDataSet();
+  
+  // makes sure _resultsDir has been set
+  // before returning dependent path strings
+  static void CheckOutputDirName();
   
   static Dirs* Instance();
   
@@ -37,8 +44,6 @@ public:
   static string BlockDir();
   
   static string SliceDir();
-  
-  static string SegmentationDir();
   
   static string ConfigDir();
   
