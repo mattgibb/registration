@@ -10,7 +10,7 @@
 
 string Dirs::_dataSet = "";
 string Dirs::_outputDirName = "";
-string Dirs::_paramsFile = ConfigDir() + "registration_parameters.yml";
+string Dirs::_paramsFile = ConfigDir() + _dataSet + "/registration_parameters.yml";
 Dirs* Dirs::_instance = 0;
 
 string Dirs::GetDataSet()
@@ -109,6 +109,7 @@ string Dirs::ConfigDir()
 
 string Dirs::ParamsFile()
 {
+  CheckDataSet();
   return _paramsFile;
 }
 
