@@ -38,6 +38,8 @@ public:
   
   static string HiResTransformsDir();
   
+  static string ColourDir();
+  
   static string BlockDir();
   
   static string SliceDir();
@@ -50,9 +52,13 @@ public:
   
   static string TestDir();
   
+  // Helper to extract the downsample ratios from the config
+  // and build a string out of them
+  static string DownsampleSuffix();
+  
 protected:
   Dirs();
-  
 };
 
 #endif
+

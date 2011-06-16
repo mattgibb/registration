@@ -70,26 +70,19 @@ string Dirs::ResultsDir()
 
 string Dirs::LoResTransformsDir()
 {
-  // get downsample ratios
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
-  string LoResDownsampleRatio, HiResDownsampleRatio;
-  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
-  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
-  
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  return ResultsDir() + "LoResTransforms_" + DownsampleSuffix();
 }
 
 string Dirs::HiResTransformsDir()
 {
-  // get downsample ratios
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
-  string LoResDownsampleRatio, HiResDownsampleRatio;
-  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
-  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
-  
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  return ResultsDir() + "HiResTransforms_" + DownsampleSuffix();
+}
+
+string Dirs::ColourDir()
+{
+  return Dirs::ResultsDir() + "ColourResamples_" + DownsampleSuffix();
 }
 
 string Dirs::BlockDir()
@@ -131,6 +124,20 @@ string Dirs::TestDir()
   return ProjectRootDir() + "itk_source/test/";
 }
 
+string Dirs::DownsampleSuffix()
+{
+  // get downsample ratios
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  string LoResDownsampleRatio, HiResDownsampleRatio;
+  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  
+  // read transforms from directories labeled by both ds ratios
+  return LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+}
+
 // Constructor
 Dirs::Dirs() {}
+
 #endif
+
