@@ -11,7 +11,6 @@
 string Dirs::_dataSet = "";
 string Dirs::_outputDirName = "";
 string Dirs::_paramsFile = ConfigDir() + _dataSet + "/registration_parameters.yml";
-Dirs* Dirs::_instance = 0;
 
 string Dirs::GetDataSet()
 {
@@ -52,16 +51,6 @@ void Dirs::CheckOutputDirName()
   }
 }
 
-Dirs* Dirs::Instance()
-{
-  if (_instance == 0) {
-    // CheckDataSet is only called the first time an instance is requested
-    CheckDataSet();
-    _instance = new Dirs();
-  }
-  return _instance;
-}
-
 string Dirs::ProjectRootDir()
 {
   return PROJECT_ROOT_DIR;
@@ -79,9 +68,28 @@ string Dirs::ResultsDir()
   return ProjectRootDir() + "results/" + _dataSet + "/" + _outputDirName + "/";
 }
 
-string Dirs::DTMRIDir()
+string Dirs::LoResTransformsDir()
 {
-  return ImagesDir() + "MRI/DTMRI/";
+  // get downsample ratios
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  string LoResDownsampleRatio, HiResDownsampleRatio;
+  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  
+  // read transforms from directories labeled by both ds ratios
+  return ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+}
+
+string Dirs::HiResTransformsDir()
+{
+  // get downsample ratios
+  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  string LoResDownsampleRatio, HiResDownsampleRatio;
+  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
+  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
+  
+  // read transforms from directories labeled by both ds ratios
+  return ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
 }
 
 string Dirs::BlockDir()

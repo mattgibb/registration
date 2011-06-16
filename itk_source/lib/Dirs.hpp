@@ -1,10 +1,8 @@
+// Static methods to provide directory information
 #ifndef _DIRS_HPP_
 #define _DIRS_HPP_
 
 #include <string>
-// Singleton to provide directory information
-// The static string _dataSet must be set to a non-empty string
-// before the first Instance() call is received
 
 using namespace std;
 
@@ -12,7 +10,6 @@ class Dirs {
   static string _dataSet;
   static string _outputDirName;
   static string _paramsFile;
-  static Dirs* _instance;
   
 public:
   static string GetDataSet();
@@ -31,15 +28,15 @@ public:
   // before returning dependent path strings
   static void CheckOutputDirName();
   
-  static Dirs* Instance();
-  
   static string ProjectRootDir();
   
   static string ImagesDir();
   
   static string ResultsDir();
   
-  static string DTMRIDir();
+  static string LoResTransformsDir();
+  
+  static string HiResTransformsDir();
   
   static string BlockDir();
   
