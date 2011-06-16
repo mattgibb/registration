@@ -89,11 +89,10 @@ int main(int argc, char const *argv[]) {
   
   // Write bmps
   using namespace boost::filesystem;
-  path BMPDir = Dirs::ResultsDir() + "ColourResamples_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  create_directory(BMPDir);
+  create_directory( Dirs::ColourDir() );
   
-  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (BMPDir / "LoRes.mha").string());
-  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (BMPDir / "HiRes.mha").string());
+  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (path( Dirs::ColourDir() ) / "LoRes.mha").string());
+  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (path( Dirs::ColourDir() ) / "HiRes.mha").string());
   
   return EXIT_SUCCESS;
 }

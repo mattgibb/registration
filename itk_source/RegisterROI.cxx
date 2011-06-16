@@ -54,8 +54,8 @@ int main(int argc, char const *argv[]) {
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, "ROI");
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, LoResFileNames, Dirs::ResultsDir() + "LoResTransforms");
-  Load(*HiResStack, HiResFileNames, Dirs::ResultsDir() + "HiResTransforms");
+  Load(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
+  Load(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
@@ -102,21 +102,12 @@ int main(int argc, char const *argv[]) {
   // Update LoRes as the masks might have shrunk
   LoResStack->updateVolumes();
   
-  // Write final transforms to file
-  // get downsample ratios
-  string LoResDownsampleRatio, HiResDownsampleRatio;
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
-  (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
-  (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
-  
   // write transforms to directories labeled by both ds ratios
   using namespace boost::filesystem;
-  string LoResTransformsDir = Dirs::ResultsDir() + "LoResROITransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  string HiResTransformsDir = Dirs::ResultsDir() + "HiResROITransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  create_directory(LoResTransformsDir);
-  create_directory(HiResTransformsDir);
-  Save(*LoResStack, LoResFileNames, LoResTransformsDir);
-  Save(*HiResStack, HiResFileNames, HiResTransformsDir);
+  create_directory(Dirs::LoResTransformsDir());
+  create_directory(Dirs::HiResTransformsDir());
+  Save(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
+  Save(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
   
   return EXIT_SUCCESS;
 }

@@ -53,8 +53,8 @@ int main(int argc, char const *argv[]) {
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, LoResFileNames, Dirs::ResultsDir() + "LoResTransforms");
-  Load(*HiResStack, HiResFileNames, Dirs::ResultsDir() + "HiResTransforms");
+  Load(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
+  Load(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
   
   // shrink mask slices
   cout << "Test mask load.\n";
