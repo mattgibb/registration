@@ -10,7 +10,7 @@
 
 string Dirs::_dataSet = "";
 string Dirs::_outputDirName = "";
-string Dirs::_paramsFile = ConfigDir() + _dataSet + "/registration_parameters.yml";
+string Dirs::_paramsFile = "";
 
 string Dirs::GetDataSet()
 {
@@ -110,8 +110,9 @@ string Dirs::ConfigDir()
 
 string Dirs::ParamsFile()
 {
+  if(!_paramsFile.empty()) return _paramsFile;
   CheckDataSet();
-  return _paramsFile;
+  return ConfigDir() + _dataSet + "/registration_parameters.yml";
 }
 
 string Dirs::SliceFile()
