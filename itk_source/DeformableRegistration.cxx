@@ -69,7 +69,7 @@ int main(int argc, char const *argv[]) {
   writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResPersistedStack.mha" );
   
   // initialise registration framework
-  boost::shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
+  boost::shared_ptr<YAML::Node> pDeformableParameters = config(string(argv[1]) + "/deformable_parameters.yml");
   typedef RegistrationBuilder< StackType > RegistrationBuilderType;
   RegistrationBuilderType registrationBuilder(*pDeformableParameters);
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
