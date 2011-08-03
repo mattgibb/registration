@@ -27,7 +27,7 @@ namespace StackTransforms {
   
   itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
-    boost::shared_ptr< YAML::Node > roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
+    boost::shared_ptr< YAML::Node > roiNode = config("ROIs/" + roi + ".yml");
     for(unsigned int i=0; i<2; i++) {
       (*roiNode)["Translation"][i] >> LoResTranslation[i];
     }

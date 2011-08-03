@@ -16,7 +16,7 @@ YAML::Node& imageDimensions()
   // initialize registrationParameters if hasn't been already
   if(!initialized)
   {
-    ifstream config_filestream( (Dirs::ConfigDir() + Dirs::GetDataSet() + "/image_dimensions.yml").c_str() );
+    ifstream config_filestream( (Dirs::ConfigDir() + "image_dimensions.yml").c_str() );
     YAML::Parser parser(config_filestream);
     parser.GetNextDocument(imageDimensions);
     initialized = true;
@@ -50,7 +50,7 @@ YAML::Node& registrationParameters()
 boost::shared_ptr<YAML::Node> config(const string& filename)
 {
   boost::shared_ptr<YAML::Node> node = boost::make_shared<YAML::Node>();
-  ifstream config_filestream( (Dirs::ConfigDir() + "/" + filename).c_str() );
+  ifstream config_filestream( (Dirs::ConfigDir() + filename).c_str() );
   YAML::Parser parser(config_filestream);
   parser.GetNextDocument(*node);
   return node;

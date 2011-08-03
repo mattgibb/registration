@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]) {
   }
   else
   {
-    boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+    boost::shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
     (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
     (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
   }
@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
   using namespace boost::filesystem;
   string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-    
+  
   Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
   Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
   

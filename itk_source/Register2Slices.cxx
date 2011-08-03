@@ -65,7 +65,7 @@ int main(int argc, char const *argv[]) {
     writeImage< StackType::SliceType >( slice2Stack->GetOriginalImage(0), Dirs::ResultsDir() + slice2BaseName + "_original.mha" );
   }
   // initialise registration framework
-  boost::shared_ptr<YAML::Node> pParameters = config(string(argv[1]) + "/2_slice_parameters.yml");
+  boost::shared_ptr<YAML::Node> pParameters = config("2_slice_parameters.yml");
   typedef RegistrationBuilder< StackType > RegistrationBuilderType;
   RegistrationBuilderType registrationBuilder(*pParameters);
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();

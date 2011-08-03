@@ -89,7 +89,7 @@ string Dirs::BlockDir()
 {
   CheckDataSet();
   string ratio;
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(_dataSet + "/downsample_ratios.yml");
+  boost::shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
   (*(downsample_ratios.get()))["LoRes"] >> ratio;
   return ImagesDir() + "LoRes_rgb/downsamples_" + ratio + "/";
 }
@@ -98,14 +98,14 @@ string Dirs::SliceDir()
 {
   CheckDataSet();
   string ratio;
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(_dataSet + "/downsample_ratios.yml");
+  boost::shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
   (*(downsample_ratios.get()))["HiRes"] >> ratio;
   return ImagesDir() + "HiRes/downsamples_" + ratio + "/";
 }
 
 string Dirs::ConfigDir()
 {
-  return ProjectRootDir() + "config/";
+  return ProjectRootDir() + "config/" + GetDataSet() + "/";
 }
 
 string Dirs::ParamsFile()
@@ -128,7 +128,7 @@ string Dirs::TestDir()
 string Dirs::DownsampleSuffix()
 {
   // get downsample ratios
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  boost::shared_ptr<YAML::Node> downsample_ratios = config("/downsample_ratios.yml");
   string LoResDownsampleRatio, HiResDownsampleRatio;
   (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
   (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;

@@ -13,7 +13,7 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
 {
   // get downsample ratio
   float DownsampleRatio;
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  boost::shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
   (*downsample_ratios)["LoRes"] >> DownsampleRatio;
   
   // get spacings
@@ -28,7 +28,7 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
   }
 
   // get size
-  boost::shared_ptr<YAML::Node> roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
+  boost::shared_ptr<YAML::Node> roiNode = config("ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType Size;
   for(unsigned int i=0; i<2; i++) {
     (*roiNode)["Size"][i] >> Size[i];
@@ -43,7 +43,7 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
 {
   // get downsample ratios
   float LoResDownsampleRatio, HiResDownsampleRatio;
-  boost::shared_ptr<YAML::Node> downsample_ratios = config(Dirs::GetDataSet() + "/downsample_ratios.yml");
+  boost::shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
   (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
   (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
   
@@ -61,7 +61,7 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
   }
   
   // get size
-  boost::shared_ptr<YAML::Node> roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
+  boost::shared_ptr<YAML::Node> roiNode = config("ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType LoResSize;
   for(unsigned int i=0; i<2; i++) {
     (*roiNode)["Size"][i] >> LoResSize[i];
