@@ -19,7 +19,7 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
   // get spacings
   typename StackType::VolumeType::SpacingType Spacings;
   for(unsigned int i=0; i<3; i++) {
-    config("image_dimensions.yml")["LoResSpacings"][i] >> Spacings[i];
+    (*config("image_dimensions.yml"))["LoResSpacings"][i] >> Spacings[i];
   }
   
   // multiply in-plane spacings by downsample ratio
@@ -50,8 +50,8 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
   // get spacings
   typename StackType::VolumeType::SpacingType LoResSpacings;
   typename StackType::SliceType::SpacingType HiResOriginalSpacings;
-  for(unsigned int i=0; i<3; i++) config("image_dimensions.yml")["LoResSpacings"][i] >> LoResSpacings[i];
-  for(unsigned int i=0; i<2; i++) config("image_dimensions.yml")["HiResSpacings"][i] >> HiResOriginalSpacings[i];
+  for(unsigned int i=0; i<3; i++) (*config("image_dimensions.yml"))["LoResSpacings"][i] >> LoResSpacings[i];
+  for(unsigned int i=0; i<2; i++) (*config("image_dimensions.yml"))["HiResSpacings"][i] >> HiResOriginalSpacings[i];
   
   // multiply in-plane spacings by downsample ratios
   for(unsigned int i=0; i<2; i++)
