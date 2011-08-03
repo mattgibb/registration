@@ -61,8 +61,6 @@ int main(int argc, char const *argv[]) {
   {
     writeImage< StackType::SliceType >( slice1Stack->GetResampledSlice(0), Dirs::ResultsDir() + slice1BaseName + ".mha" );
     writeImage< StackType::SliceType >( slice2Stack->GetResampledSlice(0), Dirs::ResultsDir() + slice2BaseName + "_before_registration.mha" );
-    writeImage< StackType::SliceType >( slice1Stack->GetOriginalImage(0), Dirs::ResultsDir() + slice1BaseName + "_original.mha" );
-    writeImage< StackType::SliceType >( slice2Stack->GetOriginalImage(0), Dirs::ResultsDir() + slice2BaseName + "_original.mha" );
   }
   // initialise registration framework
   boost::shared_ptr<YAML::Node> pParameters = config("2_slice_parameters.yml");
