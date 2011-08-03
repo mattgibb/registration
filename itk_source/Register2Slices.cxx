@@ -19,7 +19,7 @@ void checkUsage(int argc, char const *argv[]) {
   {
     cerr << "\nUsage: " << endl;
     cerr << argv[0] << "dataSet slice1 slice2 (writeVolumes=false)\n\n";
-    cerr << "e.g. " << argv[0] << "Rat28 0053 0054 true\n\n";
+    cerr << "e.g. " << argv[0] << " Rat28 0053 0054 true\n\n";
     exit(EXIT_FAILURE);
   }
 }
