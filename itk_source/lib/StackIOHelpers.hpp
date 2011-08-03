@@ -121,7 +121,7 @@ void ApplyAdjustments(StackType& stack, vector< string > fileNames, const string
       }
       
       // convert Array to Vector
-      itk::Array< double > parameters ( reader->GetTransformList()->begin()->GetPointer()->GetParameters() );
+      itk::Array< double > parameters( reader->GetTransformList()->begin()->GetPointer()->GetParameters() );
       itk::Vector< double, 2 > translation;
       translation[0] = parameters[0];
       translation[1] = parameters[1];
