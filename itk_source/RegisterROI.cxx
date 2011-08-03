@@ -11,9 +11,10 @@
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
 #include "IOHelpers.hpp"
-#include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "Parameters.hpp"
+#include "StackTransforms.hpp"
+#include "OptimizerConfig.hpp"
 #include "Profiling.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
@@ -84,7 +85,7 @@ int main(int argc, char const *argv[]) {
   assert( affineTransform );
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
+  OptimizerConfig::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
 
   itkProbesCreate();
   itkProbesStart( "Aligning stacks" );

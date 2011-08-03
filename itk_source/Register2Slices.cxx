@@ -93,17 +93,21 @@ int main(int argc, char const *argv[]) {
   
   cout << "Optimizer stop condition: "
        << registration->GetOptimizer()->GetStopConditionDescription() << endl << endl;
-    
-  // Write resultant transform
-  slice2Stack->updateVolumes();
-  vector< string > transformFileName(1, slice1BaseName + "_" + slice2BaseName);
-  Save(*slice2Stack, transformFileName, Dirs::ResultsDir());
   
+  // write registered image
+  slice2Stack->updateVolumes();
   if(argc >= 5)
   {
     writeImage< StackType::SliceType >( slice2Stack->GetResampledSlice(0), Dirs::ResultsDir() + slice2BaseName + "_after_registration.mha" );
   }
   
+  // Write resultant transform
+  // subtract initial translation, so that
+  // transform represents the relative translation from one slice to another
+  StackTransforms::Translate(*slice2Stack, -StackTransforms::GetLoResTranslation("whole_heart"));
+  vector< string > transformFileName(1, slice1BaseName + "_" + slice2BaseName);
+  Save(*slice2Stack, transformFileName, Dirs::ResultsDir());
+
   return EXIT_SUCCESS;
   
 }

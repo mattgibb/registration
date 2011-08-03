@@ -11,6 +11,7 @@
 #include "IOHelpers.hpp"
 #include "StackIOHelpers.hpp"
 #include "StackTransforms.hpp"
+#include "OptimizerConfig.hpp"
 #include "Dirs.hpp"
 #include "Parameters.hpp"
 #include "Profiling.hpp"
@@ -77,7 +78,7 @@ int main(int argc, char const *argv[]) {
   
   // Perform non-rigid registration
   StackTransforms::InitializeBSplineDeformableFromBulk(*LoResStack, *HiResStack);
-  StackTransforms::SetOptimizerScalesForBSplineDeformableTransform(*HiResStack, registration->GetOptimizer());
+  OptimizerConfig::SetOptimizerScalesForBSplineDeformableTransform(*HiResStack, registration->GetOptimizer());
   
   // typedef itk::LBFGSBOptimizer DeformableOptimizerType;
   // DeformableOptimizerType::Pointer deformableOptimizer = DeformableOptimizerType::New();

@@ -9,9 +9,10 @@
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "IOHelpers.hpp"
-#include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "Parameters.hpp"
+#include "StackTransforms.hpp"
+#include "OptimizerConfig.hpp"
 
 int main(int argc, char const *argv[]) {
   Dirs::SetParamsFile(Dirs::TestDir() + "data/registration_parameters.yml");
@@ -56,7 +57,7 @@ int main(int argc, char const *argv[]) {
   StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
+  OptimizerConfig::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
   
 	// perform centered rigid 2D registration
   stackAligner.Update();
