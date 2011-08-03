@@ -112,12 +112,12 @@ string Dirs::ParamsFile()
 {
   if(!_paramsFile.empty()) return _paramsFile;
   CheckDataSet();
-  return ConfigDir() + _dataSet + "/registration_parameters.yml";
+  return ConfigDir() + "registration_parameters.yml";
 }
 
 string Dirs::SliceFile()
 {
-  return ConfigDir() + _dataSet + "/image_lists/image_list.txt";
+  return ConfigDir() + "image_lists/image_list.txt";
 }
 
 string Dirs::TestDir()
