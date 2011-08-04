@@ -53,6 +53,13 @@ int main(int argc, char const *argv[]) {
   ApplyAdjustments( *slice1Stack, slice1FileName, Dirs::ConfigDir() + "LoRes_adjustments/");
   ApplyAdjustments( *slice2Stack, slice2FileName, Dirs::ConfigDir() + "LoRes_adjustments/");
   
+  // record original slice2 transform
+  // convert Array of initial translation to Vector
+  itk::Array< double > oldSlice2parameters( slice2Stack->GetTransform(0)->GetParameters() );
+  itk::Vector< double, 2 > oldTranslation;
+  oldTranslation[0] = oldSlice2parameters[0];
+  oldTranslation[1] = oldSlice2parameters[1];
+  
   // create output dir before write operations
   create_directory( Dirs::ResultsDir() );
   
@@ -102,15 +109,9 @@ int main(int argc, char const *argv[]) {
   }
   
   // Write resultant transform
-  // convert Array of initial translation to Vector
-  itk::Array< double > slice1Parameters( slice1Stack->GetTransform(0)->GetParameters() );
-  itk::Vector< double, 2 > translation;
-  translation[0] = slice1Parameters[0];
-  translation[1] = slice1Parameters[1];
-  
   // subtract initial translation, so that
-  // transform represents the relative translation from one slice to another
-  StackTransforms::Translate(*slice2Stack, -translation);
+  // transform represents the relative translation from old to new position
+  StackTransforms::Translate(*slice2Stack, -oldTranslation);
   vector< string > transformFileName(1, slice1BaseName + "_" + slice2BaseName);
   Save(*slice2Stack, transformFileName, Dirs::ResultsDir());
   
