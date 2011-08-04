@@ -10,16 +10,17 @@
 #include "itkTransformFactory.h"
 
 #include "Stack.hpp"
+#include "StackTransforms.hpp"
+
+using namespace boost::filesystem;
 
 // helper to construct transform file path
 const string TransformFilePath(const string& imageFileName, const string& transformDirName) {
-  using namespace boost::filesystem;
   path slicePath( imageFileName );
   string transformFileName( basename( slicePath.leaf() ) + ".meta" );
   path transformFilePath = path(transformDirName) / path(transformFileName);
   return transformFilePath.string();
 }
-
 
 // Stack Persistence
 template <typename StackType>
@@ -83,6 +84,52 @@ void Load(StackType& stack, vector< string > fileNames, const string& dirName)
   }
   
   stack.SetTransforms(newTransforms);
+}
+
+template <typename StackType>
+void ApplyAdjustments(StackType& stack, vector< string > fileNames, const string& dirName)
+{
+  typedef itk::TransformFileReader ReaderType;
+  
+  // Some transforms might not be registered
+  // with the factory so we add them manually
+  itk::TransformFactoryBase::RegisterDefaultTransforms();
+  itk::TransformFactory< itk::TranslationTransform< double, 2 > >::RegisterTransform();
+  
+  typename StackType::TransformVectorType newTransforms;
+  
+  for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
+  {
+    // construct path to config transform file
+    // config/Rat28/LoRes_adustments/0053.meta
+    string transformFilePath = TransformFilePath(fileNames[slice_number], dirName);
+    
+    if( exists(transformFilePath) )
+    {
+      ReaderType::Pointer reader = ReaderType::New();
+      reader->SetFileName( transformFilePath.c_str() );
+      
+      try
+      {
+        reader->Update();
+      }
+      catch( itk::ExceptionObject & err )
+      {
+        std::cerr << "ExceptionObject caught while reading transforms." << std::endl;
+        cerr << err << endl;
+           std::abort();
+      }
+      
+      // convert Array to Vector
+      itk::Array< double > parameters( reader->GetTransformList()->begin()->GetPointer()->GetParameters() );
+      itk::Vector< double, 2 > translation;
+      translation[0] = parameters[0];
+      translation[1] = parameters[1];
+      
+      // translate block image
+      StackTransforms::Translate<StackType>(stack, translation, slice_number );
+    }
+  }
 }
 
 

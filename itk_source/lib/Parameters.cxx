@@ -7,26 +7,6 @@
 #include "Dirs.hpp"
 
 
-YAML::Node& imageDimensions()
-{
-  // only initialize statics when registrationParameters is first called
-  static YAML::Node imageDimensions;
-  static bool initialized = false;
-  
-  // initialize registrationParameters if hasn't been already
-  if(!initialized)
-  {
-    ifstream config_filestream( (Dirs::ConfigDir() + Dirs::GetDataSet() + "/image_dimensions.yml").c_str() );
-    YAML::Parser parser(config_filestream);
-    parser.GetNextDocument(imageDimensions);
-    initialized = true;
-  }
-  
-  // return reference to singleton
-  return imageDimensions;
-}
-
-
 YAML::Node& registrationParameters()
 {
   // only initialize statics when registrationParameters is first called
@@ -50,7 +30,7 @@ YAML::Node& registrationParameters()
 boost::shared_ptr<YAML::Node> config(const string& filename)
 {
   boost::shared_ptr<YAML::Node> node = boost::make_shared<YAML::Node>();
-  ifstream config_filestream( (Dirs::ConfigDir() + "/" + filename).c_str() );
+  ifstream config_filestream( (Dirs::ConfigDir() + filename).c_str() );
   YAML::Parser parser(config_filestream);
   parser.GetNextDocument(*node);
   return node;

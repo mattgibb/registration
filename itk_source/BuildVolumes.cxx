@@ -11,9 +11,10 @@
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
 #include "IOHelpers.hpp"
-#include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "Parameters.hpp"
+#include "StackTransforms.hpp"
+#include "OptimizerConfig.hpp"
 #include "Profiling.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
@@ -60,6 +61,7 @@ int main(int argc, char const *argv[]) {
   
   // initialize stacks' transforms so that 2D images line up at their centres.
   StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
+  ApplyAdjustments( *LoResStack, LoResFileNames, Dirs::ConfigDir() + "LoRes_adjustments/");
   StackTransforms::InitializeToCommonCentre( *HiResStack );
   StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
   
@@ -80,7 +82,7 @@ int main(int argc, char const *argv[]) {
   StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
+  OptimizerConfig::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
   
   // Add time and memory probes
   itkProbesCreate();
@@ -103,7 +105,7 @@ int main(int argc, char const *argv[]) {
   StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
   
   // Scale parameter space
-  StackTransforms::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
+  OptimizerConfig::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
   
   // perform similarity rigid 2D registration
   stackAligner.Update();
@@ -117,7 +119,7 @@ int main(int argc, char const *argv[]) {
   
   // repeat registration with affine transform
   StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredAffineTransform< double, 2 > >(*HiResStack);
-  StackTransforms::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
+  OptimizerConfig::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
   stackAligner.Update();
   
   if(argc < 4)

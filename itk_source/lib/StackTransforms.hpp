@@ -27,7 +27,7 @@ namespace StackTransforms {
   
   itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
-    boost::shared_ptr< YAML::Node > roiNode = config(Dirs::GetDataSet() + "/ROIs/" + roi + ".yml");
+    boost::shared_ptr< YAML::Node > roiNode = config("ROIs/" + roi + ".yml");
     for(unsigned int i=0; i<2; i++) {
       (*roiNode)["Translation"][i] >> LoResTranslation[i];
     }
@@ -200,126 +200,45 @@ namespace StackTransforms {
     HiResStack.SetTransforms(newTransforms);
   }
   
+  // Translate a single slice
   template <typename StackType>
-  void Translate(StackType& stack, itk::Vector< double, 2 > translation)
+  void Translate(StackType& stack, const itk::Vector< double, 2 > translation, unsigned int slice_number)
   {
-    // attempt to cast stack transforms and apply translation
-    for(unsigned int i=0; i<stack.GetSize(); i++)
+    // attempt to cast stack transform and apply translation
+    LinearTransformType::Pointer linearTransform
+      = dynamic_cast< LinearTransformType* >( stack.GetTransform(slice_number).GetPointer() );
+    TranslationTransformType::Pointer translationTransform
+      = dynamic_cast< TranslationTransformType* >( stack.GetTransform(slice_number).GetPointer() );
+    if(linearTransform)
     {
-      LinearTransformType::Pointer linearTransform
-        = dynamic_cast< LinearTransformType* >( stack.GetTransform(i).GetPointer() );
-      TranslationTransformType::Pointer translationTransform
-        = dynamic_cast< TranslationTransformType* >( stack.GetTransform(i).GetPointer() );
-      if(linearTransform)
-      {
-        // construct transform to represent translation
-        LinearTransformType::Pointer translationTransform = LinearTransformType::New();
-        translationTransform->SetIdentity();
-        translationTransform->SetTranslation(translation);
-        // if second argument is true, translationTransform is applied first,
-        // then linearTransform
-        linearTransform->Compose(translationTransform, true);
-      }
-      else if(translationTransform)
-      {
-        translationTransform->Translate(translation);
-      }
-      else
-      {
-        cerr << "Matrix isn't a MatrixOffsetTransformBase or a TranslationTransform :-(\n";
-        std::abort();
-      }
+      // construct transform to represent translation
+      LinearTransformType::Pointer translationTransform = LinearTransformType::New();
+      translationTransform->SetIdentity();
+      translationTransform->SetTranslation(translation);
+      // if second argument is true, translationTransform is applied first,
+      // then linearTransform
+      linearTransform->Compose(translationTransform, true);
+    }
+    else if(translationTransform)
+    {
+      translationTransform->Translate(translation);
+    }
+    else
+    {
+      cerr << "Matrix isn't a MatrixOffsetTransformBase or a TranslationTransform :-(\n";
+      std::abort();
     }
   }
-  
-  void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
-  {
-    double translationScale, rotationScale;
-    registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
-    registrationParameters()["optimizer"]["scale"]["rotation"] >> rotationScale;
-  	itk::Array< double > scales( 5 );
-    scales[0] = 1.0;
-    scales[1] = translationScale;
-    scales[2] = translationScale;
-    scales[3] = translationScale;
-    scales[4] = translationScale;
-    optimizer->SetScales( scales );
-  }
-  
-  void SetOptimizerScalesForCenteredSimilarity2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
-  {
-    double translationScale, rotationScale, sizeScale;
-    registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
-    registrationParameters()["optimizer"]["scale"]["rotation"] >> rotationScale;
-    registrationParameters()["optimizer"]["scale"]["size"] >> sizeScale;
-  	itk::Array< double > scales( 6 );
-    scales[0] = sizeScale;
-    scales[1] = rotationScale;
-    scales[2] = translationScale;
-    scales[3] = translationScale;
-    scales[4] = translationScale;
-    scales[5] = translationScale;
-    optimizer->SetScales( scales );
-  }
-  
-  void SetOptimizerScalesForCenteredAffineTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
-  {
-    double translationScale, sizeScale;
-    registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
-    registrationParameters()["optimizer"]["scale"]["size"] >> sizeScale;
-  	itk::Array< double > scales( 8 );
-  	// four matrix elements
-    scales[0] = sizeScale;
-    scales[1] = sizeScale;
-    scales[2] = sizeScale;
-    scales[3] = sizeScale;
-  	// two centre coordinates
-    scales[4] = translationScale;
-    scales[5] = translationScale;
-  	// two translation coordinates
-    scales[6] = translationScale;
-    scales[7] = translationScale;
-    optimizer->SetScales( scales );
-  }
 
+  // Translate the entire stack
   template <typename StackType>
-  void SetOptimizerScalesForBSplineDeformableTransform(StackType &stack, itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
+  void Translate(StackType& stack, const itk::Vector< double, 2 > translation)
   {
-    typedef itk::SingleValuedNonLinearOptimizer::ScalesType ScalesType;
-    ScalesType optimizerScales = ScalesType( stack.GetTransform(0)->GetNumberOfParameters() );
-    optimizerScales.Fill( 1.0 );
-    
-    optimizer->SetScales( optimizerScales );
-    
-  }
-  
-  template <typename StackType>
-  void ConfigureLBFGSBOptimizer(unsigned int numberOfParameters, itk::LBFGSBOptimizer::Pointer optimizer)
-  {
-    // From Example
-    itk::LBFGSBOptimizer::BoundSelectionType boundSelect( numberOfParameters );
-    itk::LBFGSBOptimizer::BoundValueType upperBound( numberOfParameters );
-    itk::LBFGSBOptimizer::BoundValueType lowerBound( numberOfParameters );
-    
-    boundSelect.Fill( 0 );
-    upperBound.Fill( 0.0 );
-    lowerBound.Fill( 0.0 );
-    
-    optimizer->SetBoundSelection( boundSelect );
-    optimizer->SetUpperBound( upperBound );
-    optimizer->SetLowerBound( lowerBound );
-    
-    optimizer->SetCostFunctionConvergenceFactor( 1e+12 );
-    optimizer->SetProjectedGradientTolerance( 1.0 );
-    optimizer->SetMaximumNumberOfIterations( 500 );
-    optimizer->SetMaximumNumberOfEvaluations( 500 );
-    optimizer->SetMaximumNumberOfCorrections( 5 );
-    
-    // Create an observer and register it with the optimizer
-    typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
-    StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
-    optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
-    
+    // attempt to cast stack transforms and apply translation
+    for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
+    {
+      Translate(stack, translation, slice_number);
+    }
   }
   
 }

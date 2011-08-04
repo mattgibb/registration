@@ -72,7 +72,7 @@ module ImageProcessing
     end
     
     def cached_remote_files
-      @remote_files ||= @ftp.list(@remote_dir).map {|f| File.basename f }
+      @cached_remote_files ||= remote_files
     end
     
     def local_files

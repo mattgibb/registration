@@ -1,0 +1,19 @@
+# maskShrinkFactor: 0.75
+
+optimizer:
+  maximize: off
+  scale:
+    translation: 0.00001 # What is an appropriate 2D translation scale?
+    rotation: 1
+  maxIterations: 100
+  regularStepGradientDescent:
+    relaxationFactor: 0.8
+    maxStepLength: 1000
+    minStepLength: 1
+    gradientMagnitudeTolerance: 0.0001
+  # gradientDescent:
+  #   # gradually increase learning rate from low value until it becomes unstable
+  #   learningRate: 10
+
+metric:
+  meanSquares:
