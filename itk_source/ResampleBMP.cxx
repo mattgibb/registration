@@ -36,9 +36,7 @@ int main(int argc, char const *argv[]) {
   Dirs::SetOutputDirName(argv[2]);
   
   // set region of interest
-  string roi;
-  if(argc >=6) roi = argv[5];
-  else         roi = "whole_heart";
+  string roi = argc >=6 ? argv[5] : "whole_heart";
   
   // get file names
   vector< string > LoResFilePaths, HiResFilePaths;
