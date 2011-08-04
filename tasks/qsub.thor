@@ -1,6 +1,8 @@
 # Binary command-line interface for the supercomputing cluster
 
 require File.expand_path("../init", __FILE__)
+require 'fileutils'
+include FileUtils::Verbose
 
 class Qsub < Thor
   include Thor::Actions
@@ -19,10 +21,15 @@ class Qsub < Thor
 
     image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
     image_list = image.empty? ? File.read(image_list_file).split.join(' ') : image
-    command = %{for image in #{image_list}
-      do echo #{File.join PBS_DIR, 'build_volumes'} #{dataset} #{output_dir} $image | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
-    done}
+    job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
+    command = %{
+      mkdir -p #{job_output_dir}
+      cd #{job_output_dir} && \
+      for image in #{image_list}
+        do echo #{File.join PBS_DIR, 'build_volumes'} #{dataset} #{output_dir} $image | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
+      done}
     run command, :capture => false
+    run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
   
   desc "resample_bmp DATASET OUTPUT_DIR", "generate registered colour volume"
