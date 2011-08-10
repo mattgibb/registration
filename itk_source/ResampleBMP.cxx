@@ -1,7 +1,5 @@
 // Load transforms and build RGB volumes from images
 
-#include "boost/filesystem.hpp"
-
 #include "itkRGBPixel.h"
 #include "itkVectorResampleImageFilter.h"
 
@@ -17,49 +15,102 @@
 #include "Parameters.hpp"
 #include "Profiling.hpp"
 
+// boost
+#include "boost/filesystem.hpp"
+#include "boost/program_options.hpp"
 
-void checkUsage(int argc, char const *argv[]) {
-  if( argc < 3 )
-  {
-    cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet outputDir (loResDSRatio hiResDSRatio roi)\n\n";
+using namespace boost;
+namespace po = boost::program_options;
+
+po::variables_map parse_arguments(int argc, char *argv[])
+{
+  // Declare the supported options.
+  po::options_description opts("Options");
+  opts.add_options()
+      ("help,h", "produce help message")
+      ("dataSet", po::value<string>(), "which rat to use")
+      ("outputDir", po::value<string>(), "directory to place results")
+      ("roi", po::value<string>()->default_value("whole_heart"), "set region of interest")
+      ("loResRatio", po::value<string>(), "LoRes ratio used to source transforms")
+      ("hiResRatio", po::value<string>(), "HiRes ratio used to source transforms")
+
+      // three different ways of not specifying value for flag
+      // implicit_value(true) allows syntax like -H0 and --no-HiRes=0,
+      // rather than just the flag e.g. -H or --no-HiRes
+      ("no-LoRes,L", po::value<bool>()->zero_tokens(), "do not generate LoRes image")
+      ("no-HiRes,H", po::bool_switch(), "do not generate HiRes image")
+      // ("no-HiRes,H", po::value(&noHiRes)->implicit_value(true), "do not generate HiRes image")
+  ;
+  
+  po::positional_options_description p;
+  p.add("dataSet", 1)
+   .add("outputDir", 1);
+  
+  // parse command line
+  po::variables_map vm;
+	try
+	{
+  po::store(po::command_line_parser(argc, argv)
+            .options(opts)
+            .positional(p)
+            .run(),
+            vm);
+	}
+	catch (std::exception& e)
+	{
+	  cerr << "caught command-line parsing error" << endl;
+    std::cerr << e.what() << std::endl;
     exit(EXIT_FAILURE);
   }
+  po::notify(vm);
+  
+  // if help is specified, or positional args aren't present
+  if (vm.count("help") || !vm.count("dataSet") || !vm.count("outputDir")) {
+    cerr << "Usage: "
+      << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [Options]"
+      << endl << endl;
+    cerr << opts << "\n";
+    exit(EXIT_FAILURE);
+  }
+    
+  return vm;
 }
 
-int main(int argc, char const *argv[]) {
-	// Verify the number of parameters in the command line
-	checkUsage(argc, argv);
-	
-	// Process command line arguments
-  Dirs::SetDataSet(argv[1]);
-  Dirs::SetOutputDirName(argv[2]);
+
+int main(int argc, char *argv[]) {
+  po::variables_map vm = parse_arguments(argc, argv);
   
-  // set region of interest
-  string roi = argc >=6 ? argv[5] : "whole_heart";
+	// Process command line arguments
+  Dirs::SetDataSet( vm["dataSet"].as<string>() );
+  Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
+  bool LoRes = !vm.count("no-LoRes");
+  bool HiRes = !vm["no-HiRes"].as<bool>();
+  string roi = vm["roi"].as<string>();
   
   // get file names
   vector< string > LoResFilePaths, HiResFilePaths;
-  LoResFilePaths = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
-  HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
+  if(LoRes) LoResFilePaths = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
+  if(HiRes) HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
 	
   // initialise stack with correct spacings, sizes, transforms etc
   typedef itk::RGBPixel< unsigned char > PixelType;
   typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFilePaths);
-  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
-  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages, roi);
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);
+  StackType::SliceVectorType LoResImages, HiResImages;
+  if(LoRes) LoResImages = readImages< StackType >(LoResFilePaths);
+  if(HiRes) HiResImages = readImages< StackType >(HiResFilePaths);
+  boost::shared_ptr< StackType > LoResStack, HiResStack;
+  if(LoRes) LoResStack = InitializeLoResStack<StackType>(LoResImages, roi);
+  if(HiRes) HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);
   
-  HiResStack->SetDefaultPixelValue( 255 );
+  if(HiRes) HiResStack->SetDefaultPixelValue( 255 );
   
   // Load transforms from files
   // get downsample ratios
   string LoResDownsampleRatio, HiResDownsampleRatio;
-  if( argc >= 5 )
+  if( vm.count("loResRatio") && vm.count("hiResRatio") )
   {
-    LoResDownsampleRatio = argv[3];
-    HiResDownsampleRatio = argv[4];
+    LoResDownsampleRatio = vm["loResRatio"].as<string>();
+    HiResDownsampleRatio = vm["hiResRatio"].as<string>();
   }
   else
   {
@@ -73,24 +124,24 @@ int main(int argc, char const *argv[]) {
   string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   
-  Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
-  Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
+  if(LoRes) Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
+  if(HiRes) Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
-  StackTransforms::Translate(*LoResStack, translation);
-  StackTransforms::Translate(*HiResStack, translation);
+  if(LoRes) StackTransforms::Translate(*LoResStack, translation);
+  if(HiRes) StackTransforms::Translate(*HiResStack, translation);
   
   // generate images
-  LoResStack->updateVolumes();
-  HiResStack->updateVolumes();
+  if(LoRes) LoResStack->updateVolumes();
+  if(HiRes) HiResStack->updateVolumes();
   
   // Write bmps
   using namespace boost::filesystem;
   create_directory( Dirs::ColourDir() );
   
-  writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (path( Dirs::ColourDir() ) / "LoRes.mha").string());
-  writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (path( Dirs::ColourDir() ) / "HiRes.mha").string());
+  if(LoRes) writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (path( Dirs::ColourDir() ) / "LoRes.mha").string());
+  if(HiRes) writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (path( Dirs::ColourDir() ) / "HiRes.mha").string());
   
   return EXIT_SUCCESS;
 }
