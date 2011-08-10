@@ -14,11 +14,11 @@ class Dirs {
 public:
   static string GetDataSet();
   
-  static void SetDataSet(const string dataSet);
+  static void SetDataSet(const string& dataSet);
   
-  static void SetOutputDirName(const string outputDirName);
+  static void SetOutputDirName(const string& outputDirName);
   
-  static void SetParamsFile(string paramsFile);
+  static void SetParamsFile(const string& paramsFile);
   
   // makes sure _dataSet has been set
   // before returning dependent path strings

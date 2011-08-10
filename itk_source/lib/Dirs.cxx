@@ -18,17 +18,17 @@ string Dirs::GetDataSet()
   return _dataSet;
 }
 
-void Dirs::SetDataSet(const string dataSet)
+void Dirs::SetDataSet(const string& dataSet)
 {
   _dataSet = dataSet;
 }
 
-void Dirs::SetOutputDirName(const string outputDirName)
+void Dirs::SetOutputDirName(const string& outputDirName)
 {
   _outputDirName = outputDirName;
 }
 
-void Dirs::SetParamsFile(string paramsFile)
+void Dirs::SetParamsFile(const string& paramsFile)
 {
   _paramsFile = paramsFile;
 }
