@@ -85,10 +85,6 @@ public:
         const typename VolumeType::SpacingType& inputSpacings, const typename SliceType::SizeType& inputSize);
 	
 protected:
-  void readImages();
-  
-  // void normalizeImages();
-  
   void initializeVectors();
   
   void scaleOriginalSlices();

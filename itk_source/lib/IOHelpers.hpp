@@ -32,7 +32,7 @@ inline vector< string > getFilePaths(const string& directory, const string& file
   // use boost filesystem to handle presence/absence of trailing slash on directory
   path directoryPath(directory);
   
-  vector< string > fileNames = getFileNames(fileList), filePaths;  
+  vector< string > fileNames = getFileNames(fileList), filePaths;
   for(vector< string >::iterator it = fileNames.begin(); it != fileNames.end(); ++it)
   {
     filePaths.push_back( (directoryPath / *it).string() );

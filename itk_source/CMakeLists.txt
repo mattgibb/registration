@@ -81,4 +81,8 @@ ADD_EXECUTABLE(Register2Slices Register2Slices.cxx )
 TARGET_LINK_LIBRARIES(Register2Slices ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(SplitVolumeIntoSlices SplitVolumeIntoSlices.cxx )
+TARGET_LINK_LIBRARIES(SplitVolumeIntoSlices ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs)
+
 ADD_SUBDIRECTORY(test)
