@@ -85,4 +85,8 @@ ADD_EXECUTABLE(SplitVolumeIntoSlices SplitVolumeIntoSlices.cxx )
 TARGET_LINK_LIBRARIES(SplitVolumeIntoSlices ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs)
 
+ADD_EXECUTABLE(VolumeReadWrite VolumeReadWrite.cxx )
+TARGET_LINK_LIBRARIES(VolumeReadWrite ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
