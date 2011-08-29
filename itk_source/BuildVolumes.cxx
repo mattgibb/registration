@@ -1,4 +1,5 @@
 #include "boost/filesystem.hpp"
+#include "boost/program_options.hpp"
 
 #include <assert.h>
 #include "itkCenteredSimilarity2DTransform.h"
@@ -17,29 +18,71 @@
 #include "OptimizerConfig.hpp"
 #include "Profiling.hpp"
 
-void checkUsage(int argc, char const *argv[]) {
-  if( argc < 3 )
-  {
-    cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " dataSet outputDir (slice)\n\n";
+
+namespace po = boost::program_options;
+using namespace boost::filesystem;
+
+po::variables_map parse_arguments(int argc, char *argv[])
+{
+  // Declare the supported options.
+  po::options_description opts("Options");
+  opts.add_options()
+      ("help,h", "produce help message")
+      ("dataSet", po::value<string>(), "which rat to use")
+      ("outputDir", po::value<string>(), "directory to place results")
+      ("slice", po::value<string>(), "optional individual slice to register")
+  ;
+  
+  po::positional_options_description p;
+  p.add("dataSet", 1)
+   .add("outputDir", 1)
+   .add("slice", 1);
+  
+  // parse command line
+  po::variables_map vm;
+	try
+	{
+  po::store(po::command_line_parser(argc, argv)
+            .options(opts)
+            .positional(p)
+            .run(),
+            vm);
+	}
+	catch (std::exception& e)
+	{
+	  cerr << "caught command-line parsing error" << endl;
+    std::cerr << e.what() << std::endl;
     exit(EXIT_FAILURE);
   }
+  po::notify(vm);
+  
+  // if help is specified, or positional args aren't present
+  if (vm.count("help") || !vm.count("dataSet") || !vm.count("outputDir")) {
+    cerr << "Usage: "
+      << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir"
+      << " [[--slice=]0530.bmp] [Options]"
+      << endl << endl;
+    cerr << opts << "\n";
+    exit(EXIT_FAILURE);
+  }
+  
+  return vm;
 }
 
-int main(int argc, char const *argv[]) {
-  using namespace boost::filesystem;
+int main(int argc, char *argv[]) {
   
-  // Verify the number of parameters in the command line
-  checkUsage(argc, argv);
+  // Parse command line arguments
+  po::variables_map vm = parse_arguments(argc, argv);
   
   // Process command line arguments
-  Dirs::SetDataSet(argv[1]);
-  Dirs::SetOutputDirName(argv[2]);
+  Dirs::SetDataSet( vm["dataSet"].as<string>() );
+  Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
+  
   vector< string > LoResFileNames, HiResFileNames;
-  if( argc >= 4)
+  if( vm.count("slice") )
   {
-    LoResFileNames.push_back(Dirs::BlockDir() + argv[3]);
-    HiResFileNames.push_back(Dirs::SliceDir() + argv[3]);
+    LoResFileNames.push_back(Dirs::BlockDir() + vm["slice"].as<string>());
+    HiResFileNames.push_back(Dirs::SliceDir() + vm["slice"].as<string>());
   }
   else
   {
@@ -70,7 +113,7 @@ int main(int argc, char const *argv[]) {
   
   // Generate fixed images to register against
   LoResStack->updateVolumes();
-  if( argc < 4)
+  if( vm.count("slice") )
   {
     writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResStack.mha" );
   }
@@ -96,7 +139,7 @@ int main(int argc, char const *argv[]) {
   itkProbesReport( std::cout );
   
   // write rigid transforms
-  if( argc < 4)
+  if( vm.count("slice") )
   {
     HiResStack->updateVolumes();
     writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResRigidStack.mha" );
@@ -111,7 +154,7 @@ int main(int argc, char const *argv[]) {
   stackAligner.Update();
   
   // write similarity transforms
-  if(argc < 4)
+  if( vm.count("slice") )
   {
     HiResStack->updateVolumes();
     writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResSimilarityStack.mha" );
@@ -122,7 +165,7 @@ int main(int argc, char const *argv[]) {
   OptimizerConfig::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
   stackAligner.Update();
   
-  if(argc < 4)
+  if( vm.count("slice") )
   {
     HiResStack->updateVolumes();
     writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResAffineStack.mha" );
