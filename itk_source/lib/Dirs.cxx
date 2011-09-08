@@ -80,6 +80,12 @@ string Dirs::HiResTransformsDir()
   return ResultsDir() + "HiResTransforms_" + DownsampleSuffix();
 }
 
+string Dirs::SlicePairTransformsDir()
+{
+  // read transforms from directories labeled by both ds ratios
+  return ResultsDir() + "SlicePairTransforms_" + DownsampleSuffix();
+}
+
 string Dirs::ColourDir()
 {
   return Dirs::ResultsDir() + "ColourResamples_" + DownsampleSuffix();
