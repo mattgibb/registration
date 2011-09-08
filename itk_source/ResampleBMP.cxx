@@ -22,60 +22,7 @@
 using namespace boost;
 namespace po = boost::program_options;
 
-po::variables_map parse_arguments(int argc, char *argv[])
-{
-  // Declare the supported options.
-  po::options_description opts("Options");
-  opts.add_options()
-      ("help,h", "produce help message")
-      ("dataSet", po::value<string>(), "which rat to use")
-      ("outputDir", po::value<string>(), "directory to place results")
-      ("roi", po::value<string>()->default_value("whole_heart"), "set region of interest")
-      ("loResRatio", po::value<string>(), "LoRes ratio used to source transforms")
-      ("hiResRatio", po::value<string>(), "HiRes ratio used to source transforms")
-
-      // three different ways of not specifying value for flag
-      // implicit_value(true) allows syntax like -H0 and --no-HiRes=0,
-      // rather than just the flag e.g. -H or --no-HiRes
-      ("no-LoRes,L", po::value<bool>()->zero_tokens(), "do not generate LoRes image")
-      ("no-HiRes,H", po::bool_switch(), "do not generate HiRes image")
-      // ("no-HiRes,H", po::value(&noHiRes)->implicit_value(true), "do not generate HiRes image")
-  ;
-  
-  po::positional_options_description p;
-  p.add("dataSet", 1)
-   .add("outputDir", 1);
-  
-  // parse command line
-  po::variables_map vm;
-	try
-	{
-  po::store(po::command_line_parser(argc, argv)
-            .options(opts)
-            .positional(p)
-            .run(),
-            vm);
-	}
-	catch (std::exception& e)
-	{
-	  cerr << "caught command-line parsing error" << endl;
-    std::cerr << e.what() << std::endl;
-    exit(EXIT_FAILURE);
-  }
-  po::notify(vm);
-  
-  // if help is specified, or positional args aren't present
-  if (vm.count("help") || !vm.count("dataSet") || !vm.count("outputDir")) {
-    cerr << "Usage: "
-      << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [Options]"
-      << endl << endl;
-    cerr << opts << "\n";
-    exit(EXIT_FAILURE);
-  }
-    
-  return vm;
-}
-
+po::variables_map parse_arguments(int argc, char *argv[]);
 
 int main(int argc, char *argv[]) {
   po::variables_map vm = parse_arguments(argc, argv);
@@ -144,4 +91,58 @@ int main(int argc, char *argv[]) {
   if(HiRes) writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (path( Dirs::ColourDir() ) / "HiRes.mha").string());
   
   return EXIT_SUCCESS;
+}
+
+po::variables_map parse_arguments(int argc, char *argv[])
+{
+  // Declare the supported options.
+  po::options_description opts("Options");
+  opts.add_options()
+      ("help,h", "produce help message")
+      ("dataSet", po::value<string>(), "which rat to use")
+      ("outputDir", po::value<string>(), "directory to place results")
+      ("roi", po::value<string>()->default_value("whole_heart"), "set region of interest")
+      ("loResRatio", po::value<string>(), "LoRes ratio used to source transforms")
+      ("hiResRatio", po::value<string>(), "HiRes ratio used to source transforms")
+
+      // three different ways of not specifying value for flag
+      // implicit_value(true) allows syntax like -H0 and --no-HiRes=0,
+      // rather than just the flag e.g. -H or --no-HiRes
+      ("no-LoRes,L", po::value<bool>()->zero_tokens(), "do not generate LoRes image")
+      ("no-HiRes,H", po::bool_switch(), "do not generate HiRes image")
+      // ("no-HiRes,H", po::value(&noHiRes)->implicit_value(true), "do not generate HiRes image")
+  ;
+  
+  po::positional_options_description p;
+  p.add("dataSet", 1)
+   .add("outputDir", 1);
+  
+  // parse command line
+  po::variables_map vm;
+	try
+	{
+  po::store(po::command_line_parser(argc, argv)
+            .options(opts)
+            .positional(p)
+            .run(),
+            vm);
+	}
+	catch (std::exception& e)
+	{
+	  cerr << "caught command-line parsing error" << endl;
+    std::cerr << e.what() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  po::notify(vm);
+  
+  // if help is specified, or positional args aren't present
+  if (vm.count("help") || !vm.count("dataSet") || !vm.count("outputDir")) {
+    cerr << "Usage: "
+      << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [Options]"
+      << endl << endl;
+    cerr << opts << "\n";
+    exit(EXIT_FAILURE);
+  }
+    
+  return vm;
 }
