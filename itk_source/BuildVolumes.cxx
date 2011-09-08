@@ -59,8 +59,17 @@ int main(int argc, char *argv[]) {
   assert(LoResStack->GetSize() == HiResStack->GetSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
-  StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
-  ApplyAdjustments( *LoResStack, LoResFileNames, Dirs::ConfigDir() + "LoRes_adjustments/");
+  if( vm.count("blockDir") )
+    // if working with segmentations already in the right coordinate system,
+    // no need to apply transforms
+    StackTransforms::InitializeToIdentity(*LoResStack);
+  else
+  {
+    // if working from the original images, apply the necessary translation
+    StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
+    ApplyAdjustments( *LoResStack, LoResFileNames, Dirs::ConfigDir() + "LoRes_adjustments/");
+  }
+  
   StackTransforms::InitializeToCommonCentre( *HiResStack );
   StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
   
