@@ -5,6 +5,5 @@
 #PBS -N build_volumes
 
 cd $PBS_O_WORKDIR
-~/registration/itk_build_sal/BuildVolumes $1 $2 $3
+~/registration/itk_build_sal/BuildVolumes $@
 echo "finished."
-# date +%s >> dates

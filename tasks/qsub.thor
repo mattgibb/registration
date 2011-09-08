@@ -16,17 +16,19 @@ class Qsub < Thor
   end
 
   desc "build_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
+  method_option :blockDir, :type => :string
   def build_volumes(dataset, output_dir, image="")
     invoke :make, []
 
     image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
     image_list = image.empty? ? File.read(image_list_file).split.join(' ') : image
     job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
+    block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
     command = %{
       mkdir -p #{job_output_dir}
       cd #{job_output_dir} && \
       for image in #{image_list}
-        do echo #{File.join PBS_DIR, 'build_volumes'} #{dataset} #{output_dir} $image | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
+        do echo #{File.join PBS_DIR, 'build_volumes'} #{dataset} #{output_dir} --slice $image #{block_dir_flag} | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
       done}
     run command, :capture => false
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
