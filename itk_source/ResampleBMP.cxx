@@ -30,13 +30,14 @@ int main(int argc, char *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
+  string blockDir = vm.count("blockDir") ? vm["blockDir"].as<string>() + "/" : Dirs::BlockDir();
   bool LoRes = !vm.count("no-LoRes");
   bool HiRes = !vm["no-HiRes"].as<bool>();
   string roi = vm["roi"].as<string>();
   
   // get file names
   vector< string > LoResFilePaths, HiResFilePaths;
-  if(LoRes) LoResFilePaths = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
+  if(LoRes) LoResFilePaths = getFilePaths(blockDir, Dirs::SliceFile());
   if(HiRes) HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
 	
   // initialise stack with correct spacings, sizes, transforms etc
@@ -104,6 +105,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("roi", po::value<string>()->default_value("whole_heart"), "set region of interest")
       ("loResRatio", po::value<string>(), "LoRes ratio used to source transforms")
       ("hiResRatio", po::value<string>(), "HiRes ratio used to source transforms")
+      ("blockDir", po::value<string>(), "directory containing LoRes originals")
 
       // three different ways of not specifying value for flag
       // implicit_value(true) allows syntax like -H0 and --no-HiRes=0,
