@@ -7,11 +7,11 @@
 int main( int argc, char ** argv )
 {
   if( argc < 3 )
-    {
+  {
     std::cerr << "Usage:" << std::endl;
     std::cerr << argv[0] << " inputImageFile outputImageFile" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   typedef float      PixelType;
   const   unsigned int        Dimension = 3;

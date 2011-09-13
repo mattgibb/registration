@@ -4,7 +4,6 @@
 
 #include "boost/filesystem.hpp"
 
-#include "itkIdentityTransform.h"
 #include "itkTranslationTransform.h"
 #include "itkCenteredRigid2DTransform.h"
 #include "itkCenteredAffineTransform.h"
@@ -36,12 +35,14 @@ namespace StackTransforms {
   
   template <typename StackType>
   void InitializeToIdentity(StackType& stack) {
-    typedef itk::IdentityTransform< double, 2 > TransformType;
+    typedef itk::TranslationTransform< double, 2 > TransformType;
+    
     typename StackType::TransformVectorType newTransforms;
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
       typename StackType::TransformType::Pointer transform( TransformType::New() );
+      transform->SetIdentity();
       newTransforms.push_back( transform );
 		}
 		
@@ -127,7 +128,8 @@ namespace StackTransforms {
       }
       else
       {
-        cerr << "Matrix isn't a MatrixOffsetTransformBase :-(\n";
+        cerr << "slice " << slice_number << " isn't a MatrixOffsetTransformBase :-(\n";
+        cerr << "stack.GetTransform(slice_number): " << stack.GetTransform(slice_number) << endl;
         std::abort();
       }
       
@@ -225,7 +227,8 @@ namespace StackTransforms {
     }
     else
     {
-      cerr << "Matrix isn't a MatrixOffsetTransformBase or a TranslationTransform :-(\n";
+      cerr << "slice " << slice_number << " isn't a MatrixOffsetTransformBase or a TranslationTransform :-(\n";
+      cerr << "stack.GetTransform(slice_number): " << stack.GetTransform(slice_number) << endl;
       std::abort();
     }
   }
