@@ -41,9 +41,10 @@ namespace StackTransforms {
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-      typename StackType::TransformType::Pointer transform( TransformType::New() );
-      transform->SetIdentity();
-      newTransforms.push_back( transform );
+      TransformType::Pointer transform = TransformType::New();
+      transform->SetIdentity();      
+      typename StackType::TransformType::Pointer baseTransform( transform );
+      newTransforms.push_back( baseTransform );
 		}
 		
     stack.SetTransforms(newTransforms);
@@ -112,9 +113,9 @@ namespace StackTransforms {
     const typename StackType::TransformVectorType& movingTransforms = movingStack.GetTransforms();
     
     // set the moving slices' centre of rotation to the centre of the fixed image
-    for(unsigned int i=0; i<movingStack.GetSize(); ++i)
+    for(unsigned int slice_number=0; slice_number<movingStack.GetSize(); ++slice_number)
     {
-      LinearTransformType::Pointer transform = dynamic_cast< LinearTransformType* >( movingTransforms[i].GetPointer() );
+      LinearTransformType::Pointer transform = dynamic_cast< LinearTransformType* >( movingTransforms[slice_number].GetPointer() );
       if(transform)
       {
         const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
@@ -128,8 +129,8 @@ namespace StackTransforms {
       }
       else
       {
-        cerr << "slice " << slice_number << " isn't a MatrixOffsetTransformBase :-(\n";
-        cerr << "stack.GetTransform(slice_number): " << stack.GetTransform(slice_number) << endl;
+        cerr << "transform " << slice_number << " isn't a MatrixOffsetTransformBase :-(\n";
+        cerr << "transform: " << transform << endl;
         std::abort();
       }
       
