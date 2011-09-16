@@ -127,7 +127,7 @@ void RegistrationBuilder< StackType >::buildOptimizer() {
     OptimizerType::Pointer specificOptimizer = OptimizerType::New();
     
     double learningRate;
-    optimizerParameters["gradientDescent"] >> learningRate;
+    optimizerParameters["gradientDescent"]["learningRate"] >> learningRate;
     specificOptimizer->SetLearningRate( learningRate );
     specificOptimizer->SetNumberOfIterations( maxIterations );
     
