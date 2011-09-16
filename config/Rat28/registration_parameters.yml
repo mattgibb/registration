@@ -20,8 +20,10 @@ optimizer:
 
 metric:
   # uncomment name of metric you wish to use
-  meanSquares:
-  # normalizedCorrelation:
+  # set maximise: on with normalizedCorrelation, off for mattesMutualInformation,
+  # meanSquares should be minimized if dark corresponds to dark, light to light.
+  # meanSquares:
+  normalizedCorrelation:
   # mattesMutualInformation:
   #   # numberOfSpatialSamples: 24000
   #   numberOfSpatialSamples: 3000
