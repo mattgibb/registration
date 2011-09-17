@@ -26,19 +26,19 @@ module ImageProcessing
     end
     
     def remote_originals
-      @remote_originals ||= @ftp.list(@config.remote_originals_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
+      @remote_originals ||= image_basenames @ftp.list(@config.remote_originals_dir)
     end
     
     def local_originals
-      Dir[File.join(@config.local_originals_dir, '*.bmp')].map {|f| File.basename f }
+      image_basenames Dir[File.join(@config.local_originals_dir, '*')]
     end
 
     def local_downsamples
-      Dir[File.join(@config.local_downsamples_dir, '*.bmp')].map {|f| File.basename f }
+      image_basenames Dir[File.join(@config.local_downsamples_dir, '*')]
     end
 
     def remote_downsamples
-      @ftp.list(@config.remote_downsamples_dir).select {|f| File.fnmatch? "*.bmp", f }.map {|f| File.basename f }
+      image_basenames @ftp.list(@config.remote_downsamples_dir)
     end
     
     def error_files
@@ -86,5 +86,20 @@ module ImageProcessing
         File.open(File.join(@config.local_dataset_dir, "error_files.txt"), "a") {|f| f.puts filename }
         puts "Downsampling failed. Filename has been appended to 'error_files.txt'."
     end
+    
+    private
+    
+      def is_an_image?(file)
+        (file =~ /\.(bmp|jpg)$/i) ? true : false
+      end
+    
+      def image_basenames(files)
+        files.select do |f|
+          is_an_image? f
+        end.map do |f|
+          File.basename f
+        end
+      end
+    
   end
 end
