@@ -1,0 +1,4 @@
+:host: 'nas-mef3.physiol.ox.ac.uk'
+:user: 'mef'
+:password: 'meflab'
+:dir: 'NAS-MEF3/Goat/ExpsMaesen-Aug09/PersistentAF/11081/Histology/High Res/5x Objective'
