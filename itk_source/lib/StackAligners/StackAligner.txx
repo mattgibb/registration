@@ -71,6 +71,7 @@ bool StackAligner< StackType >::tryRegistration() {
       exit(EXIT_FAILURE);
     }
     
+    cerr << "Tried " << tries << " times...\n";
     cerr << err.GetNameOfClass() << " caught, halving block image width and height." << endl;
     cerr << err << endl;
     return false;
