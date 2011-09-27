@@ -39,8 +39,15 @@ void StackAligner< StackType >::Update() {
       // halve the width and height of the LoRes mask for each slice
       // until optimiser stops throwing errors
       cout << "Trying registration..." << endl;
-      
+      unsigned int tries = 0;
+
       while( !tryRegistration() ) {
+        if(++tries > 5)
+        {
+          cerr << "Tried registration too many times." << endl;
+          break;
+        }
+        cerr << "Tried " << tries << " times...\n\n";
         m_LoResStack.ShrinkMaskSlice(slice_number);
       }
     }
@@ -57,7 +64,6 @@ bool StackAligner< StackType >::bothImagesExist(unsigned int slice_number) {
 
 template <typename StackType>
 bool StackAligner< StackType >::tryRegistration() {
-  unsigned int tries = 0;
   try {
     m_registration->Update();
     cout << "Optimizer stop condition: "
@@ -65,12 +71,6 @@ bool StackAligner< StackType >::tryRegistration() {
     return true;
   }
   catch( itk::ExceptionObject & err ) {
-    if(++tries > 5)
-    {
-      cerr << "Tried registration too many times." << endl;
-      exit(EXIT_FAILURE);
-    }
-    
     cerr << err.GetNameOfClass() << " caught, halving block image width and height." << endl;
     cerr << err << endl;
     return false;
