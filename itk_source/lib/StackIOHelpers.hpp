@@ -11,6 +11,7 @@
 
 #include "Stack.hpp"
 #include "StackTransforms.hpp"
+#include "Dirs.hpp"
 
 using namespace boost::filesystem;
 
@@ -132,40 +133,38 @@ void ApplyAdjustments(StackType& stack, vector< string > fileNames, const string
   }
 }
 
-
-template <typename StackType>
-void saveNumberOfTimesTooBig(StackType& stack, const string& fileName)
+template <typename DataType>
+void saveVectorToFiles(const vector< DataType >& values, const string& dirName, const vector< string >& fileNames)
 {
-  const vector< unsigned int >& numbers = stack.GetNumberOfTimesTooBig();
-  ofstream outfile(fileName.c_str());
-  for(vector< unsigned int >::const_iterator cit = numbers.begin();
-    cit != numbers.end(); ++cit)
+  assert(values.size() == fileNames.size());
+  
+  path pathName = Dirs::ResultsDir() + dirName;
+  create_directory(pathName);
+  
+  for(unsigned int i=0; i<values.size(); ++i)
   {
-    outfile << *cit << "\n";
+    path outPath = pathName / fileNames[i];
+    ofstream outFile(outPath.string().c_str());
+    outFile << values[i] << endl;
   }
 }
 
-template <typename StackType>
-void loadNumberOfTimesTooBig(StackType& stack, const string& fileName)
+template <typename DataType>
+vector< DataType > loadVectorFromFiles(const string& dirName,  const vector< string >& fileNames)
 {
-  ifstream infile(fileName.c_str());
-  assert(infile.is_open());
-  unsigned int nottb, nol = 0;
-  while ( !infile.eof() )
+  path pathName = Dirs::ResultsDir() + dirName;
+  typename vector< DataType >::size_type numberOfFiles = fileNames.size();
+  vector< DataType > values(numberOfFiles);
+  
+  for(unsigned int i=0; i<fileNames.size(); ++i)
   {
-    infile >> nottb;
-    
-    // if not e.g. an empty line
-    if( !infile.fail() )
-    {
-      for(unsigned int i=0; i<nottb; ++i)
-      {
-        stack.ShrinkMaskSlice(nol);
-      }
-      ++nol;
-    }
+    path inPath = pathName / fileNames[i];
+    ifstream inFile(inPath.string().c_str());
+    assert(inFile.is_open());
+    inFile >> values[i];
   }
-  assert( nol == stack.GetSize() );
+  
+  return values;
 }
 
 

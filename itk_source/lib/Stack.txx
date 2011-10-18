@@ -53,7 +53,7 @@ spacings(inputSpacings) {
   calculateMaxSize();
   initializeFilters();
 }
-  
+
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
@@ -251,7 +251,7 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlice(
   // reduce dimensions by numberOfTimesTooBig, if necessary
   GenerateMaskSlice(slice_number);
 }
-	
+
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
@@ -293,6 +293,19 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::ShrinkMaskSlice
   
   // Regenerate the new smaller slice mask
   GenerateMaskSlice(slice_number);
+}
+
+template <typename TPixel,
+          template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
+          template<typename TInputImage, typename TCoordRep> class InterpolatorType >
+void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::SetNumberOfTimesTooBig(const vector< unsigned int >& numbers)
+{
+  numberOfTimesTooBig = numbers;
+  
+	for(unsigned int slice_number=0; slice_number<GetSize(); ++slice_number)
+  {
+    GenerateMaskSlice(slice_number);
+  }
 }
 
 template <typename TPixel,

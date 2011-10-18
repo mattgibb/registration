@@ -141,7 +141,11 @@ int main(int argc, char *argv[]) {
   LoResStack->updateVolumes();
   
   // persist mask numberOfTimesTooBig
-  saveNumberOfTimesTooBig(*HiResStack, Dirs::ResultsDir() + "numberOfTimesTooBig.txt");
+  vector< string > fileNames = getFileNames(Dirs::SliceFile());
+  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", fileNames );
+  
+  // persist final metric values
+  saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", fileNames );
   
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::LoResTransformsDir());

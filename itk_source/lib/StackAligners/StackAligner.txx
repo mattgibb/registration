@@ -14,8 +14,22 @@ StackAligner< StackType >::StackAligner(StackType &LoResStack,
                            {}
 
 template <typename StackType>
+double StackAligner< StackType >::GetOptimizerValue()
+{
+  typedef itk::GradientDescentOptimizer            GD;
+  typedef itk::RegularStepGradientDescentOptimizer RSGD;
+  
+  if(GD::Pointer gd = dynamic_cast< GD* >(m_registration->GetOptimizer()) )
+    return gd->GetValue();
+  if(RSGD::Pointer rsgd = dynamic_cast< RSGD* >(m_registration->GetOptimizer()) )
+    return rsgd->GetValue();
+  throw;
+}
+
+template <typename StackType>
 void StackAligner< StackType >::Update() {
   unsigned int number_of_slices = m_LoResStack.GetSize();
+  m_finalMetricValues = vector< double >(number_of_slices, NAN);
   
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
     cout << "slice number: " << slice_number << endl;
@@ -50,6 +64,11 @@ void StackAligner< StackType >::Update() {
         cerr << "Tried " << tries << " times...\n\n";
         m_LoResStack.ShrinkMaskSlice(slice_number);
       }
+      
+      if(tries <= 5)
+      {
+        m_finalMetricValues[slice_number] = GetOptimizerValue();
+      }
     }
   }
   
@@ -76,5 +95,12 @@ bool StackAligner< StackType >::tryRegistration() {
     return false;
   }
 }
+
+template <typename StackType>
+vector < double > StackAligner< StackType >::GetFinalMetricValues()
+{
+  return m_finalMetricValues;
+}
+
 
 #endif

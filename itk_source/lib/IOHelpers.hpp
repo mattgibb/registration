@@ -9,10 +9,10 @@
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 
-
 using namespace std;
 using namespace boost::filesystem;
 
+// get list of file names, with no directory, from text list
 inline vector < string > getFileNames(const string& fileList)
 {
   vector< string > fileNames;

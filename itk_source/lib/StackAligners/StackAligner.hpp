@@ -18,13 +18,18 @@ public:
                StackType &HiResStack,
                typename RegistrationType::Pointer registration);
 
-void Update();
+  void Update();
+  
+  vector < double > GetFinalMetricValues();
 	
+  
 protected:
   bool bothImagesExist(unsigned int slice_number);
   
   bool tryRegistration();
 
+  double GetOptimizerValue();
+  
 private:
   // Copy constructor and copy assignment operator Made private
   // so that no subclasses or clients can use them,
@@ -34,6 +39,7 @@ private:
   
   StackType &m_LoResStack, &m_HiResStack;
   typename RegistrationType::Pointer m_registration;
+  vector< double > m_finalMetricValues;
 };
 
 #include "StackAligner.txx"

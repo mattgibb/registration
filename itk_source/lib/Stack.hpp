@@ -167,6 +167,8 @@ public:
   
   const vector< unsigned int >& GetNumberOfTimesTooBig() { return numberOfTimesTooBig; }
   
+  void SetNumberOfTimesTooBig(const vector< unsigned int >& numbers);
+  
   void SetDefaultPixelValue(PixelType p) { resampler->SetDefaultPixelValue(p); }
   
 protected:
