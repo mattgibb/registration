@@ -16,7 +16,7 @@ optimizer:
   #   gradientMagnitudeTolerance: 0.0001
   gradientDescent:
     # gradually increase learning rate from low value until it becomes unstable
-    learningRate: 10
+    learningRate: 2
 
 metric:
   # uncomment name of metric you wish to use
