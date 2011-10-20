@@ -143,7 +143,7 @@ void saveVectorToFiles(const vector< DataType >& values, const string& dirName, 
   
   for(unsigned int i=0; i<values.size(); ++i)
   {
-    path outPath = pathName / fileNames[i];
+    path outPath = pathName / basename(fileNames[i]);
     ofstream outFile(outPath.string().c_str());
     outFile << values[i] << endl;
   }
@@ -158,7 +158,7 @@ vector< DataType > loadVectorFromFiles(const string& dirName,  const vector< str
   
   for(unsigned int i=0; i<fileNames.size(); ++i)
   {
-    path inPath = pathName / fileNames[i];
+    path inPath = pathName / basename(fileNames[i]);
     ifstream inFile(inPath.string().c_str());
     assert(inFile.is_open());
     inFile >> values[i];
