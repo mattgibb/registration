@@ -32,18 +32,19 @@ int main(int argc, char *argv[]) {
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   string blockDir = vm.count("blockDir") ? vm["blockDir"].as<string>() + "/" : Dirs::BlockDir();
+  string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
   vector< string > LoResFileNames, HiResFileNames;
   if( vm.count("slice") )
   {
     LoResFileNames.push_back(blockDir + vm["slice"].as<string>());
-    HiResFileNames.push_back(Dirs::SliceDir() + vm["slice"].as<string>());
+    HiResFileNames.push_back(sliceDir + vm["slice"].as<string>());
   }
   else
   {
     LoResFileNames = getFilePaths(blockDir, Dirs::SliceFile());
-    HiResFileNames = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
+    HiResFileNames = getFilePaths(sliceDir, Dirs::SliceFile());
   }
   
   // initialise stack objects with correct spacings, sizes etc
@@ -166,6 +167,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("outputDir", po::value<string>(), "directory to place results")
       ("slice", po::value<string>(), "optional individual slice to register")
       ("blockDir", po::value<string>(), "directory containing LoRes originals")
+      ("sliceDir", po::value<string>(), "directory containing HiRes originals")
       ("writeImages", po::bool_switch(), "output images and masks")
   ;
   
