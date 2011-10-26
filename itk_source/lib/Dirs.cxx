@@ -4,6 +4,7 @@
 #include "Dirs.hpp"
 #include <iostream>
 #include <stdlib.h>
+#include <boost/filesystem.hpp>
 #include "ProjectRootDir.h"
 #include "Parameters.hpp"
 
@@ -53,7 +54,12 @@ void Dirs::CheckOutputDirName()
 
 string Dirs::ProjectRootDir()
 {
-  return PROJECT_ROOT_DIR;
+  // return PROJECT_ROOT_DIR;
+
+  using namespace boost::filesystem;
+  // path filePath(PROJECT_ROOT_DIR);
+  path filePath(__FILE__);
+  return filePath.branch_path().branch_path().branch_path().string() + "/";
 }
 
 string Dirs::ImagesDir()
@@ -88,7 +94,7 @@ string Dirs::SlicePairTransformsDir()
 
 string Dirs::ColourDir()
 {
-  return Dirs::ResultsDir() + "ColourResamples_" + DownsampleSuffix();
+  return ResultsDir() + "ColourResamples_" + DownsampleSuffix();
 }
 
 string Dirs::BlockDir()
