@@ -35,22 +35,22 @@ int main(int argc, char *argv[]) {
   string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
-  vector< string > LoResFileNames, HiResFileNames;
+  vector< string > LoResFilePaths, HiResFilePaths;
   if( vm.count("slice") )
   {
-    LoResFileNames.push_back(blockDir + vm["slice"].as<string>());
-    HiResFileNames.push_back(sliceDir + vm["slice"].as<string>());
+    LoResFilePaths.push_back(blockDir + vm["slice"].as<string>());
+    HiResFilePaths.push_back(sliceDir + vm["slice"].as<string>());
   }
   else
   {
-    LoResFileNames = getFilePaths(blockDir, Dirs::SliceFile());
-    HiResFileNames = getFilePaths(sliceDir, Dirs::SliceFile());
+    LoResFilePaths = getFilePaths(blockDir, Dirs::SliceFile());
+    HiResFilePaths = getFilePaths(sliceDir, Dirs::SliceFile());
   }
   
   // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
-  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
+  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFilePaths);
+  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
   normalizeImages< StackType >(LoResImages);
   normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   {
     // if working from the original images, apply the necessary translation
     StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
-    ApplyAdjustments( *LoResStack, LoResFileNames, Dirs::ConfigDir() + "LoRes_adjustments/");
+    ApplyAdjustments( *LoResStack, LoResFilePaths, Dirs::ConfigDir() + "LoRes_adjustments/");
   }
   
   StackTransforms::InitializeToCommonCentre( *HiResStack );
@@ -141,18 +141,15 @@ int main(int argc, char *argv[]) {
   // Update LoRes as the masks might have shrunk
   LoResStack->updateVolumes();
   
-  // persist mask numberOfTimesTooBig
-  vector< string > fileNames = getFileNames(Dirs::SliceFile());
-  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", fileNames );
-  
-  // persist final metric values
-  saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", fileNames );
+  // persist mask numberOfTimesTooBig and final metric values
+  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", HiResFilePaths );
+  saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", HiResFilePaths );
   
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::LoResTransformsDir());
   create_directory(Dirs::HiResTransformsDir());
-  Save(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
-  Save(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
+  Save(*LoResStack, LoResFilePaths, Dirs::LoResTransformsDir());
+  Save(*HiResStack, HiResFilePaths, Dirs::HiResTransformsDir());
   
   return EXIT_SUCCESS;
 }
