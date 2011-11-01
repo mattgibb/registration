@@ -50,7 +50,6 @@ void Save(StackType& stack, vector< string > fileNames, const string& dirName)
   
 }
 
-
 template <typename StackType>
 void Load(StackType& stack, vector< string > fileNames, const string& dirName)
 {
@@ -138,12 +137,13 @@ void saveVectorToFiles(const vector< DataType >& values, const string& dirName, 
 {
   assert(values.size() == fileNames.size());
   
-  path pathName = Dirs::ResultsDir() + dirName;
-  create_directory(pathName);
+  path dirPath = Dirs::ResultsDir() + dirName;
+  create_directory(dirPath);
   
   for(unsigned int i=0; i<values.size(); ++i)
   {
-    path outPath = pathName / basename(fileNames[i]);
+    path leafName = basename( path(fileNames[i]).leaf() );
+    path outPath = dirPath / leafName;
     ofstream outFile(outPath.string().c_str());
     outFile << values[i] << endl;
   }
@@ -152,13 +152,13 @@ void saveVectorToFiles(const vector< DataType >& values, const string& dirName, 
 template <typename DataType>
 vector< DataType > loadVectorFromFiles(const string& dirName,  const vector< string >& fileNames)
 {
-  path pathName = Dirs::ResultsDir() + dirName;
+  path dirPath = Dirs::ResultsDir() + dirName;
   typename vector< DataType >::size_type numberOfFiles = fileNames.size();
   vector< DataType > values(numberOfFiles);
   
   for(unsigned int i=0; i<fileNames.size(); ++i)
   {
-    path inPath = pathName / basename(fileNames[i]);
+    path inPath = dirPath / basename( path(fileNames[i]).leaf() );
     ifstream inFile(inPath.string().c_str());
     assert(inFile.is_open());
     inFile >> values[i];

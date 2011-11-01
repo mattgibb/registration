@@ -71,14 +71,23 @@ int main(int argc, char *argv[]) {
     ApplyAdjustments( *LoResStack, LoResFilePaths, Dirs::ConfigDir() + "LoRes_adjustments/");
   }
   
-  StackTransforms::InitializeToCommonCentre( *HiResStack );
-  StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
+  // Generate fixed images to register against
+  LoResStack->updateVolumes();
+  
+  if( vm["pca"].as<bool>() )
+  {
+    // update both volumes so 
+    StackTransforms::InitializeWithPCA(*LoResStack, *HiResStack);
+  }
+  else
+  {
+    StackTransforms::InitializeToCommonCentre( *HiResStack );
+    StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
+  }
   
   // create output dir before write operations
   create_directory( Dirs::ResultsDir() );
   
-  // Generate fixed images to register against
-  LoResStack->updateVolumes();
   if( writeImages )
   {
     writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResStack.mha" );
@@ -166,6 +175,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("blockDir", po::value<string>(), "directory containing LoRes originals")
       ("sliceDir", po::value<string>(), "directory containing HiRes originals")
       ("writeImages", po::bool_switch(), "output images and masks")
+      ("pca", po::bool_switch(), "align principal axes of HiRes images with LoRes")
   ;
   
   po::positional_options_description p;

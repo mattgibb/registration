@@ -27,7 +27,7 @@ inline vector < string > getFileNames(const string& fileList)
   return fileNames;
 }
 
-
+// prepend directory to each filename in fileList and return vector of results
 inline vector< string > getFilePaths(const string& directory, const string& fileList) {
   // use boost filesystem to handle presence/absence of trailing slash on directory
   path directoryPath(directory);

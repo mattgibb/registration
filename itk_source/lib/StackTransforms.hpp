@@ -17,12 +17,14 @@
 #include "Dirs.hpp"
 #include "Parameters.hpp"
 #include "StdOutIterationUpdate.hpp"
+#include "CenteredTransformPCAInitializer.h"
 
 using namespace std;
 
 namespace StackTransforms {
   typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
   typedef itk::TranslationTransform< double, 2 > TranslationTransformType;
+  typedef itk::CenteredRigid2DTransform< double > CenteredRigid2DTransformType;
   
   itk::Vector< double, 2 > GetLoResTranslation(const string& roi) {
     itk::Vector< double, 2 > LoResTranslation;
@@ -35,13 +37,11 @@ namespace StackTransforms {
   
   template <typename StackType>
   void InitializeToIdentity(StackType& stack) {
-    typedef itk::TranslationTransform< double, 2 > TransformType;
-    
     typename StackType::TransformVectorType newTransforms;
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-      TransformType::Pointer transform = TransformType::New();
+      TranslationTransformType::Pointer transform = TranslationTransformType::New();
       transform->SetIdentity();      
       typename StackType::TransformType::Pointer baseTransform( transform );
       newTransforms.push_back( baseTransform );
@@ -53,16 +53,15 @@ namespace StackTransforms {
   
   template <typename StackType>
   void InitializeWithTranslation(StackType& stack, const itk::Vector< double, 2 > &translation) {
-    typedef itk::TranslationTransform< double, 2 > TransformType;
     typename StackType::TransformVectorType newTransforms;
-    TransformType::ParametersType parameters(2);
+    TranslationTransformType::ParametersType parameters(2);
     
     parameters[0] = translation[0];
     parameters[1] = translation[1];
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
-      typename StackType::TransformType::Pointer transform( TransformType::New() );
+      typename StackType::TransformType::Pointer transform( TranslationTransformType::New() );
       transform->SetParametersByValue( parameters );
       newTransforms.push_back( transform );
 		}
@@ -72,10 +71,42 @@ namespace StackTransforms {
   }
   
   template <typename StackType>
-  void InitializeToCommonCentre(StackType& stack) {
-    typedef itk::CenteredRigid2DTransform< double > TransformType;
+  void InitializeWithPCA(StackType& fixedStack, StackType& movingStack) {
+    typedef itk::CenteredTransformPCAInitializer<
+                   CenteredRigid2DTransformType,
+                   typename StackType::SliceType,
+                   typename StackType::SliceType > InitializerType;
+    
     typename StackType::TransformVectorType newTransforms;
-    TransformType::ParametersType parameters(5);
+    
+    for(unsigned int slice_number=0; slice_number<movingStack.GetSize(); slice_number++)
+		{
+		  // initialise new transform
+      CenteredRigid2DTransformType::Pointer transform = CenteredRigid2DTransformType::New();
+      typename InitializerType::Pointer initializer = InitializerType::New();
+      initializer->SetTransform( transform );
+      initializer->SetFixedImage( fixedStack.GetResampledSlice(slice_number) );
+      initializer->SetMovingImage( movingStack.GetOriginalImage(slice_number) );
+      try { initializer->InitializeTransform(); }
+      catch( itk::ExceptionObject & err )
+    	{
+        cerr << "itk::ExceptionObject caught while initialising transforms." << endl;
+        cerr << err << endl;
+    		std::abort();
+    	}
+      
+			// add it to transforms vector
+      typename StackType::TransformType::Pointer baseTransform( transform );
+      newTransforms.push_back( baseTransform );
+		}
+		
+    movingStack.SetTransforms(newTransforms);
+  }
+  
+  template <typename StackType>
+  void InitializeToCommonCentre(StackType& stack) {
+    typename StackType::TransformVectorType newTransforms;
+    CenteredRigid2DTransformType::ParametersType parameters(5);
     
     for(unsigned int i=0; i<stack.GetSize(); i++)
 		{
@@ -91,7 +122,7 @@ namespace StackTransforms {
 			parameters[4] = ( originalSpacings[1] * (double)originalSize[1] - spacings[1] * (double)resamplerSize[1] ) / 2.0;
 			
 			// set them to new transform
-      typename StackType::TransformType::Pointer transform( TransformType::New() );
+      typename StackType::TransformType::Pointer transform( CenteredRigid2DTransformType::New() );
       transform->SetParametersByValue( parameters );
       newTransforms.push_back( transform );
 		}
