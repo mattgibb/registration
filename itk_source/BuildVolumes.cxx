@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
   
   if( vm["pca"].as<bool>() )
   {
-    // update both volumes so 
+    // update both volumes so that their principal components align
     StackTransforms::InitializeWithPCA(*LoResStack, *HiResStack);
   }
   else

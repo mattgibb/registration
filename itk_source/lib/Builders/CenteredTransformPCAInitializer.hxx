@@ -53,8 +53,6 @@ CenteredTransformPCAInitializer< TTransform, TFixedImage, TMovingImage >
   m_FixedCalculator->Compute();
   m_MovingCalculator->SetImage(m_MovingImage);
   m_MovingCalculator->Compute();
-  cerr << "m_FixedImage: " << m_FixedImage << endl;
-  cerr << "m_MovingImage: " << m_MovingImage << endl;
   
   // calculate centre of rotation and translation
   typename FixedImageCalculatorType::VectorType fixedCenter =
@@ -62,8 +60,6 @@ CenteredTransformPCAInitializer< TTransform, TFixedImage, TMovingImage >
 
   typename MovingImageCalculatorType::VectorType movingCenter =
     m_MovingCalculator->GetCenterOfGravity();
-  cerr << "fixedCenter: " << fixedCenter << endl;
-  cerr << "movingCenter: " << movingCenter << endl;
   
   for ( unsigned int i = 0; i < InputSpaceDimension; i++ )
     {
@@ -76,10 +72,7 @@ CenteredTransformPCAInitializer< TTransform, TFixedImage, TMovingImage >
   vnl_matrix< double > rotationMatrix =
     m_FixedCalculator->GetPrincipalAxes().GetTranspose()
     * m_MovingCalculator->GetPrincipalAxes().GetVnlMatrix();
-  cerr << "rotationMatrix:\n" << rotationMatrix << endl;
-  cerr << "rotationMatrix.get(1,0): " << rotationMatrix.get(1,0) << endl;
-  angle = asin( rotationMatrix.get(1,0) );
-  cerr << "angle: " << angle << endl;
+  angle = asin( rotationMatrix.get(0,1) );
   
   // initialise transform
   m_Transform->SetAngle(angle);

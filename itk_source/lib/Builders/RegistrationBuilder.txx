@@ -156,7 +156,7 @@ void RegistrationBuilder< StackType >::buildOptimizer() {
     
     m_registration->SetOptimizer( specificOptimizer );
   }
-    
+  
 }
 
 template <typename StackType>
