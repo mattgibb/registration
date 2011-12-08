@@ -26,9 +26,9 @@ int main(int argc, char const *argv[]) {
 	checkUsage(argc, argv);
 	
 	// Generate file lists
-  vector< string > firstInputFileNames  = getFilePaths(argv[1], Dirs::SliceFile());
-  vector< string > secondInputFileNames = getFilePaths(argv[2], Dirs::SliceFile());
-  vector< string > outputFileNames      = getFilePaths(argv[3], Dirs::SliceFile());
+  vector< string > firstInputFileNames  = constructPathsFromImageList(argv[1]);
+  vector< string > secondInputFileNames = constructPathsFromImageList(argv[2]);
+  vector< string > outputFileNames      = constructPathsFromImageList(argv[3]);
 
 	// Some transforms might not be registered
   // with the factory so we add them manually

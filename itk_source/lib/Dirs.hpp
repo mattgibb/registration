@@ -50,7 +50,7 @@ public:
   
   static string ParamsFile();
   
-  static string SliceFile();
+  static string ImageList();
   
   static string TestDir();
   

@@ -40,8 +40,8 @@ int main(int argc, char const *argv[]) {
   }
   else
   {
-    LoResFileNames = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
-    HiResFileNames = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
+    LoResFileNames = constructPathsFromImageList( Dirs::BlockDir() );
+    HiResFileNames = constructPathsFromImageList( Dirs::SliceDir() );
   }
 	
 	// initialise stack objects
@@ -60,7 +60,7 @@ int main(int argc, char const *argv[]) {
   // shrink mask slices
   cout << "Test mask load.\n";
   cout << "THE LINE BELOW SHOULD BE LoResStack...?\n";
-  vector< string > fileNames = getFileNames(Dirs::SliceFile());
+  vector< string > fileNames = getFileNames(Dirs::ImageList(), ".bmp");
   vector< unsigned int > numberOfTimesTooBig = loadVectorFromFiles< unsigned int >(Dirs::ResultsDir() + "number_of_times_too_big",  fileNames);
   HiResStack->SetNumberOfTimesTooBig( numberOfTimesTooBig );
 

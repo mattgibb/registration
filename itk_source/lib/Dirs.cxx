@@ -127,7 +127,7 @@ string Dirs::ParamsFile()
   return ConfigDir() + "registration_parameters.yml";
 }
 
-string Dirs::SliceFile()
+string Dirs::ImageList()
 {
   return ConfigDir() + "image_lists/image_list.txt";
 }

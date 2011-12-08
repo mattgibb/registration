@@ -56,7 +56,7 @@ int main( int argc, char *argv[] )
   writer->SetInput( rescaler->GetOutput() );
   
   // retrieve file names
-  vector< string > outputFilePaths = getFilePaths(outputDir, Dirs::SliceFile());
+  vector< string > outputFilePaths = constructPathsFromImageList(outputDir);
   
   // check image z-size is the same as number of file names
   try { maskReader->Update(); }

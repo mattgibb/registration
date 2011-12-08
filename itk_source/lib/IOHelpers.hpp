@@ -9,11 +9,13 @@
 #include "itkImageFileWriter.h"
 #include "itkTransformFileWriter.h"
 
+#include "Dirs.hpp"
+
 using namespace std;
 using namespace boost::filesystem;
 
 // get list of file names, with no directory, from text list
-inline vector < string > getFileNames(const string& fileList)
+inline vector < string > getFileNames(const string& fileList, const string& extension = "")
 {
   vector< string > fileNames;
   ifstream infile(fileList.c_str(), ios_base::in);
@@ -21,19 +23,21 @@ inline vector < string > getFileNames(const string& fileList)
   
   while (getline(infile, fileName))
   {
-    fileNames.push_back( fileName );
+    fileNames.push_back( fileName + extension );
   }
   
   return fileNames;
 }
 
-// prepend directory to each filename in fileList and return vector of results
-inline vector< string > getFilePaths(const string& directory, const string& fileList) {
+// prepend directory to each filename in fileNames and return vector of results
+inline vector< string > constructPaths(const string& directory, const vector< string >& fileNames)
+{
+  vector< string > filePaths;
+  
   // use boost filesystem to handle presence/absence of trailing slash on directory
   path directoryPath(directory);
   
-  vector< string > fileNames = getFileNames(fileList), filePaths;
-  for(vector< string >::iterator it = fileNames.begin(); it != fileNames.end(); ++it)
+  for(vector< string >::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it)
   {
     filePaths.push_back( (directoryPath / *it).string() );
   }
@@ -41,6 +45,18 @@ inline vector< string > getFilePaths(const string& directory, const string& file
   return filePaths;
 }
 
+// prepend directory to each filename in fileList and return vector of results
+inline vector< string > constructPaths(const string& directory, const string& fileList, const string& extension = "")
+{
+  vector< string > fileNames = getFileNames(fileList, extension);
+  
+  return constructPaths(directory, fileNames);
+}
+
+inline vector< string > constructPathsFromImageList(const string& directory)
+{
+  return constructPaths(directory, Dirs::ImageList(), ".bmp");
+}
 
 bool fileExists(const string& strFilename)
 {

@@ -37,8 +37,8 @@ int main(int argc, char *argv[]) {
   
   // get file names
   vector< string > LoResFilePaths, HiResFilePaths;
-  if(LoRes) LoResFilePaths = getFilePaths(blockDir, Dirs::SliceFile());
-  if(HiRes) HiResFilePaths = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
+  if(LoRes) LoResFilePaths = constructPathsFromImageList( blockDir         );
+  if(HiRes) HiResFilePaths = constructPathsFromImageList( Dirs::SliceDir() );
 	
   // initialise stack with correct spacings, sizes, transforms etc
   typedef itk::RGBPixel< unsigned char > PixelType;

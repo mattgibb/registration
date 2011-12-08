@@ -41,8 +41,8 @@ int main(int argc, char const *argv[]) {
   }
   else
   {
-    LoResFileNames = getFilePaths(Dirs::BlockDir(), Dirs::SliceFile());
-    HiResFileNames = getFilePaths(Dirs::SliceDir(), Dirs::SliceFile());
+    LoResFileNames = constructPathsFromImageList( Dirs::BlockDir() );
+    HiResFileNames = constructPathsFromImageList( Dirs::SliceDir() );
   }
 	
   // initialise stack objects with correct spacings, sizes etc

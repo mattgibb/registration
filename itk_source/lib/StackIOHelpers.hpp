@@ -156,7 +156,7 @@ vector< DataType > loadVectorFromFiles(const string& dirName,  const vector< str
   typename vector< DataType >::size_type numberOfFiles = fileNames.size();
   vector< DataType > values(numberOfFiles);
   
-  for(unsigned int i=0; i<fileNames.size(); ++i)
+  for(unsigned int i=0; i<numberOfFiles; ++i)
   {
     path inPath = dirPath / basename( path(fileNames[i]).leaf() );
     ifstream inFile(inPath.string().c_str());
