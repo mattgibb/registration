@@ -35,17 +35,21 @@ int main(int argc, char *argv[]) {
   string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
-  vector< string > LoResFilePaths, HiResFilePaths;
+  vector< string > LoResFileNames, HiResFileNames;
   if( vm.count("slice") )
   {
-    LoResFilePaths.push_back(blockDir + vm["slice"].as<string>());
-    HiResFilePaths.push_back(sliceDir + vm["slice"].as<string>());
+    LoResFileNames.push_back(vm["slice"].as<string>());
+    HiResFileNames.push_back(vm["slice"].as<string>());
   }
   else
   {
-    LoResFilePaths = constructPathsFromImageList(blockDir);
-    HiResFilePaths = constructPathsFromImageList(sliceDir);
+    LoResFileNames = getFileNames(Dirs::ImageList(), ".bmp");
+    HiResFileNames = getFileNames(Dirs::ImageList(), ".bmp");
   }
+  
+  // prepend directory to each filename in list
+  vector< string > LoResFilePaths = constructPaths(blockDir, LoResFileNames);
+  vector< string > HiResFilePaths = constructPaths(sliceDir, HiResFileNames);
   
   // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
