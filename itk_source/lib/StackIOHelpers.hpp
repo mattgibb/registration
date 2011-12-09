@@ -16,14 +16,6 @@
 
 using namespace boost::filesystem;
 
-// helper to construct transform file path
-const string TransformFilePath(const string& imageFileName, const string& transformDirName) {
-  path slicePath( imageFileName );
-  string transformFileName( basename( slicePath.leaf() ) + ".meta" );
-  path transformFilePath = path(transformDirName) / path(transformFileName);
-  return transformFilePath.string();
-}
-
 // Stack Persistence
 template <typename StackType>
 void Save(StackType& stack, const string& directory, const vector< string >& basenames)
