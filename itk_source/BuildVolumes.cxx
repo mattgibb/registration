@@ -35,11 +35,11 @@ int main(int argc, char *argv[]) {
   string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
-  vector< string > basenames;
-  if( vm.count("slice") )
-    basenames.push_back(vm["slice"].as<string>());
-  else
-    basenames = getFileNames(Dirs::ImageList());
+  // basenames is either single name from command line
+  // or list from config file
+  vector< string > basenames = vm.count("slice") ?
+                               vector< string >(1, vm["slice"].as<string>()) :
+                               basenames = getFileNames(Dirs::ImageList());
   
   // prepend directory to each filename in list
   vector< string > LoResFilePaths = constructPaths(blockDir, basenames, ".bmp");
