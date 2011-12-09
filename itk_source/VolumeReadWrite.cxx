@@ -13,9 +13,11 @@ int main( int argc, char ** argv )
     return EXIT_FAILURE;
   }
 
-  typedef float      PixelType;
-  const   unsigned int        Dimension = 3;
-  typedef itk::Image< PixelType, Dimension >    ImageType;
+  typedef float         PixelType;
+  const unsigned int    Dimension = 3;
+  // typedef unsigned char PixelType;
+  // const unsigned int    Dimension = 2;
+  typedef itk::Image< PixelType, Dimension > ImageType;
   typedef itk::ImageFileReader< ImageType >  ReaderType;
   typedef itk::ImageFileWriter< ImageType >  WriterType;
 
