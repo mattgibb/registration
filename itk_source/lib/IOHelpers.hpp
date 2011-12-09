@@ -30,7 +30,7 @@ inline vector < string > getFileNames(const string& fileList, const string& exte
 }
 
 // prepend directory to each filename in fileNames and return vector of results
-inline vector< string > constructPaths(const string& directory, const vector< string >& fileNames)
+inline vector< string > constructPaths(const string& directory, const vector< string >& fileNames, const string& extension = "")
 {
   vector< string > filePaths;
   
@@ -39,7 +39,7 @@ inline vector< string > constructPaths(const string& directory, const vector< st
   
   for(vector< string >::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it)
   {
-    filePaths.push_back( (directoryPath / *it).string() );
+    filePaths.push_back( (directoryPath / *it).string() + extension );
   }
   
   return filePaths;

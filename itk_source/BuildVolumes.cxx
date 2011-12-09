@@ -35,15 +35,15 @@ int main(int argc, char *argv[]) {
   string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
-  vector< string > fileNames;
+  vector< string > basenames;
   if( vm.count("slice") )
-    fileNames.push_back(vm["slice"].as<string>());
+    basenames.push_back(vm["slice"].as<string>());
   else
-    fileNames = getFileNames(Dirs::ImageList(), ".bmp");
+    basenames = getFileNames(Dirs::ImageList());
   
   // prepend directory to each filename in list
-  vector< string > LoResFilePaths = constructPaths(blockDir, fileNames);
-  vector< string > HiResFilePaths = constructPaths(sliceDir, fileNames);
+  vector< string > LoResFilePaths = constructPaths(blockDir, basenames, ".bmp");
+  vector< string > HiResFilePaths = constructPaths(sliceDir, basenames, ".bmp");
   
   // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
@@ -149,8 +149,8 @@ int main(int argc, char *argv[]) {
   LoResStack->updateVolumes();
   
   // persist mask numberOfTimesTooBig and final metric values
-  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", fileNames );
-  saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", fileNames );
+  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", basenames );
+  saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", basenames );
   
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::LoResTransformsDir());
