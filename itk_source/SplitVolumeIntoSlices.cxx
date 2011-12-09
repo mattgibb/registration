@@ -56,7 +56,7 @@ int main( int argc, char *argv[] )
   writer->SetInput( rescaler->GetOutput() );
   
   // retrieve file names
-  vector< string > outputFilePaths = constructPathsFromImageList(outputDir);
+  vector< string > outputFilePaths = constructPaths(outputDir, Dirs::ImageList(), ".bmp");
   
   // check image z-size is the same as number of file names
   try { maskReader->Update(); }

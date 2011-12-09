@@ -57,11 +57,6 @@ inline vector< string > constructPaths(const string& directory, const string& fi
   return constructPaths(directory, basenames, extension);
 }
 
-inline vector< string > constructPathsFromImageList(const string& directory)
-{
-  return constructPaths(directory, Dirs::ImageList(), ".bmp");
-}
-
 bool fileExists(const string& strFilename)
 {
   struct stat stFileInfo;
