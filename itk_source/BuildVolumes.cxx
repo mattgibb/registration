@@ -155,8 +155,8 @@ int main(int argc, char *argv[]) {
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::LoResTransformsDir());
   create_directory(Dirs::HiResTransformsDir());
-  Save(*LoResStack, LoResFilePaths, Dirs::LoResTransformsDir());
-  Save(*HiResStack, HiResFilePaths, Dirs::HiResTransformsDir());
+  Save(*LoResStack, Dirs::LoResTransformsDir(), basenames);
+  Save(*HiResStack, Dirs::HiResTransformsDir(), basenames);
   
   return EXIT_SUCCESS;
 }

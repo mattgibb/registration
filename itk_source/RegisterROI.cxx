@@ -33,18 +33,17 @@ int main(int argc, char const *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   Dirs::SetOutputDirName(argv[2]);
-  vector< string > LoResFileNames, HiResFileNames;
-  if( argc >= 4)
-  {
-    LoResFileNames.push_back(Dirs::BlockDir() + argv[3]);
-    HiResFileNames.push_back(Dirs::SliceDir() + argv[3]);
-  }
-  else
-  {
-    LoResFileNames = constructPathsFromImageList( Dirs::BlockDir() );
-    HiResFileNames = constructPathsFromImageList( Dirs::SliceDir() );
-  }
-	
+  
+  // basenames is either single name from command line
+  // or list from config file
+  vector< string > basenames = argc >= 4 ?
+                               vector< string >(1, argv[3]) :
+                               getFileNames(Dirs::ImageList());
+  
+  // prepend directory to each filename in list
+  vector< string > LoResFilePaths = constructPaths(Dirs::BlockDir(), basenames, ".bmp");
+  vector< string > HiResFilePaths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
+  
   // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
@@ -107,8 +106,8 @@ int main(int argc, char const *argv[]) {
   using namespace boost::filesystem;
   create_directory(Dirs::LoResTransformsDir());
   create_directory(Dirs::HiResTransformsDir());
-  Save(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
-  Save(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
+  Save(*LoResStack, Dirs::LoResTransformsDir(), basenames);
+  Save(*HiResStack, Dirs::HiResTransformsDir(), basenames);
   
   return EXIT_SUCCESS;
 }

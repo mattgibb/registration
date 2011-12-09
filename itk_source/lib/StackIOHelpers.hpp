@@ -12,6 +12,7 @@
 #include "Stack.hpp"
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
+#include "IOHelpers.hpp"
 
 using namespace boost::filesystem;
 
@@ -25,14 +26,16 @@ const string TransformFilePath(const string& imageFileName, const string& transf
 
 // Stack Persistence
 template <typename StackType>
-void Save(StackType& stack, vector< string > fileNames, const string& dirName)
+void Save(StackType& stack, const string& directory, const vector< string >& basenames)
 {
+  vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
+  
   typedef itk::TransformFileWriter WriterType;
-
+  
   for(int slice_number=0; slice_number < stack.GetSize(); ++slice_number)
 	{
     WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( TransformFilePath(fileNames[slice_number], dirName).c_str() );
+    writer->SetFileName( transformPaths[slice_number].c_str() );
     writer->AddTransform( stack.GetTransform(slice_number) );
     
     try

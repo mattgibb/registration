@@ -29,7 +29,9 @@ inline vector < string > getFileNames(const string& fileList, const string& exte
   return fileNames;
 }
 
-// prepend directory to each filename in fileNames and return vector of results
+// prepend directory to each filename in fileNames,
+// possibly adding extension,
+// and return vector of results
 inline vector< string > constructPaths(const string& directory, const vector< string >& fileNames, const string& extension = "")
 {
   vector< string > filePaths;
@@ -45,12 +47,14 @@ inline vector< string > constructPaths(const string& directory, const vector< st
   return filePaths;
 }
 
-// prepend directory to each filename in fileList and return vector of results
+// prepend directory to each line of fileList,
+// possibly adding extension,
+// and return vector of results
 inline vector< string > constructPaths(const string& directory, const string& fileList, const string& extension = "")
 {
-  vector< string > fileNames = getFileNames(fileList, extension);
+  vector< string > basenames = getFileNames(fileList);
   
-  return constructPaths(directory, fileNames);
+  return constructPaths(directory, basenames, extension);
 }
 
 inline vector< string > constructPathsFromImageList(const string& directory)

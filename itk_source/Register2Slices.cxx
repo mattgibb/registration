@@ -113,7 +113,7 @@ int main(int argc, char const *argv[]) {
   // transform represents the relative translation from old to new position
   StackTransforms::Translate(*slice2Stack, -oldTranslation);
   vector< string > transformFileName(1, slice1BaseName + "_" + slice2BaseName);
-  Save(*slice2Stack, transformFileName, Dirs::ResultsDir());
+  Save(*slice2Stack, Dirs::ResultsDir(), transformFileName);
   
   return EXIT_SUCCESS;
   
