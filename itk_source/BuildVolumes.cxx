@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   {
     // if working from the original images, apply the necessary translation
     StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
-    ApplyAdjustments( *LoResStack, LoResFilePaths, Dirs::ConfigDir() + "LoRes_adjustments/");
+    ApplyAdjustments( *LoResStack, Dirs::ConfigDir() + "LoRes_adjustments/", basenames);
   }
   
   // Generate fixed images to register against

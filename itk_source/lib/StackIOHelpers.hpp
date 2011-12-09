@@ -98,8 +98,12 @@ void Load(StackType& stack, const string& directory, const vector< string >& bas
 }
 
 template <typename StackType>
-void ApplyAdjustments(StackType& stack, vector< string > fileNames, const string& dirName)
+void ApplyAdjustments(StackType& stack, const string& directory, const vector< string >& basenames)
 {
+    // construct path to config transform file
+    //  e.g. config/Rat28/LoRes_adustments/0053.meta
+  vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
+  
   typedef itk::TransformFileReader ReaderType;
   
   // Some transforms might not be registered
@@ -111,14 +115,10 @@ void ApplyAdjustments(StackType& stack, vector< string > fileNames, const string
   
   for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
   {
-    // construct path to config transform file
-    // config/Rat28/LoRes_adustments/0053.meta
-    string transformFilePath = TransformFilePath(fileNames[slice_number], dirName);
-    
-    if( exists(transformFilePath) )
+    if( exists(transformPaths[slice_number]) )
     {
       ReaderType::Pointer reader = ReaderType::New();
-      reader->SetFileName( transformFilePath.c_str() );
+      reader->SetFileName( transformPaths[slice_number].c_str() );
       
       try
       {

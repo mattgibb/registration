@@ -50,8 +50,8 @@ int main(int argc, char const *argv[]) {
   // initialize stacks' transforms
   StackTransforms::InitializeWithTranslation( *slice1Stack, StackTransforms::GetLoResTranslation("whole_heart") );
   StackTransforms::InitializeWithTranslation( *slice2Stack, StackTransforms::GetLoResTranslation("whole_heart") );
-  ApplyAdjustments( *slice1Stack, slice1FileName, Dirs::ConfigDir() + "LoRes_adjustments/");
-  ApplyAdjustments( *slice2Stack, slice2FileName, Dirs::ConfigDir() + "LoRes_adjustments/");
+  ApplyAdjustments( *slice1Stack, Dirs::ConfigDir() + "LoRes_adjustments/", slice1BaseName);
+  ApplyAdjustments( *slice2Stack, Dirs::ConfigDir() + "LoRes_adjustments/", slice2BaseName);
   
   // record original slice2 transform
   // convert Array of initial translation to Vector
