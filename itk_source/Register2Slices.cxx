@@ -35,10 +35,9 @@ int main(int argc, char const *argv[]) {
   string slice1BaseName(argv[2]);
   string slice2BaseName(argv[3]);
   Dirs::SetOutputDirName("LoResCorrectionTransforms");
-  vector< string > slice1FileName, slice2FileName;
   string blockDir(Dirs::ImagesDir() + "LoRes_rgb/downsamples_1/");
-  slice1FileName.push_back(Dirs::BlockDir() + slice1BaseName + ".bmp");
-  slice2FileName.push_back(Dirs::BlockDir() + slice2BaseName + ".bmp");
+  vector< string > slice1FileName(1, Dirs::BlockDir() + slice1BaseName + ".bmp");
+  vector< string > slice2FileName(1, Dirs::BlockDir() + slice2BaseName + ".bmp");
   
   // initialise stack objects with correct spacings, sizes etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
@@ -50,8 +49,8 @@ int main(int argc, char const *argv[]) {
   // initialize stacks' transforms
   StackTransforms::InitializeWithTranslation( *slice1Stack, StackTransforms::GetLoResTranslation("whole_heart") );
   StackTransforms::InitializeWithTranslation( *slice2Stack, StackTransforms::GetLoResTranslation("whole_heart") );
-  ApplyAdjustments( *slice1Stack, Dirs::ConfigDir() + "LoRes_adjustments/", slice1BaseName);
-  ApplyAdjustments( *slice2Stack, Dirs::ConfigDir() + "LoRes_adjustments/", slice2BaseName);
+  ApplyAdjustments( *slice1Stack, Dirs::ConfigDir() + "LoRes_adjustments/", vector< string >(1, slice1BaseName));
+  ApplyAdjustments( *slice2Stack, Dirs::ConfigDir() + "LoRes_adjustments/", vector< string >(1, slice2BaseName));
   
   // record original slice2 transform
   // convert Array of initial translation to Vector
