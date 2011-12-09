@@ -60,10 +60,10 @@ int main(int argc, char const *argv[]) {
   // shrink mask slices
   cout << "Test mask load.\n";
   cout << "THE LINE BELOW SHOULD BE LoResStack...?\n";
-  vector< string > fileNames = getFileNames(Dirs::ImageList(), ".bmp");
-  vector< unsigned int > numberOfTimesTooBig = loadVectorFromFiles< unsigned int >(Dirs::ResultsDir() + "number_of_times_too_big",  fileNames);
+  vector< string > basenames = getFileNames(Dirs::ImageList());
+  vector< unsigned int > numberOfTimesTooBig = loadVectorFromFiles< unsigned int >(Dirs::ResultsDir() + "number_of_times_too_big",  basenames);
   HiResStack->SetNumberOfTimesTooBig( numberOfTimesTooBig );
-
+  
   // Generate fixed images to register against
   LoResStack->updateVolumes();
   writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResPersistedStack.mha" );
