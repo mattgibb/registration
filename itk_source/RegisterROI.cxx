@@ -54,8 +54,8 @@ int main(int argc, char const *argv[]) {
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, "ROI");
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
-  Load(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
+  Load(*LoResStack, Dirs::LoResTransformsDir(), basenames);
+  Load(*HiResStack, Dirs::HiResTransformsDir(), basenames);
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");

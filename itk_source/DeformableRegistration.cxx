@@ -32,35 +32,33 @@ int main(int argc, char const *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet(argv[1]);
   Dirs::SetOutputDirName(argv[2]);
-  vector< string > LoResFileNames, HiResFileNames;
-  if( argc >= 4)
-  {
-    LoResFileNames.push_back(Dirs::BlockDir() + argv[3]);
-    HiResFileNames.push_back(Dirs::SliceDir() + argv[3]);
-  }
-  else
-  {
-    LoResFileNames = constructPathsFromImageList( Dirs::BlockDir() );
-    HiResFileNames = constructPathsFromImageList( Dirs::SliceDir() );
-  }
-	
+  
+  // basenames is either single name from command line
+  // or list from config file
+  vector< string > basenames = argc >= 4 ?
+                               vector< string >(1, argv[3]) :
+                               getFileNames(Dirs::ImageList());
+  
+  // prepend directory to each filename in list
+  vector< string > LoResFilePaths = constructPaths(Dirs::BlockDir(), basenames, ".bmp");
+  vector< string > HiResFilePaths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
+  
 	// initialise stack objects
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFileNames);
-  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFileNames);
+  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFilePaths);
+  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
   normalizeImages< StackType >(LoResImages);
   normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, LoResFileNames, Dirs::LoResTransformsDir());
-  Load(*HiResStack, HiResFileNames, Dirs::HiResTransformsDir());
+  Load(*LoResStack, Dirs::LoResTransformsDir(), basenames);
+  Load(*HiResStack, Dirs::HiResTransformsDir(), basenames);
   
   // shrink mask slices
   cout << "Test mask load.\n";
   cout << "THE LINE BELOW SHOULD BE LoResStack...?\n";
-  vector< string > basenames = getFileNames(Dirs::ImageList());
   vector< unsigned int > numberOfTimesTooBig = loadVectorFromFiles< unsigned int >(Dirs::ResultsDir() + "number_of_times_too_big",  basenames);
   HiResStack->SetNumberOfTimesTooBig( numberOfTimesTooBig );
   

@@ -28,8 +28,8 @@ int main(int argc, char const *argv[]) {
   boost::shared_ptr< StackType > FixedOriginalStack = InitializeHiResStack<StackType>(FixedOriginalImage, roi);
   boost::shared_ptr< StackType > MovingOriginalStack = InitializeHiResStack<StackType>(MovingOriginalImage, roi);
   
-  Load(*FixedOriginalStack, fixedPath, Dirs::HiResTransformsDir());
-  Load(*MovingOriginalStack, movingPath, Dirs::HiResTransformsDir());
+  Load(*FixedOriginalStack,  Dirs::HiResTransformsDir(), fixedBasename);
+  Load(*MovingOriginalStack, Dirs::HiResTransformsDir(), movingBasename);
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");

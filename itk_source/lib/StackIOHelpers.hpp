@@ -28,6 +28,9 @@ const string TransformFilePath(const string& imageFileName, const string& transf
 template <typename StackType>
 void Save(StackType& stack, const string& directory, const vector< string >& basenames)
 {
+  // sanity check
+  assert(stack.GetSize() == basenames.size());
+  
   vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
   
   typedef itk::TransformFileWriter WriterType;
@@ -54,8 +57,13 @@ void Save(StackType& stack, const string& directory, const vector< string >& bas
 }
 
 template <typename StackType>
-void Load(StackType& stack, vector< string > fileNames, const string& dirName)
+void Load(StackType& stack, const string& directory, const vector< string >& basenames)
 {
+  // sanity check
+  assert(stack.GetSize() == basenames.size());
+  
+  vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
+  
   typedef itk::TransformFileReader ReaderType;
   
   // Some transforms might not be registered
@@ -69,7 +77,7 @@ void Load(StackType& stack, vector< string > fileNames, const string& dirName)
   for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
   {
     ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName( TransformFilePath(fileNames[slice_number], dirName).c_str() );
+    reader->SetFileName( transformPaths[slice_number].c_str() );
     
     try
     {
@@ -153,7 +161,7 @@ void saveVectorToFiles(const vector< DataType >& values, const string& dirName, 
 }
 
 template <typename DataType>
-vector< DataType > loadVectorFromFiles(const string& dirName,  const vector< string >& fileNames)
+vector< DataType > loadVectorFromFiles(const string& dirName, const vector< string >& fileNames)
 {
   path dirPath = Dirs::ResultsDir() + dirName;
   typename vector< DataType >::size_type numberOfFiles = fileNames.size();

@@ -36,9 +36,10 @@ int main(int argc, char *argv[]) {
   string roi = vm["roi"].as<string>();
   
   // get file names
+  vector< string > basenames = getFileNames(Dirs::ImageList());
   vector< string > LoResFilePaths, HiResFilePaths;
-  if(LoRes) LoResFilePaths = constructPathsFromImageList( blockDir         );
-  if(HiRes) HiResFilePaths = constructPathsFromImageList( Dirs::SliceDir() );
+  if(LoRes) LoResFilePaths = constructPaths(blockDir,         basenames, ".bmp");
+  if(HiRes) HiResFilePaths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
 	
   // initialise stack with correct spacings, sizes, transforms etc
   typedef itk::RGBPixel< unsigned char > PixelType;
@@ -72,8 +73,8 @@ int main(int argc, char *argv[]) {
   string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   
-  if(LoRes) Load(*LoResStack, LoResFilePaths, LoResTransformsDir);
-  if(HiRes) Load(*HiResStack, HiResFilePaths, HiResTransformsDir);
+  if(LoRes) Load(*LoResStack, LoResTransformsDir, basenames);
+  if(HiRes) Load(*HiResStack, HiResTransformsDir, basenames);
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
