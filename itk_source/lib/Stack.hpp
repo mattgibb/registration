@@ -71,6 +71,7 @@ private:
 	typename ZScaleType::Pointer zScaler;
 	typename MaskZScaleType::Pointer maskZScaler;
   vector< unsigned int > numberOfTimesTooBig;
+  vector< string > m_basenames;
 	
 public:
   // constructor to center images and size stack to fit in the longest and widest image
@@ -156,6 +157,22 @@ public:
   }
 	
   const TransformVectorType& GetTransforms() { return transforms; }
+
+	const vector< string > GetBasenames()
+	{
+	  // if you're requesting basenames,
+	  // make sure you've sensibly set them first
+	  assert(m_basenames.size() == originalImages.size());
+    
+	  return m_basenames;
+	}
+	
+	void SetBasenames(const vector< string >& basenames)
+	{
+	  // sanity check
+    assert(basenames.size() == originalImages.size());
+	  m_basenames = basenames;
+	}
 	
   void SetTransforms(const TransformVectorType& inputTransforms) { transforms = inputTransforms; }
   
