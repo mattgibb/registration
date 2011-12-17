@@ -53,6 +53,8 @@ int main(int argc, char *argv[]) {
   normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  LoResStack->SetBasenames(basenames);
+  HiResStack->SetBasenames(basenames);
   
   // Assert stacks have the same number of slices
   assert(LoResStack->GetSize() == HiResStack->GetSize());
@@ -66,7 +68,7 @@ int main(int argc, char *argv[]) {
   {
     // if working from the original images, apply the necessary translation
     StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );
-    ApplyAdjustments( *LoResStack, Dirs::ConfigDir() + "LoRes_adjustments/", basenames);
+    ApplyAdjustments( *LoResStack, Dirs::ConfigDir() + "LoRes_adjustments/");
   }
   
   // Generate fixed images to register against
@@ -155,8 +157,8 @@ int main(int argc, char *argv[]) {
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::LoResTransformsDir());
   create_directory(Dirs::HiResTransformsDir());
-  Save(*LoResStack, Dirs::LoResTransformsDir(), basenames);
-  Save(*HiResStack, Dirs::HiResTransformsDir(), basenames);
+  Save(*LoResStack, Dirs::LoResTransformsDir());
+  Save(*HiResStack, Dirs::HiResTransformsDir());
   
   return EXIT_SUCCESS;
 }

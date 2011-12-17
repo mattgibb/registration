@@ -18,45 +18,21 @@ using namespace boost::filesystem;
 
 // Stack Persistence
 template <typename StackType>
-void Save(StackType& stack, const string& directory, const vector< string >& basenames)
+void Save(StackType& stack, const string& directory)
 {
-  // sanity check
-  assert(stack.GetSize() == basenames.size());
-  
-  vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
-  
-  typedef itk::TransformFileWriter WriterType;
+  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames(), ".meta");
   
   for(int slice_number=0; slice_number < stack.GetSize(); ++slice_number)
 	{
-    WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( transformPaths[slice_number].c_str() );
-    writer->AddTransform( stack.GetTransform(slice_number) );
-    
-    try
-    {
-    	writer->Update();
-    }
-  	catch( itk::ExceptionObject & err )
-  	{
-      cerr << "ExceptionObject caught while saving transforms." << endl;
-      cerr << err << endl;
-  		std::abort();
-  	}
-  
+	  writeTransform(stack.GetTransform(slice_number), transformPaths[slice_number]);
   }
   
 }
 
 template <typename StackType>
-void Load(StackType& stack, const string& directory, const vector< string >& basenames)
+void Load(StackType& stack, const string& directory)
 {
-  // sanity check
-  assert(stack.GetSize() == basenames.size());
-  
-  vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
-  
-  typedef itk::TransformFileReader ReaderType;
+  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames(), ".meta");
   
   // Some transforms might not be registered
   // with the factory so we add them manually
@@ -68,21 +44,8 @@ void Load(StackType& stack, const string& directory, const vector< string >& bas
   
   for(unsigned int slice_number=0; slice_number<stack.GetSize(); ++slice_number)
   {
-    ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName( transformPaths[slice_number].c_str() );
-    
-    try
-    {
-      reader->Update();
-    }
-    catch( itk::ExceptionObject & err )
-    {
-      std::cerr << "ExceptionObject caught while reading transforms." << std::endl;
-      cerr << err << endl;
-  		std::abort();
-    }
-    
-    typename StackType::TransformType::Pointer transform = static_cast<typename StackType::TransformType*>( reader->GetTransformList()->begin()->GetPointer() );
+    itk::TransformBase::Pointer transformBase = readTransform( transformPaths[slice_number] );
+    typename StackType::TransformType::Pointer transform = static_cast<typename StackType::TransformType*>( transformBase.GetPointer() );
     newTransforms.push_back( transform );
   }
   
@@ -90,13 +53,11 @@ void Load(StackType& stack, const string& directory, const vector< string >& bas
 }
 
 template <typename StackType>
-void ApplyAdjustments(StackType& stack, const string& directory, const vector< string >& basenames)
+void ApplyAdjustments(StackType& stack, const string& directory)
 {
-    // construct path to config transform file
-    //  e.g. config/Rat28/LoRes_adustments/0053.meta
-  vector< string > transformPaths = constructPaths(directory, basenames, ".meta");
-  
-  typedef itk::TransformFileReader ReaderType;
+  // construct path to config transform file
+  //  e.g. config/Rat28/LoRes_adustments/0053.meta
+  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames(), ".meta");
   
   // Some transforms might not be registered
   // with the factory so we add them manually
@@ -109,22 +70,10 @@ void ApplyAdjustments(StackType& stack, const string& directory, const vector< s
   {
     if( exists(transformPaths[slice_number]) )
     {
-      ReaderType::Pointer reader = ReaderType::New();
-      reader->SetFileName( transformPaths[slice_number].c_str() );
-      
-      try
-      {
-        reader->Update();
-      }
-      catch( itk::ExceptionObject & err )
-      {
-        std::cerr << "ExceptionObject caught while reading transforms." << std::endl;
-        cerr << err << endl;
-           std::abort();
-      }
+      itk::TransformBase::Pointer transform = readTransform( transformPaths[slice_number] );
       
       // convert Array to Vector
-      itk::Array< double > parameters( reader->GetTransformList()->begin()->GetPointer()->GetParameters() );
+      itk::Array< double > parameters( transform->GetParameters() );
       itk::Vector< double, 2 > translation;
       translation[0] = parameters[0];
       translation[1] = parameters[1];

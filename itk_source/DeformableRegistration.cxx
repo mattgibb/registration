@@ -51,10 +51,12 @@ int main(int argc, char const *argv[]) {
   normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  LoResStack->SetBasenames(basenames);
+  HiResStack->SetBasenames(basenames);
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, Dirs::LoResTransformsDir(), basenames);
-  Load(*HiResStack, Dirs::HiResTransformsDir(), basenames);
+  Load(*LoResStack, Dirs::LoResTransformsDir());
+  Load(*HiResStack, Dirs::HiResTransformsDir());
   
   // shrink mask slices
   cout << "Test mask load.\n";

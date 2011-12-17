@@ -27,7 +27,7 @@ protected:
   bool bothImagesExist(unsigned int slice_number);
   
   bool tryRegistration();
-
+  
   double GetOptimizerValue();
   
 private:

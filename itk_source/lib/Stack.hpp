@@ -9,7 +9,6 @@
 #include "itkTileImageFilter.h"
 #include "itkResampleImageFilter.h"
 #include "itkVectorResampleImageFilter.h"
-#include "itkTransform.h"
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkVectorLinearInterpolateImageFunction.h"
 #include "itkNearestNeighborInterpolateImageFunction.h"
@@ -17,13 +16,12 @@
 #include "itkImageMaskSpatialObject.h"
 #include "itkImageRegionIterator.h"
 
-
-using namespace std;
+#include "StackBase.hpp"
 
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-class Stack {
+class Stack: public StackBase {
 public:
   typedef TPixel PixelType;
 	typedef itk::Image< PixelType, 2 > SliceType;
@@ -33,8 +31,6 @@ public:
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
 	typedef vector< typename SliceType::Pointer > SliceVectorType;
   typedef vector< MaskSliceType::Pointer > MaskSliceVectorType;
-	typedef itk::Transform< double, 2, 2 > TransformType;
-	typedef vector< TransformType::Pointer > TransformVectorType;
   typedef InterpolatorType< SliceType, double > LinearInterpolatorType;
   typedef itk::NearestNeighborInterpolateImageFunction< MaskSliceType, double > NearestNeighborInterpolatorType;
 	typedef ResampleImageFilterType< SliceType, SliceType, double > ResamplerType;
@@ -60,7 +56,6 @@ private:
 	typename MaskType3D::Pointer mask3D;
 	MaskVectorType2D original2DMasks;
 	MaskVectorType2D resampled2DMasks;
-	TransformVectorType transforms;
 	typename LinearInterpolatorType::Pointer linearInterpolator;
 	typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
 	typename ResamplerType::Pointer resampler;
@@ -70,9 +65,10 @@ private:
 	typename MaskTileFilterType::Pointer maskTileFilter;
 	typename ZScaleType::Pointer zScaler;
 	typename MaskZScaleType::Pointer maskZScaler;
+	TransformVectorType transforms;
   vector< unsigned int > numberOfTimesTooBig;
   vector< string > m_basenames;
-	
+  
 public:
   // constructor to center images and size stack to fit in the longest and widest image
   Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings);
@@ -151,30 +147,39 @@ public:
 	
   typename MaskType3D::Pointer Get3DMask() { return mask3D; }
 	
-  TransformType::Pointer GetTransform(unsigned int slice_number) {
+  virtual TransformType::Pointer GetTransform(unsigned int slice_number) {
     checkSliceNumber(slice_number);
     return transforms[slice_number];
   }
 	
-  const TransformVectorType& GetTransforms() { return transforms; }
-
-	const vector< string > GetBasenames()
-	{
-	  // if you're requesting basenames,
-	  // make sure you've sensibly set them first
-	  assert(m_basenames.size() == originalImages.size());
+  virtual const TransformVectorType& GetTransforms() { return transforms; }
+  
+  virtual const vector< string >& GetBasenames()
+  {
+    // if you're requesting basenames,
+    // make sure you've sensibly set them first
+    assert(m_basenames.size() == originalImages.size());
     
-	  return m_basenames;
-	}
-	
-	void SetBasenames(const vector< string >& basenames)
-	{
-	  // sanity check
+    return m_basenames;
+  }
+  
+  virtual const string& GetBasename(unsigned int slice_number)
+  {
+    // if you're requesting basenames,
+    // make sure you've sensibly set them first
+    assert(m_basenames.size() == originalImages.size());
+    
+    return m_basenames[slice_number];
+  }
+  
+  virtual void SetBasenames(const vector< string >& basenames)
+  {
+    // sanity check
     assert(basenames.size() == originalImages.size());
-	  m_basenames = basenames;
-	}
-	
-  void SetTransforms(const TransformVectorType& inputTransforms) { transforms = inputTransforms; }
+    m_basenames = basenames;
+  }
+  
+  virtual void SetTransforms(const TransformVectorType& inputTransforms) { transforms = inputTransforms; }
   
   bool ImageExists(unsigned int slice_number) {
     return GetOriginalImage(slice_number)->GetLargestPossibleRegion().GetSize()[0];
@@ -190,20 +195,12 @@ public:
   
 protected:
   void GenerateMaskSlice(unsigned int slice_number);
-	
-  static bool fileExists(const string& strFilename);
   
   typename SliceType::SpacingType spacings2D() const {
     typename SliceType::SpacingType spacings2D;
     for(unsigned int i=0; i<2; i++) spacings2D[i] = spacings[i];
     return spacings2D;
   }
-  
-private:
-  // Copy constructor and copy assignment operator deliberately not implemented
-  // Made private so that nobody can use them
-  Stack(const Stack&);
-  Stack& operator=(const Stack&);
   
 };
 

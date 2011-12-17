@@ -45,12 +45,14 @@ int main(int argc, char const *argv[]) {
   StackType::SliceVectorType slice2Image = readImages< StackType >(slice2FileName);
   boost::shared_ptr< StackType > slice1Stack = InitializeLoResStack<StackType>(slice1Image);
   boost::shared_ptr< StackType > slice2Stack = InitializeLoResStack<StackType>(slice2Image);
+  slice1Stack->SetBasenames(vector< string >(1, slice1BaseName));
+  slice2Stack->SetBasenames(vector< string >(1, slice2BaseName));
   
   // initialize stacks' transforms
   StackTransforms::InitializeWithTranslation( *slice1Stack, StackTransforms::GetLoResTranslation("whole_heart") );
   StackTransforms::InitializeWithTranslation( *slice2Stack, StackTransforms::GetLoResTranslation("whole_heart") );
-  ApplyAdjustments( *slice1Stack, Dirs::ConfigDir() + "LoRes_adjustments/", vector< string >(1, slice1BaseName));
-  ApplyAdjustments( *slice2Stack, Dirs::ConfigDir() + "LoRes_adjustments/", vector< string >(1, slice2BaseName));
+  ApplyAdjustments( *slice1Stack, Dirs::ConfigDir() + "LoRes_adjustments/");
+  ApplyAdjustments( *slice2Stack, Dirs::ConfigDir() + "LoRes_adjustments/");
   
   // record original slice2 transform
   // convert Array of initial translation to Vector
@@ -110,9 +112,15 @@ int main(int argc, char const *argv[]) {
   // Write resultant transform
   // subtract initial translation, so that
   // transform represents the relative translation from old to new position
-  StackTransforms::Translate(*slice2Stack, -oldTranslation);
-  vector< string > transformFileName(1, slice1BaseName + "_" + slice2BaseName);
-  Save(*slice2Stack, Dirs::ResultsDir(), transformFileName);
+  typedef StackTransforms::TranslationTransformType TranslationType;
+  TranslationType::Pointer translation
+    = static_cast< TranslationType* >( slice2Stack->GetTransform(0).GetPointer() );
+  translation->Translate(-oldTranslation);
+  
+  string transformPath =
+    Dirs::ResultsDir() + slice1BaseName + "_" + slice2BaseName + ".meta";
+  
+  writeTransform(translation, transformPath);
   
   return EXIT_SUCCESS;
   

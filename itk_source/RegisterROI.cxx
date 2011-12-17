@@ -52,10 +52,12 @@ int main(int argc, char const *argv[]) {
   normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages, "ROI");
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, "ROI");
+  LoResStack->SetBasenames(basenames);
+  HiResStack->SetBasenames(basenames);
   
   // initialise stacks' transforms with saved transform files
-  Load(*LoResStack, Dirs::LoResTransformsDir(), basenames);
-  Load(*HiResStack, Dirs::HiResTransformsDir(), basenames);
+  Load(*LoResStack, Dirs::LoResTransformsDir());
+  Load(*HiResStack, Dirs::HiResTransformsDir());
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
@@ -106,8 +108,8 @@ int main(int argc, char const *argv[]) {
   using namespace boost::filesystem;
   create_directory(Dirs::LoResTransformsDir());
   create_directory(Dirs::HiResTransformsDir());
-  Save(*LoResStack, Dirs::LoResTransformsDir(), basenames);
-  Save(*HiResStack, Dirs::HiResTransformsDir(), basenames);
+  Save(*LoResStack, Dirs::LoResTransformsDir());
+  Save(*HiResStack, Dirs::HiResTransformsDir());
   
   return EXIT_SUCCESS;
 }

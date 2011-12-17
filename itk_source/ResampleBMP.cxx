@@ -50,6 +50,8 @@ int main(int argc, char *argv[]) {
   boost::shared_ptr< StackType > LoResStack, HiResStack;
   if(LoRes) LoResStack = InitializeLoResStack<StackType>(LoResImages, roi);
   if(HiRes) HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);
+  if(LoRes) LoResStack->SetBasenames(basenames);
+  if(HiRes) HiResStack->SetBasenames(basenames);
   
   if(HiRes) HiResStack->SetDefaultPixelValue( 255 );
   
@@ -73,8 +75,8 @@ int main(int argc, char *argv[]) {
   string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   
-  if(LoRes) Load(*LoResStack, LoResTransformsDir, basenames);
-  if(HiRes) Load(*HiResStack, HiResTransformsDir, basenames);
+  if(LoRes) Load(*LoResStack, LoResTransformsDir);
+  if(HiRes) Load(*HiResStack, HiResTransformsDir);
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");

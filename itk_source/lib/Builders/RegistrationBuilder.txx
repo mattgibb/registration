@@ -182,7 +182,6 @@ void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
   // optimizer->AddObserver( itk::IterationEvent(), normalizedDifferenceObserver );
   optimizer->AddObserver( itk::IterationEvent(), fileObserver );
-  
 }
 
 template <typename StackType>
