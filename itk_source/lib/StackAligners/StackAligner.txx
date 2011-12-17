@@ -2,7 +2,7 @@
 #define __STACKALIGNER_CXX_
 
 #include "StackAligner.hpp"
-
+#include "TransformWriter.hpp"
 
 template <typename StackType>
 StackAligner< StackType >::StackAligner(StackType &LoResStack,
@@ -31,8 +31,15 @@ void StackAligner< StackType >::Update() {
   unsigned int number_of_slices = m_LoResStack.GetSize();
   m_finalMetricValues = vector< double >(number_of_slices, NAN);
   
+  // configure TranformWriter
+  typename TransformWriter::Pointer transformWriter = TransformWriter::New();
+  transformWriter->setStack(&m_HiResStack);
+  m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
+  
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
     cout << "slice number: " << slice_number << endl;
+    
+    transformWriter->setSliceNumber(slice_number);
     
     if( bothImagesExist(slice_number) ) {
       // Could change this to register against original fixed image and fixed image masks,

@@ -38,6 +38,8 @@ public:
   
   static string HiResTransformsDir();
   
+  static string IntermediateTransformsDir();
+  
   static string SlicePairTransformsDir();
   
   static string ColourDir();

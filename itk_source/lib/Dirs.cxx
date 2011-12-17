@@ -77,24 +77,30 @@ string Dirs::ResultsDir()
 string Dirs::LoResTransformsDir()
 {
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "LoResTransforms_" + DownsampleSuffix();
+  return ResultsDir() + "LoResTransforms_" + DownsampleSuffix() + "/";
 }
 
 string Dirs::HiResTransformsDir()
 {
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "HiResTransforms_" + DownsampleSuffix();
+  return ResultsDir() + "HiResTransforms_" + DownsampleSuffix() + "/";
+}
+
+string Dirs::IntermediateTransformsDir()
+{
+  // read transforms from directories labeled by both ds ratios
+  return ResultsDir() + "IntermediateTransforms_" + DownsampleSuffix() + "/";
 }
 
 string Dirs::SlicePairTransformsDir()
 {
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "SlicePairTransforms_" + DownsampleSuffix();
+  return ResultsDir() + "SlicePairTransforms_" + DownsampleSuffix() + "/";
 }
 
 string Dirs::ColourDir()
 {
-  return ResultsDir() + "ColourResamples_" + DownsampleSuffix();
+  return ResultsDir() + "ColourResamples_" + DownsampleSuffix() + "/";
 }
 
 string Dirs::BlockDir()
