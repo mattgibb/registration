@@ -2,6 +2,7 @@
 #define TRANSFORMWRITER_HPP_
 
 #include <sstream>
+#include <iomanip>
 #include "boost/filesystem.hpp"
 
 #include "CommandObserverBase.hpp"
@@ -62,7 +63,12 @@ public:
                        
       create_directories(dirPath);
       stringstream filePath;
-      filePath << dirPath << m_currentIteration;
+      filePath << dirPath
+        // leading zeros
+        << setfill('0')
+        // 4 digits wide
+        << setw(4)
+        << m_currentIteration;
       
       // save transform
       writeTransform(m_stack->GetTransform(m_sliceNumber), filePath.str());
