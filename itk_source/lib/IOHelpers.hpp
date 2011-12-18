@@ -52,6 +52,27 @@ typename ImageType::Pointer readImage(const string& fileName)
   return reader->GetOutput();
 }
 
+template <typename ImageType>
+vector< typename ImageType::Pointer > readImages(vector< string > fileNames)
+{
+  vector< typename ImageType::Pointer > originalImages;
+	
+	for(unsigned int i=0; i<fileNames.size(); i++)
+	{
+	  if( fileExists(fileNames[i]) )
+	  {
+      originalImages.push_back( readImage< ImageType >(fileNames[i]) );
+	  }
+	  else
+	  {
+	    // create a new image of zero size
+      originalImages.push_back( ImageType::New() );
+	  }
+	}
+	
+  return originalImages;
+}
+
 // Writer helpers
 // const Data
 template<typename WriterType, typename DataType>
@@ -119,27 +140,6 @@ bool fileExists(const string& strFilename)
   } 
   
   return(blnReturn); 
-}
-
-template <typename ImageType>
-vector< typename ImageType::Pointer > readImages(vector< string > fileNames)
-{
-  vector< typename ImageType::Pointer > originalImages;
-	
-	for(unsigned int i=0; i<fileNames.size(); i++)
-	{
-	  if( fileExists(fileNames[i]) )
-	  {
-      originalImages.push_back( readImage< ImageType >(fileNames[i]) );
-	  }
-	  else
-	  {
-	    // create a new image of zero size
-      originalImages.push_back( ImageType::New() );
-	  }
-	}
-	
-  return originalImages;
 }
 
 
