@@ -45,8 +45,8 @@ int main(int argc, char *argv[]) {
   typedef itk::RGBPixel< unsigned char > PixelType;
   typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages, HiResImages;
-  if(LoRes) LoResImages = readImages< StackType >(LoResFilePaths);
-  if(HiRes) HiResImages = readImages< StackType >(HiResFilePaths);
+  if(LoRes) LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
+  if(HiRes) HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
   boost::shared_ptr< StackType > LoResStack, HiResStack;
   if(LoRes) LoResStack = InitializeLoResStack<StackType>(LoResImages, roi);
   if(HiRes) HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);

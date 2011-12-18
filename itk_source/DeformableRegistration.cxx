@@ -45,8 +45,8 @@ int main(int argc, char const *argv[]) {
   
 	// initialise stack objects
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType LoResImages = readImages< StackType >(LoResFilePaths);
-  StackType::SliceVectorType HiResImages = readImages< StackType >(HiResFilePaths);
+  StackType::SliceVectorType LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
+  StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
   normalizeImages< StackType >(LoResImages);
   normalizeImages< StackType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);

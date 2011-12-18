@@ -121,21 +121,21 @@ bool fileExists(const string& strFilename)
   return(blnReturn); 
 }
 
-template <typename StackType>
-typename StackType::SliceVectorType readImages(vector< string > fileNames)
+template <typename ImageType>
+vector< typename ImageType::Pointer > readImages(vector< string > fileNames)
 {
-  typename StackType::SliceVectorType originalImages;
+  vector< typename ImageType::Pointer > originalImages;
 	
 	for(unsigned int i=0; i<fileNames.size(); i++)
 	{
 	  if( fileExists(fileNames[i]) )
 	  {
-      originalImages.push_back( readImage< typename StackType::SliceType >(fileNames[i]) );
+      originalImages.push_back( readImage< ImageType >(fileNames[i]) );
 	  }
 	  else
 	  {
 	    // create a new image of zero size
-      originalImages.push_back( StackType::SliceType::New() );
+      originalImages.push_back( ImageType::New() );
 	  }
 	}
 	
