@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   string roi = vm["roi"].as<string>();
   
   // get file names
-  vector< string > basenames = getFileNames(Dirs::ImageList());
+  vector< string > basenames = getBasenames(Dirs::ImageList());
   vector< string > LoResFilePaths, HiResFilePaths;
   if(LoRes) LoResFilePaths = constructPaths(blockDir,         basenames, ".bmp");
   if(HiRes) HiResFilePaths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
   if(HiRes) HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);
   if(LoRes) LoResStack->SetBasenames(basenames);
   if(HiRes) HiResStack->SetBasenames(basenames);
-  
   if(HiRes) HiResStack->SetDefaultPixelValue( 255 );
   
   // Load transforms from files

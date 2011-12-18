@@ -55,7 +55,7 @@ int main (int argc, char const *argv[]) {
     registrationParameters["stackSpacings"][i] >> stackSpacings[i];
   }
   
-	Stack stack( getFileNames(argv[1], argv[2]), stackSpacings );
+	Stack stack( getBasenames(argv[1], argv[2]), stackSpacings );
 		
   double MRIInitialResizeFactor;
   registrationParameters["MRIInitialResizeFactor"] >> MRIInitialResizeFactor;

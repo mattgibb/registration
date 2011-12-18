@@ -38,7 +38,7 @@ int main(int argc, char const *argv[]) {
   // or list from config file
   vector< string > basenames = argc >= 4 ?
                                vector< string >(1, argv[3]) :
-                               getFileNames(Dirs::ImageList());
+                               getBasenames(Dirs::ImageList());
   
   // prepend directory to each filename in list
   vector< string > LoResFilePaths = constructPaths(Dirs::BlockDir(), basenames, ".bmp");

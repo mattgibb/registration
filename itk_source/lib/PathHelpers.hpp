@@ -9,7 +9,7 @@ using namespace boost::filesystem;
 
 
 // get list of file names, with no directory, from text list
-inline vector < string > getFileNames(const string& fileList, const string& extension = "")
+inline vector < string > getBasenames(const string& fileList, const string& extension = "")
 {
   vector< string > fileNames;
   ifstream infile(fileList.c_str(), ios_base::in);
@@ -46,7 +46,7 @@ inline vector< string > constructPaths(const string& directory, const vector< st
 // and return vector of results
 inline vector< string > constructPaths(const string& directory, const string& fileList, const string& extension = "")
 {
-  vector< string > basenames = getFileNames(fileList);
+  vector< string > basenames = getBasenames(fileList);
   
   return constructPaths(directory, basenames, extension);
 }

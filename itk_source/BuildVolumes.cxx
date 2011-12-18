@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   // or list from config file
   vector< string > basenames = vm.count("slice") ?
                                vector< string >(1, vm["slice"].as<string>()) :
-                               getFileNames(Dirs::ImageList());
+                               getBasenames(Dirs::ImageList());
   
   // prepend directory to each filename in list
   vector< string > LoResFilePaths = constructPaths(blockDir, basenames, ".bmp");
