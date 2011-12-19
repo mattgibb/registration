@@ -11,6 +11,25 @@
 
 using namespace std;
 
+bool fileExists(const string& strFilename)
+{
+  struct stat stFileInfo;
+  bool blnReturn;
+  int intStat;
+  
+  // Attempt to get the file attributes
+  intStat = stat(strFilename.c_str(),&stFileInfo);
+  if(intStat == 0) {
+    // We were able to get the file attributes 
+    // so the file obviously exists.
+    blnReturn = true; 
+  } else { 
+    blnReturn = false; 
+  } 
+  
+  return(blnReturn); 
+}
+
 // Reader helpers
 itk::TransformBase::Pointer readTransform(const string& fileName)
 {
@@ -121,25 +140,6 @@ void writeTransform(const itk::TransformBase *transform, const string& fileName)
 {
   itk::TransformBase::ConstPointer transformConstPointer(transform);
   writeData< itk::TransformFileWriter, itk::TransformBase >( transformConstPointer, fileName );
-}
-
-bool fileExists(const string& strFilename)
-{
-  struct stat stFileInfo;
-  bool blnReturn;
-  int intStat;
-  
-  // Attempt to get the file attributes
-  intStat = stat(strFilename.c_str(),&stFileInfo);
-  if(intStat == 0) {
-    // We were able to get the file attributes 
-    // so the file obviously exists.
-    blnReturn = true; 
-  } else { 
-    blnReturn = false; 
-  } 
-  
-  return(blnReturn); 
 }
 
 
