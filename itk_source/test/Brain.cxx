@@ -66,7 +66,7 @@ int main(int argc, char const *argv[]) {
   
   // write transform and results
   writeData< itk::TransformFileWriter, StackType::TransformType >
-    (HiResStack->GetTransform(0), outputDir + "Transforms.meta");
+    (HiResStack->GetTransform(0), outputDir + "Transforms");
   
   cout << "outputDir: " << outputDir << endl;
   

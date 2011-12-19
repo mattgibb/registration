@@ -20,7 +20,7 @@ using namespace boost::filesystem;
 template <typename StackType>
 void Save(StackType& stack, const string& directory)
 {
-  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames(), ".meta");
+  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames());
   
   for(int slice_number=0; slice_number < stack.GetSize(); ++slice_number)
 	{
@@ -32,7 +32,7 @@ void Save(StackType& stack, const string& directory)
 template <typename StackType>
 void Load(StackType& stack, const string& directory)
 {
-  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames(), ".meta");
+  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames());
   
   // Some transforms might not be registered
   // with the factory so we add them manually
@@ -57,7 +57,7 @@ void ApplyAdjustments(StackType& stack, const string& directory)
 {
   // construct path to config transform file
   //  e.g. config/Rat28/LoRes_adustments/0053.meta
-  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames(), ".meta");
+  vector< string > transformPaths = constructPaths(directory, stack.GetBasenames());
   
   // Some transforms might not be registered
   // with the factory so we add them manually
