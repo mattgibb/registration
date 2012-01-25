@@ -97,4 +97,8 @@ ADD_EXECUTABLE(ImageStats ImageStats.cxx )
 TARGET_LINK_LIBRARIES(ImageStats ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(BuildProgressVolume BuildProgressVolume.cxx )
+TARGET_LINK_LIBRARIES(BuildProgressVolume ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
