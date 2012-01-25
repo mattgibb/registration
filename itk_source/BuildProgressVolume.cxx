@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
     vector< string > steps = directoryContents(stepsDirectory);
   
     // initialise stack with correct spacings, sizes, transforms etc
-    cout << "Building HiRes progress volume for " << *basename << "...";
+    cout << "Building " << *basename << " HiRes progress volume...";
     typedef itk::RGBPixel< unsigned char > PixelType;
     typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
     StackType::SliceVectorType HiResImage(steps.size(), readImage< StackType::SliceType >(HiResPath));
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     // generate LoRes volume for comparison
     if(LoRes)
     {
-      cout << "Building LoRes comparison volume...";
+      cout << "Building " << *basename << " LoRes comparison volume...";
       string LoResPath = Dirs::BlockDir() + *basename + ".bmp";
       StackType::SliceVectorType LoResImage = StackType::SliceVectorType(steps.size(), readImage< StackType::SliceType >(LoResPath) );
       boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImage);
