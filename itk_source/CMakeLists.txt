@@ -77,8 +77,8 @@ ADD_EXECUTABLE(RegisterROI RegisterROI.cxx )
 TARGET_LINK_LIBRARIES(RegisterROI ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
-ADD_EXECUTABLE(Register2Slices Register2Slices.cxx )
-TARGET_LINK_LIBRARIES(Register2Slices ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+ADD_EXECUTABLE(RegisterLoResPair RegisterLoResPair.cxx )
+TARGET_LINK_LIBRARIES(RegisterLoResPair ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(SplitVolumeIntoSlices SplitVolumeIntoSlices.cxx )
