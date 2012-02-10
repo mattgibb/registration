@@ -157,7 +157,7 @@ vector< string > directoryContents(const string& directory)
   vector< string > contents_strings;
   for(vector< path >::const_iterator it = contents.begin(); it != contents.end(); ++it)
   {
-    contents_strings.push_back(it->leaf());
+    contents_strings.push_back(it->leaf().string());
   }
   return contents_strings;
 }
