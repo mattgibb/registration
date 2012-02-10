@@ -1,1 +1,1 @@
-every_fifteenth_slice.txt
+pericardial_vessel.txt
