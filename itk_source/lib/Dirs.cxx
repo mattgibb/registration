@@ -92,10 +92,10 @@ string Dirs::IntermediateTransformsDir()
   return ResultsDir() + "IntermediateTransforms_" + DownsampleSuffix() + "/";
 }
 
-string Dirs::SlicePairTransformsDir()
+string Dirs::HiResPairTransformsDir()
 {
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "SlicePairTransforms_" + DownsampleSuffix() + "/";
+  return ResultsDir() + "HiResPairTransforms_" + DownsampleSuffix() + "/";
 }
 
 string Dirs::ColourDir()
