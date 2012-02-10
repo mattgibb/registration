@@ -4,19 +4,19 @@ normalizeImages: true
 optimizer:
   maximize: on
   scale:
-    translation: 0.0000001 # What is an appropriate 2D translation scale?
+    translation: 0.0000005 # What is an appropriate 2D translation scale?
     rotation: 1
     size: 1
-  maxIterations: 1000
+  maxIterations: 500
   # uncomment name of optimizer you wish to use
   # regularStepGradientDescent:
   #   relaxationFactor: 0.8
-  #   maxStepLength: 1
-  #   minStepLength: 0.001
-  #   gradientMagnitudeTolerance: 0.0001
+  #   maxStepLength: 10
+  #   minStepLength: 0.01
+  #   gradientMagnitudeTolerance: 0.001
   gradientDescent:
     # gradually increase learning rate from low value until it becomes unstable
-    learningRate: 2
+    learningRate: 0.1
 
 metric:
   # uncomment name of metric you wish to use
@@ -26,5 +26,5 @@ metric:
   normalizedCorrelation:
   # mattesMutualInformation:
   #   # numberOfSpatialSamples: 24000
-  #   numberOfSpatialSamples: 3000
-  #   numberOfHistogramBins: 50 # Number of bins recommended to be about 50, see ITK Software Guide p341
+  #   numberOfSpatialSamples: 10000
+  #   numberOfHistogramBins: 100 # Number of bins recommended to be about 50, see ITK Software Guide p341
