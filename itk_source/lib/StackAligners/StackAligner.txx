@@ -28,13 +28,18 @@ double StackAligner< StackType >::GetOptimizerValue()
 
 template <typename StackType>
 void StackAligner< StackType >::Update() {
+  // configure TranformWriter if it hasn't been done before
+  static bool firstCall = true;
+  typename TransformWriter::Pointer transformWriter = TransformWriter::New();
+  if(firstCall)
+  {
+    transformWriter->setStack(&m_HiResStack);
+    m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
+    firstCall = false;
+  }
+  
   unsigned int number_of_slices = m_LoResStack.GetSize();
   m_finalMetricValues = vector< double >(number_of_slices, NAN);
-  
-  // configure TranformWriter
-  typename TransformWriter::Pointer transformWriter = TransformWriter::New();
-  transformWriter->setStack(&m_HiResStack);
-  m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
   
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
     cout << "slice number: " << slice_number << endl;
