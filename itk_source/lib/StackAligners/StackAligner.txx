@@ -28,15 +28,11 @@ double StackAligner< StackType >::GetOptimizerValue()
 
 template <typename StackType>
 void StackAligner< StackType >::Update() {
-  // configure TranformWriter if it hasn't been done before
-  static bool firstCall = true;
+  // configure TranformWriter
   typename TransformWriter::Pointer transformWriter = TransformWriter::New();
-  if(firstCall)
-  {
-    transformWriter->setStack(&m_HiResStack);
+  transformWriter->setStack(&m_HiResStack);
+  unsigned long observerId = 
     m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
-    firstCall = false;
-  }
   
   unsigned int number_of_slices = m_LoResStack.GetSize();
   m_finalMetricValues = vector< double >(number_of_slices, NAN);
@@ -83,6 +79,9 @@ void StackAligner< StackType >::Update() {
       }
     }
   }
+  
+  // tidy up observer
+  m_registration->GetOptimizer()->RemoveObserver( observerId );
   
   cout << "Finished registration." << endl;
 }
