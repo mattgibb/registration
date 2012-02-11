@@ -141,18 +141,16 @@ namespace StackTransforms {
   template <typename StackType>
   void SetMovingStackCenterWithFixedStack( StackType& fixedStack, StackType& movingStack )
   {
-    const typename StackType::TransformVectorType& movingTransforms = movingStack.GetTransforms();
-    
     // set the moving slices' centre of rotation to the centre of the fixed image
     for(unsigned int slice_number=0; slice_number<movingStack.GetSize(); ++slice_number)
     {
-      LinearTransformType::Pointer transform = dynamic_cast< LinearTransformType* >( movingTransforms[slice_number].GetPointer() );
+      LinearTransformType::Pointer transform = dynamic_cast< LinearTransformType* >( movingStack.GetTransform(slice_number).GetPointer() );
       if(transform)
       {
         const typename StackType::SliceType::SizeType &resamplerSize( fixedStack.GetResamplerSize() );
         const typename StackType::VolumeType::SpacingType &spacings( fixedStack.GetSpacings() );
         LinearTransformType::CenterType center;
-
+        
         center[0] = spacings[0] * (double)resamplerSize[0] / 2.0;
         center[1] = spacings[1] * (double)resamplerSize[1] / 2.0;
         
