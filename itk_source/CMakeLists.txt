@@ -81,8 +81,8 @@ ADD_EXECUTABLE(RegisterLoResPair RegisterLoResPair.cxx )
 TARGET_LINK_LIBRARIES(RegisterLoResPair ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
-ADD_EXECUTABLE(RegisterHiResPair RegisterHiResPair.cxx )
-TARGET_LINK_LIBRARIES(RegisterHiResPair ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+ADD_EXECUTABLE(RegisterHiResPairs RegisterHiResPairs.cxx )
+TARGET_LINK_LIBRARIES(RegisterHiResPairs ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(SplitVolumeIntoSlices SplitVolumeIntoSlices.cxx )
