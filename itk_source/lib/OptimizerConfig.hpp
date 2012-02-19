@@ -1,3 +1,7 @@
+// All the configuration for optimizers
+// Dynamic parameters are retrieved from registrationParameters(),
+// So must call Dirs::SetParamsFile() to explicitly configure.
+
 #ifndef OPTIMIZERCONFIG_HPP_
 #define OPTIMIZERCONFIG_HPP_
 
