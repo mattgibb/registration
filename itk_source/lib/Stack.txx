@@ -12,8 +12,6 @@ spacings(inputSpacings) {
   initializeVectors();
 	// scale slices and initialise volume and mask
   resamplerSize.Fill(0);
-  for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
-  scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();
   setResamplerSizeToMaxSize();
@@ -30,25 +28,6 @@ resamplerSize(inputSize),
 spacings(inputSpacings) {
   initializeVectors();
 	// scale slices and initialise volume and mask
-	for(unsigned int i=0; i<2; i++) originalSpacings[i] = spacings[i];
-  scaleOriginalSlices();
-  buildOriginalMaskSlices();
-  calculateMaxSize();
-  initializeFilters();
-}
-
-template <typename TPixel,
-          template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
-          template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-Stack< TPixel, ResampleImageFilterType, InterpolatorType >::Stack(const SliceVectorType& images, const typename SliceType::SpacingType& inputOriginalSpacings,
-      const typename VolumeType::SpacingType& inputSpacings, const typename SliceType::SizeType& inputSize):
-originalImages(images),
-resamplerSize(inputSize),
-originalSpacings(inputOriginalSpacings),
-spacings(inputSpacings) {
-  initializeVectors();
- // scale slices and initialise volume and mask
-  scaleOriginalSlices();
   buildOriginalMaskSlices();
   calculateMaxSize();
   initializeFilters();
@@ -70,22 +49,6 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::initializeVecto
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
-void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::scaleOriginalSlices() {
-  // rescale original images
-	for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
-	  xyScaler = XYScaleType::New();
-		xyScaler->ChangeSpacingOn();
-		xyScaler->SetOutputSpacing( originalSpacings );
-    xyScaler->SetInput( originalImages[slice_number] );
-    xyScaler->Update();
-    originalImages[slice_number] = xyScaler->GetOutput();
-    originalImages[slice_number]->DisconnectPipeline();
-	}
-}
-	
-template <typename TPixel,
-          template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
-          template<typename TInputImage, typename TCoordRep> class InterpolatorType >
 void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildOriginalMaskSlices() {
 	// build a vector of mask slices
 	for(unsigned int slice_number=0; slice_number<originalImages.size(); slice_number++) {
@@ -104,7 +67,7 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildOriginalMa
     
   }
 }
-	
+
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >

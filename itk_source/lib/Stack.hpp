@@ -37,7 +37,6 @@ public:
 	typedef itk::ResampleImageFilter< MaskSliceType, MaskSliceType, double > MaskResamplerType;
   typedef itk::TileImageFilter< SliceType, VolumeType > TileFilterType;
   typedef itk::TileImageFilter< MaskSliceType, MaskVolumeType > MaskTileFilterType;
-  typedef itk::ChangeInformationImageFilter< SliceType > XYScaleType;
   typedef itk::ChangeInformationImageFilter< VolumeType > ZScaleType;
   typedef itk::ChangeInformationImageFilter< MaskVolumeType > MaskZScaleType;
 	typedef itk::ImageMaskSpatialObject< 3 > MaskType3D;
@@ -46,12 +45,10 @@ public:
 	
 private:
 	SliceVectorType originalImages;
-	typename XYScaleType::Pointer xyScaler;
   SliceVectorType slices;
 	typename VolumeType::Pointer volume;
   typename SliceType::SizeType maxSize;
 	typename SliceType::SizeType resamplerSize;
-	typename SliceType::SpacingType originalSpacings;
 	typename VolumeType::SpacingType spacings;
 	typename MaskType3D::Pointer mask3D;
 	MaskVectorType2D original2DMasks;
@@ -76,10 +73,6 @@ public:
 	// constructor to specify size and start index explicitly
   Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings,
         const typename SliceType::SizeType& inputSize);
-	
-	// constructor to specify stack size and spacing, and spacing of original images
-  Stack(const SliceVectorType& images, const typename SliceType::SpacingType& inputOriginalSpacings,
-        const typename VolumeType::SpacingType& inputSpacings, const typename SliceType::SizeType& inputSize);
 	
 protected:
   void initializeVectors();
@@ -121,8 +114,8 @@ public:
   
   const typename VolumeType::SpacingType& GetSpacings() const { return spacings; }
 
-  const typename SliceType::SpacingType& GetOriginalSpacings() const { return originalSpacings; }
-          
+  const typename SliceType::SpacingType& GetOriginalSpacings() const { return originalImages[0]->GetSpacing(); }
+  
   typename SliceType::Pointer GetOriginalImage(unsigned int slice_number) {
     checkSliceNumber(slice_number);
   	return originalImages[slice_number];
@@ -137,6 +130,8 @@ public:
     checkSliceNumber(slice_number);
     return slices[slice_number];
   }
+  
+  SliceVectorType GetResampledSlices() { return slices; }
   
   typename MaskType2D::Pointer GetResampled2DMask(unsigned int slice_number) {
     checkSliceNumber(slice_number);

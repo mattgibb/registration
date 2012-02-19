@@ -13,6 +13,7 @@
 #include "Parameters.hpp"
 #include "StackTransforms.hpp"
 #include "OptimizerConfig.hpp"
+#include "ScaleImages.hpp"
 
 int main(int argc, char const *argv[]) {
   Dirs::SetParamsFile(Dirs::TestDir() + "data/registration_parameters.yml");
@@ -39,8 +40,7 @@ int main(int argc, char const *argv[]) {
   StackType::SliceVectorType LoResImages = readImages< StackType::SliceType >(original);
   StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(rotated);
   boost::shared_ptr< StackType > LoResStack = boost::make_shared< StackType >(LoResImages, LoResSpacings);
-  boost::shared_ptr< StackType > HiResStack = boost::make_shared< StackType >(HiResImages, HiResOriginalSpacings,
-            LoResStack->GetSpacings(), LoResStack->GetResamplerSize());
+  boost::shared_ptr< StackType > HiResStack = boost::make_shared< StackType >(HiResImages, LoResStack->GetSpacings(), LoResStack->GetResamplerSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
   StackTransforms::InitializeToCommonCentre( *LoResStack );

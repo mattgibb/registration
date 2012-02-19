@@ -6,7 +6,7 @@
 
 #include "Stack.hpp"
 #include "Dirs.hpp"
-
+#include "ScaleImages.hpp"
 
 template <typename StackType>
 boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVectorType Images, const string& roi = "whole_heart")
@@ -26,7 +26,12 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
   for(unsigned int i=0; i<2; i++) {
     Spacings[i] *= DownsampleRatio;
   }
-
+  
+  // get 2D spacings to scale input images
+  typename StackType::SliceType::SpacingType Spacings2D;
+  Spacings2D[0] = Spacings[0];
+  Spacings2D[1] = Spacings[1];
+  
   // get size
   boost::shared_ptr<YAML::Node> roiNode = config("ROIs/" + roi + ".yml");
   typename StackType::SliceType::SizeType Size;
@@ -35,6 +40,7 @@ boost::shared_ptr< StackType > InitializeLoResStack(typename StackType::SliceVec
     Size[i] /= DownsampleRatio;
   }
   
+  scaleImages< typename StackType::SliceType >(Images, Spacings2D);
   return boost::make_shared< StackType >(Images, Spacings, Size);
 }
 
@@ -68,7 +74,10 @@ boost::shared_ptr< StackType > InitializeHiResStack(typename StackType::SliceVec
     LoResSize[i] /= LoResDownsampleRatio;
   }
   
-  return boost::make_shared< StackType >(Images, HiResOriginalSpacings, LoResSpacings, LoResSize);
+  scaleImages<typename StackType::SliceType>(Images, HiResOriginalSpacings);
+  
+  return boost::make_shared< StackType >(Images, LoResSpacings, LoResSize);
 }
+
 
 #endif
