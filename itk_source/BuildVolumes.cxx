@@ -49,8 +49,8 @@ int main(int argc, char *argv[]) {
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
   StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
-  normalizeImages< StackType >(LoResImages);
-  normalizeImages< StackType >(HiResImages);
+  normalizeImages< StackType::SliceType >(LoResImages);
+  normalizeImages< StackType::SliceType >(HiResImages);
   boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
   boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
   LoResStack->SetBasenames(basenames);

@@ -4,8 +4,9 @@
 #include "Parameters.hpp"
 #include "itkNormalizeImageFilter.h"
 
-template <typename StackType >
-void normalizeImages(typename StackType::SliceVectorType& images) {
+template <typename ImageType >
+void normalizeImages(vector<typename ImageType::Pointer>& images)
+{
   // test if configured to normalise images
   bool normalizeImages;
   registrationParameters()["normalizeImages"] >> normalizeImages;
@@ -14,15 +15,16 @@ void normalizeImages(typename StackType::SliceVectorType& images) {
   // apply normalisation
   if(normalizeImages)
   {
-    typedef itk::NormalizeImageFilter< typename StackType::SliceType, typename StackType::SliceType > NormalizerType;
+    typedef itk::NormalizeImageFilter< ImageType, ImageType > NormalizerType;
+    typedef typename vector<typename ImageType::Pointer>::iterator IterType;
     typename NormalizerType::Pointer normalizer;
-    for(unsigned int slice_number=0; slice_number<images.size(); slice_number++)
+  	for(IterType it = images.begin(); it != images.end(); ++it)
     {
       normalizer = NormalizerType::New();
-      normalizer->SetInput( images[slice_number] );
+      normalizer->SetInput( *it );
       normalizer->Update();
-      images[slice_number] = normalizer->GetOutput();
-      images[slice_number]->DisconnectPipeline();
+      *it = normalizer->GetOutput();
+      (*it)->DisconnectPipeline();
     }
     
   cout << "finished normalising" << endl;
