@@ -13,7 +13,7 @@ YAML::Node& registrationParameters();
 
 boost::shared_ptr<YAML::Node> config(const string& filename);
 
-float getDownsampleRatio(const string& res);
+double getDownsampleRatio(const string& res);
 
 // get 2D or 3D "HiRes" or "LoRes" image spacings
 // multiplied by the selected downsample ratio
@@ -23,9 +23,13 @@ typename itk::Vector< double, dim > getSpacings(const string& res)
   typename itk::Vector< double, dim > spacings;
   
   // get spacings multiplied by downsample ratio
-  for(unsigned int i=0; i<dim; i++)
+  for(unsigned int i=0; i<dim; ++i)
   {
     (*config("image_spacings.yml"))[res][i] >> spacings[i];
+  }
+  
+  for(unsigned int i=0; i<2; ++i)
+  {
     spacings[i] *= getDownsampleRatio(res);
   }
   

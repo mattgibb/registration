@@ -37,7 +37,7 @@ boost::shared_ptr<YAML::Node> config(const string& filename)
   return node;
 }
 
-float getDownsampleRatio(const string& res)
+double getDownsampleRatio(const string& res)
 {
   float ratio;
   (*config("downsample_ratios.yml"))[res] >> ratio;
