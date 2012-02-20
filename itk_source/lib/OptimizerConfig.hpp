@@ -5,30 +5,14 @@
 #ifndef OPTIMIZERCONFIG_HPP_
 #define OPTIMIZERCONFIG_HPP_
 
-
-// #include "boost/filesystem.hpp"
-
-// #include "itkIdentityTransform.h"
-// #include "itkTranslationTransform.h"
-// #include "itkCenteredRigid2DTransform.h"
-// #include "itkCenteredAffineTransform.h"
 #include "itkSingleValuedNonLinearOptimizer.h"
 #include "itkBSplineDeformableTransform.h"
 #include "itkBSplineDeformableTransformInitializer.h"
 #include "itkLBFGSBOptimizer.h"
 
-
-// #include "Stack.hpp"
-// #include "Dirs.hpp"
-// #include "Parameters.hpp"
-// #include "StdOutIterationUpdate.hpp"
-
 using namespace std;
 
 namespace OptimizerConfig {
-  // typedef itk::MatrixOffsetTransformBase< double, 2, 2 > LinearTransformType;
-  // typedef itk::TranslationTransform< double, 2 > TranslationTransformType;
-  
   void SetOptimizerScalesForCenteredRigid2DTransform(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
   {
     double translationScale, rotationScale;
