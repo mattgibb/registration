@@ -119,6 +119,9 @@ namespace StackTransforms {
 			
 			// rotation in radians
 			parameters[0] = 0;
+			// centre of rotation
+      parameters[1] = 0;
+      parameters[2] = 0;
 			// translation, applied after rotation.
 			parameters[3] = ( originalSpacings[0] * (double)originalSize[0] - spacings[0] * (double)resamplerSize[0] ) / 2.0;
 			parameters[4] = ( originalSpacings[1] * (double)originalSize[1] - spacings[1] * (double)resamplerSize[1] ) / 2.0;
