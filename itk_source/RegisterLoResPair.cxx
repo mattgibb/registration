@@ -4,7 +4,6 @@
 
 // my files
 #include "Stack.hpp"
-#include "StackInitializers.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
@@ -12,6 +11,7 @@
 #include "StackTransforms.hpp"
 #include "Dirs.hpp"
 #include "Parameters.hpp"
+#include "ScaleImages.hpp"
 #include "Profiling.hpp"
 
 void checkUsage(int argc, char const *argv[]) {
@@ -26,6 +26,7 @@ void checkUsage(int argc, char const *argv[]) {
 
 int main(int argc, char const *argv[]) {
   using namespace boost::filesystem;
+  using namespace boost;
   
   // Verify the number of parameters in the command line
   checkUsage(argc, argv);
@@ -43,8 +44,10 @@ int main(int argc, char const *argv[]) {
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType slice1Image = readImages< StackType::SliceType >(slice1FileName);
   StackType::SliceVectorType slice2Image = readImages< StackType::SliceType >(slice2FileName);
-  boost::shared_ptr< StackType > slice1Stack = InitializeLoResStack<StackType>(slice1Image);
-  boost::shared_ptr< StackType > slice2Stack = InitializeLoResStack<StackType>(slice2Image);
+  scaleImages< StackType::SliceType >(slice1Image, getSpacings<2>("LoRes"));
+  scaleImages< StackType::SliceType >(slice2Image, getSpacings<2>("LoRes"));
+  shared_ptr< StackType > slice1Stack = make_shared< StackType >(slice1Image, getSpacings<3>("LoRes"), getSize());
+  shared_ptr< StackType > slice2Stack = make_shared< StackType >(slice2Image, getSpacings<3>("LoRes"), getSize());
   slice1Stack->SetBasenames(vector< string >(1, slice1BaseName));
   slice2Stack->SetBasenames(vector< string >(1, slice2BaseName));
   
@@ -73,7 +76,7 @@ int main(int argc, char const *argv[]) {
     writeImage< StackType::SliceType >( slice2Stack->GetResampledSlice(0), Dirs::ResultsDir() + slice2BaseName + "_before_registration.mha" );
   }
   // initialise registration framework
-  boost::shared_ptr<YAML::Node> pParameters = config("2_slice_parameters.yml");
+  shared_ptr<YAML::Node> pParameters = config("2_slice_parameters.yml");
   typedef RegistrationBuilder< StackType > RegistrationBuilderType;
   RegistrationBuilderType registrationBuilder(*pParameters);
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();

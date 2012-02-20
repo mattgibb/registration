@@ -1,7 +1,6 @@
 #ifndef SCALEIMAGES_HPP_
 #define SCALEIMAGES_HPP_
 
-#include "Parameters.hpp"
 #include "itkChangeInformationImageFilter.h"
 
 template <typename ImageType>
@@ -10,7 +9,8 @@ void scaleImages(vector<typename ImageType::Pointer>& images, const typename Ima
   typedef itk::ChangeInformationImageFilter< ImageType > ScalerType;
   typedef typename vector<typename ImageType::Pointer>::iterator IterType;
   typename ScalerType::Pointer scaler;
-	for(IterType it = images.begin(); it != images.end(); ++it) {
+	for(IterType it = images.begin(); it != images.end(); ++it)
+	{
 	  scaler = ScalerType::New();
 		scaler->ChangeSpacingOn();
 		scaler->SetOutputSpacing( spacings );
@@ -20,5 +20,6 @@ void scaleImages(vector<typename ImageType::Pointer>& images, const typename Ima
     (*it)->DisconnectPipeline();
 	}
 }
+
 
 #endif

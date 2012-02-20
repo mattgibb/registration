@@ -37,7 +37,8 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}
                     "lib"
                     "lib/Observers"
                     "lib/Builders"
-                    "lib/StackAligners")
+                    "lib/StackAligners"
+                    "lib/ImageFunctions")
 
 ADD_SUBDIRECTORY(lib)
 

@@ -1,4 +1,6 @@
 #include "boost/filesystem.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <assert.h>
 #include "itkCenteredSimilarity2DTransform.h"
@@ -6,7 +8,6 @@
 // my files
 #include "Stack.hpp"
 #include "NormalizeImages.hpp"
-#include "StackInitializers.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
@@ -16,6 +17,10 @@
 #include "StackTransforms.hpp"
 #include "OptimizerConfig.hpp"
 #include "Profiling.hpp"
+
+using namespace boost::filesystem;
+using namespace boost;
+
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc < 3 )
@@ -50,8 +55,8 @@ int main(int argc, char const *argv[]) {
   StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
   normalizeImages< StackType::SliceType >(LoResImages);
   normalizeImages< StackType::SliceType >(HiResImages);
-  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages, "ROI");
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages, "ROI");
+  shared_ptr< StackType > LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize());
+  shared_ptr< StackType > HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize());
   LoResStack->SetBasenames(basenames);
   HiResStack->SetBasenames(basenames);
   
@@ -105,7 +110,6 @@ int main(int argc, char const *argv[]) {
   LoResStack->updateVolumes();
   
   // write transforms to directories labeled by both ds ratios
-  using namespace boost::filesystem;
   create_directory(Dirs::LoResTransformsDir());
   create_directory(Dirs::HiResTransformsDir());
   Save(*LoResStack, Dirs::LoResTransformsDir());

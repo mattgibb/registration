@@ -1,5 +1,5 @@
-#ifndef REGISTRATIONBUILDER_CXX_
-#define REGISTRATIONBUILDER_CXX_
+#ifndef REGISTRATIONBUILDER_TXX_
+#define REGISTRATIONBUILDER_TXX_
 
 // metrics
 #include "itkMeanSquaresImageToImageMetric.h"

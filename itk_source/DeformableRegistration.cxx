@@ -2,10 +2,13 @@
 
 #include "itkNormalizedCorrelationImageToImageMetric.h"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+
 // my files
 #include "Stack.hpp"
 #include "NormalizeImages.hpp"
-#include "StackInitializers.hpp"
+#include "ScaleImages.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "IOHelpers.hpp"
@@ -15,6 +18,9 @@
 #include "Dirs.hpp"
 #include "Parameters.hpp"
 #include "Profiling.hpp"
+
+using namespace boost;
+
 
 void checkUsage(int argc, char const *argv[]) {
   if( argc < 3 )
@@ -49,8 +55,10 @@ int main(int argc, char const *argv[]) {
   StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
   normalizeImages< StackType::SliceType >(LoResImages);
   normalizeImages< StackType::SliceType >(HiResImages);
-  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  scaleImages< StackType::SliceType >(LoResImages, getSpacings<2>("LoRes"));
+  scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
+  shared_ptr< StackType > LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize());
+  shared_ptr< StackType > HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize());;
   LoResStack->SetBasenames(basenames);
   HiResStack->SetBasenames(basenames);
   
@@ -72,7 +80,7 @@ int main(int argc, char const *argv[]) {
   writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResPersistedStack.mha" );
   
   // initialise registration framework
-  boost::shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
+  shared_ptr<YAML::Node> pDeformableParameters = config("deformable_parameters.yml");
   typedef RegistrationBuilder< StackType > RegistrationBuilderType;
   RegistrationBuilderType registrationBuilder(*pDeformableParameters);
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();

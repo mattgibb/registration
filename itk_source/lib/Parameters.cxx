@@ -1,6 +1,7 @@
 #ifndef _PARAMETERS_CXX_
 #define _PARAMETERS_CXX_
 
+#include "Parameters.hpp"
 #include <fstream>
 #include <boost/make_shared.hpp>
 #include "yaml-cpp/yaml.h"
@@ -35,5 +36,26 @@ boost::shared_ptr<YAML::Node> config(const string& filename)
   parser.GetNextDocument(*node);
   return node;
 }
+
+float getDownsampleRatio(const string& res)
+{
+  float ratio;
+  (*config("downsample_ratios.yml"))[res] >> ratio;
+  return ratio;
+}
+
+itk::Size<2> getSize(const string& region)
+{
+  // get size divided by downsample ratio
+  itk::Size<2> size;
+  for(unsigned int i=0; i<2; i++)
+  {
+    (*config("ROIs/" + region + ".yml"))["Size"][i] >> size[i];
+    size[i] /= getDownsampleRatio("LoRes");
+  }
+  
+  return size;
+}
+
 
 #endif

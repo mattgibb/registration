@@ -5,7 +5,6 @@
 
 // my files
 #include "Stack.hpp"
-#include "StackInitializers.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
@@ -18,9 +17,12 @@
 // boost
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
-using namespace boost;
 namespace po = boost::program_options;
+using namespace boost::filesystem;
+using namespace boost;
 
 po::variables_map parse_arguments(int argc, char *argv[]);
 
@@ -47,9 +49,9 @@ int main(int argc, char *argv[]) {
   StackType::SliceVectorType LoResImages, HiResImages;
   if(LoRes) LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
   if(HiRes) HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
-  boost::shared_ptr< StackType > LoResStack, HiResStack;
-  if(LoRes) LoResStack = InitializeLoResStack<StackType>(LoResImages, roi);
-  if(HiRes) HiResStack = InitializeHiResStack<StackType>(HiResImages, roi);
+  shared_ptr< StackType > LoResStack, HiResStack;
+  if(LoRes) LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize(roi));
+  if(HiRes) HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize(roi));
   if(LoRes) LoResStack->SetBasenames(basenames);
   if(HiRes) HiResStack->SetBasenames(basenames);
   if(HiRes) HiResStack->SetDefaultPixelValue( 255 );
@@ -64,13 +66,12 @@ int main(int argc, char *argv[]) {
   }
   else
   {
-    boost::shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
+    shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
     (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
     (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
   }
   
   // read transforms from directories labeled by both ds ratios
-  using namespace boost::filesystem;
   string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
   
@@ -87,7 +88,6 @@ int main(int argc, char *argv[]) {
   if(HiRes) HiResStack->updateVolumes();
   
   // Write bmps
-  using namespace boost::filesystem;
   create_directory( Dirs::ColourDir() );
   
   if(LoRes) writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (path( Dirs::ColourDir() ) / "LoRes.mha").string());

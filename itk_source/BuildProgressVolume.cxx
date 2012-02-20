@@ -4,6 +4,8 @@
 // boost
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 // itk
 #include "itkRGBPixel.h"
@@ -11,12 +13,13 @@
 
 // my files
 #include "Stack.hpp"
-#include "StackInitializers.hpp"
 #include "StackIOHelpers.hpp"
 #include "IOHelpers.hpp"
+#include "ScaleImages.hpp"
 
 namespace po = boost::program_options;
 using namespace boost::filesystem;
+using namespace boost;
 
 
 // function declarations
@@ -52,7 +55,8 @@ int main(int argc, char *argv[]) {
     typedef itk::RGBPixel< unsigned char > PixelType;
     typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
     StackType::SliceVectorType HiResImage(steps.size(), readImage< StackType::SliceType >(HiResPath));
-    boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImage);
+    scaleImages< StackType::SliceType >(HiResImage, getSpacings<2>("HiRes"));
+    shared_ptr< StackType > HiResStack = make_shared< StackType >(HiResImage, getSpacings<3>("LoRes"), getSize());
     HiResStack->SetBasenames(steps);
     HiResStack->SetDefaultPixelValue( 255 );
   
@@ -78,7 +82,8 @@ int main(int argc, char *argv[]) {
       cout << "Building " << *basename << " LoRes comparison volume...";
       string LoResPath = Dirs::BlockDir() + *basename + ".bmp";
       StackType::SliceVectorType LoResImage = StackType::SliceVectorType(steps.size(), readImage< StackType::SliceType >(LoResPath) );
-      boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImage);
+      scaleImages< StackType::SliceType >(LoResImage, getSpacings<2>("LoRes"));
+      shared_ptr< StackType > LoResStack = make_shared< StackType >(LoResImage, getSpacings<3>("LoRes"), getSize());
       LoResStack->SetBasenames(vector< string >(steps.size(), *basename));
       // load LoRes transforms
       StackTransforms::InitializeWithTranslation( *LoResStack, StackTransforms::GetLoResTranslation("whole_heart") );

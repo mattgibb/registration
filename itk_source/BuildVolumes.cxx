@@ -7,7 +7,7 @@
 // my files
 #include "Stack.hpp"
 #include "NormalizeImages.hpp"
-#include "StackInitializers.hpp"
+#include "ScaleImages.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
@@ -21,6 +21,7 @@
 
 namespace po = boost::program_options;
 using namespace boost::filesystem;
+using namespace boost;
 
 po::variables_map parse_arguments(int argc, char *argv[]);
 
@@ -51,8 +52,10 @@ int main(int argc, char *argv[]) {
   StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
   normalizeImages< StackType::SliceType >(LoResImages);
   normalizeImages< StackType::SliceType >(HiResImages);
-  boost::shared_ptr< StackType > LoResStack = InitializeLoResStack<StackType>(LoResImages);
-  boost::shared_ptr< StackType > HiResStack = InitializeHiResStack<StackType>(HiResImages);
+  scaleImages< StackType::SliceType >(LoResImages, getSpacings<2>("LoRes"));
+  scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
+  shared_ptr< StackType > LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize());
+  shared_ptr< StackType > HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize());
   LoResStack->SetBasenames(basenames);
   HiResStack->SetBasenames(basenames);
   
