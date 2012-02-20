@@ -19,7 +19,7 @@ namespace OptimizerConfig {
     registrationParameters()["optimizer"]["scale"]["translation"] >> translationScale;
     registrationParameters()["optimizer"]["scale"]["rotation"] >> rotationScale;
   	itk::Array< double > scales( 5 );
-    scales[0] = 1.0;
+    scales[0] = rotationScale;
     scales[1] = translationScale;
     scales[2] = translationScale;
     scales[3] = translationScale;
