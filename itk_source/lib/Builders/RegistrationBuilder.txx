@@ -32,6 +32,8 @@ template <typename StackType>
 RegistrationBuilder< StackType >::RegistrationBuilder(YAML::Node& parameters):
   m_registrationParameters( parameters )
 {
+  cerr << "Warning: if parameters file isn't set globally via Dirs::SetParamsFile()," << endl;
+  cerr << "Optimizer scales will be drawn from the default registration_parameters.yml." << endl;
   buildRegistrationComponents();
 	setUpObservers();
 }
