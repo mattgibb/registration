@@ -13,6 +13,7 @@
 #include "Dirs.hpp"
 #include "Parameters.hpp"
 #include "Profiling.hpp"
+#include "ScaleImages.hpp"
 
 // boost
 #include "boost/filesystem.hpp"
@@ -49,6 +50,8 @@ int main(int argc, char *argv[]) {
   StackType::SliceVectorType LoResImages, HiResImages;
   if(LoRes) LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
   if(HiRes) HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
+  if(LoRes) scaleImages< StackType::SliceType >(LoResImages, getSpacings<2>("LoRes"));
+  if(HiRes) scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
   shared_ptr< StackType > LoResStack, HiResStack;
   if(LoRes) LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize(roi));
   if(HiRes) HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize(roi));
@@ -73,7 +76,8 @@ int main(int argc, char *argv[]) {
   
   // read transforms from directories labeled by both ds ratios
   string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+  string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio
+                              + "/CenteredAffineTransform";
   
   if(LoRes) Load(*LoResStack, LoResTransformsDir);
   if(HiRes) Load(*HiResStack, HiResTransformsDir);
