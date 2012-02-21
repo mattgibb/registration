@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
                             *basename + "/";
   
     vector< string > steps = directoryContents(stepsDirectory);
-  
+    
     // initialise stack with correct spacings, sizes, transforms etc
     cout << "Building " << *basename << " HiRes progress volume...";
     typedef itk::RGBPixel< unsigned char > PixelType;
@@ -155,14 +155,22 @@ vector< string > directoryContents(const string& directory)
 {
   // retrieve and sort paths
   vector< path > contents;
-  copy(directory_iterator(directory), directory_iterator(), back_inserter(contents));
+  try
+  {
+    copy(directory_iterator(directory), directory_iterator(), back_inserter(contents));
+  }
+  catch(std::exception& e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
   sort(contents.begin(), contents.end());
   
-  // 
+  // extract leaves
   vector< string > contents_strings;
   for(vector< path >::const_iterator it = contents.begin(); it != contents.end(); ++it)
   {
     contents_strings.push_back(it->leaf().string());
   }
+  
   return contents_strings;
 }
