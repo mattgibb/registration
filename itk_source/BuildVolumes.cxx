@@ -77,6 +77,11 @@ int main(int argc, char *argv[]) {
   // Generate fixed images to register against
   LoResStack->updateVolumes();
   
+  // save LoResTransforms
+  create_directory(Dirs::ResultsDir());
+  create_directory(Dirs::LoResTransformsDir());
+  Save(*LoResStack, Dirs::LoResTransformsDir());
+  
   if( vm["pca"].as<bool>() )
   {
     // update both volumes so that their principal components align
@@ -127,6 +132,12 @@ int main(int argc, char *argv[]) {
     writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResRigidStack.mha" );
     // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResRigidMask.mha" );
   }
+  
+  // save CenteredRigid2DTransforms
+  create_directory(Dirs::HiResTransformsDir());
+  create_directory(Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
+  Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
+  
   StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
   
   // Scale parameter space
@@ -141,6 +152,10 @@ int main(int argc, char *argv[]) {
     HiResStack->updateVolumes();
     writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResSimilarityStack.mha" );
   }
+  
+  // save CenteredSimilarity2DTransforms
+  create_directory(Dirs::HiResTransformsDir() +  "CenteredSimilarity2DTransform/");
+  Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredSimilarity2DTransform/");
   
   // repeat registration with affine transform
   StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredAffineTransform< double, 2 > >(*HiResStack);
@@ -162,10 +177,8 @@ int main(int argc, char *argv[]) {
   saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", basenames );
   
   // write transforms to directories labeled by both ds ratios
-  create_directory(Dirs::LoResTransformsDir());
-  create_directory(Dirs::HiResTransformsDir());
-  Save(*LoResStack, Dirs::LoResTransformsDir());
-  Save(*HiResStack, Dirs::HiResTransformsDir());
+  create_directory(Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
+  Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
   
   return EXIT_SUCCESS;
 }
