@@ -30,7 +30,6 @@ public:
 	typedef itk::Image< PixelType, 3 > VolumeType;
 	typedef itk::Image< unsigned char, 3 > MaskVolumeType;
 	typedef vector< typename SliceType::Pointer > SliceVectorType;
-  typedef vector< MaskSliceType::Pointer > MaskSliceVectorType;
   typedef InterpolatorType< SliceType, double > LinearInterpolatorType;
   typedef itk::NearestNeighborInterpolateImageFunction< MaskSliceType, double > NearestNeighborInterpolatorType;
 	typedef ResampleImageFilterType< SliceType, SliceType, double > ResamplerType;
@@ -47,12 +46,12 @@ private:
 	SliceVectorType originalImages;
   SliceVectorType slices;
 	typename VolumeType::Pointer volume;
+	MaskVectorType2D original2DMasks;
+	MaskVectorType2D resampled2DMasks;
+	typename MaskType3D::Pointer mask3D;
   typename SliceType::SizeType maxSize;
 	typename SliceType::SizeType resamplerSize;
 	typename VolumeType::SpacingType spacings;
-	typename MaskType3D::Pointer mask3D;
-	MaskVectorType2D original2DMasks;
-	MaskVectorType2D resampled2DMasks;
 	typename LinearInterpolatorType::Pointer linearInterpolator;
 	typename NearestNeighborInterpolatorType::Pointer nearestNeighborInterpolator;
 	typename ResamplerType::Pointer resampler;
@@ -68,10 +67,18 @@ private:
   
 public:
   // constructor to center images and size stack to fit in the longest and widest image
-  Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings);
+  Stack(const SliceVectorType& images,
+        const typename VolumeType::SpacingType& inputSpacings);
 
 	// constructor to specify size and start index explicitly
-  Stack(const SliceVectorType& images, const typename VolumeType::SpacingType& inputSpacings,
+  Stack(const SliceVectorType& images,
+        const typename VolumeType::SpacingType& inputSpacings,
+        const typename SliceType::SizeType& inputSize);
+	
+	// constructor to specify size and start index explicitly
+  Stack(const SliceVectorType& images,
+        const MaskVectorType2D& masks,
+        const typename VolumeType::SpacingType& inputSpacings,
         const typename SliceType::SizeType& inputSize);
 	
 protected:
@@ -137,6 +144,8 @@ public:
     checkSliceNumber(slice_number);
     return resampled2DMasks[slice_number];
   }
+  
+  MaskVectorType2D GetResampled2DMasks() { return resampled2DMasks; }
   
   typename VolumeType::Pointer GetVolume() { return volume; }
 	

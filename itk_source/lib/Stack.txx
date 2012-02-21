@@ -36,6 +36,23 @@ spacings(inputSpacings) {
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
+Stack< TPixel, ResampleImageFilterType, InterpolatorType >::Stack(const SliceVectorType& images,
+                                                                  const MaskVectorType2D& masks,
+                                                                  const typename VolumeType::SpacingType& inputSpacings,
+                                                                  const typename SliceType::SizeType& inputSize):
+originalImages(images),
+original2DMasks(masks),
+resamplerSize(inputSize),
+spacings(inputSpacings) {
+  initializeVectors();
+	// scale slices and initialise volume and mask
+  calculateMaxSize();
+  initializeFilters();
+}
+
+template <typename TPixel,
+          template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
+          template<typename TInputImage, typename TCoordRep> class InterpolatorType >
 void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::initializeVectors() {
 	// initialise various data members once the number of images is available
 	numberOfTimesTooBig = vector< unsigned int >( GetSize(), 0 );
@@ -136,7 +153,7 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::initializeFilte
 	// masks
 	mask3D = MaskType3D::New();
 }
-	
+
 template <typename TPixel,
           template<typename TInputImage, typename TOutputImage, typename TInterpolatorPrecisionType> class ResampleImageFilterType,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
@@ -189,7 +206,7 @@ template <typename TPixel,
           template<typename TInputImage, typename TCoordRep> class InterpolatorType >
 void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::buildMaskSlices()
 {
-	// make new 2D masks and assign mask slices to them      
+	// make new 2D masks and assign mask slices to them
 	for(unsigned int slice_number=0; slice_number<GetSize(); slice_number++)
 	{
     buildMaskSlice(slice_number);
