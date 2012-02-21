@@ -40,8 +40,6 @@ public:
   
   static string IntermediateTransformsDir();
   
-  static string HiResPairTransformsDir();
-  
   static string ColourDir();
   
   static string BlockDir();

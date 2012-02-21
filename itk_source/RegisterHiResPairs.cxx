@@ -13,6 +13,7 @@
 #include "Dirs.hpp"
 #include "OptimizerConfig.hpp"
 #include "ScaleImages.hpp"
+#include "TransformWriter.hpp"
 
 using namespace boost::filesystem;
 namespace po = boost::program_options;
@@ -81,27 +82,44 @@ int main(int argc, char *argv[]) {
   
   OptimizerConfig::SetOptimizerScalesForCenteredAffineTransform( registration->GetOptimizer() );
   
-  // TEMP
   fixedStack->updateVolumes();
   movingStack->updateVolumes();
   string outputDir = Dirs::ResultsDir() + "HiResPairs/";
   create_directory( outputDir );
   writeImage< StackType::VolumeType >( movingStack->GetVolume(), outputDir + "moving_before.mha");
-  writeImage< StackType::MaskVolumeType >( originalStack->Get3DMask()->GetImage(), outputDir + "original_mask.mha");
-  // TEMP
   
   // Get number of slices for registration and transform basenames
   unsigned int number_of_slices = fixedStack->GetSize();
+  
+  // Build movingStack's basenames
+  vector< string > transformBasenames;
+  for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
+  {
+    // construct basenames e.g. "0001_0002"
+    transformBasenames.push_back(basenames[slice_number] + "_" + basenames[slice_number + 1]);
+  }
+  movingStack->SetBasenames(transformBasenames);
+  
+  // Configure intermediate transform writer
+  TransformWriter::Pointer transformWriter = TransformWriter::New();
+  string intermediateTransformsDir = outputDir + "IntermediateTransforms_" + Dirs::DownsampleSuffix() + "/";
+  create_directory(intermediateTransformsDir);
+  transformWriter->setOutputRootDir(intermediateTransformsDir);
+  transformWriter->setStack(movingStack.get());
+  registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
   
   // Perform registration
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
   {
     cout << "Registering slices " << basenames[slice_number] <<
       " and " << basenames[slice_number + 1] << "..." << endl;
+      
+    transformWriter->setSliceNumber(slice_number);
+    
     registration->SetFixedImage( fixedStack->GetOriginalImage(slice_number) );
     registration->SetMovingImage( movingStack->GetOriginalImage(slice_number) );
-    // registration->GetMetric()->SetFixedImageMask( fixedStack->GetOriginal2DMask(slice_number) );
-    // registration->GetMetric()->SetMovingImageMask( movingStack->GetOriginal2DMask(slice_number) );
+    registration->GetMetric()->SetFixedImageMask( fixedStack->GetOriginal2DMask(slice_number) );
+    registration->GetMetric()->SetMovingImageMask( movingStack->GetOriginal2DMask(slice_number) );
     registration->SetTransform( movingStack->GetTransform(slice_number) );
     registration->SetInitialTransformParameters( movingStack->GetTransform(slice_number)->GetParameters() );
     
@@ -114,30 +132,14 @@ int main(int argc, char *argv[]) {
     }
   }
   
-  // Save transforms
-  vector< string > transformBasenames;
-  for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
-  {
-    // construct basenames e.g. "0001_0002"
-    transformBasenames.push_back(basenames[slice_number] + "_" + basenames[slice_number + 1]);
-  }
-  
-  movingStack->SetBasenames(transformBasenames);
-  create_directory(Dirs::HiResPairTransformsDir());
-  Save(*movingStack, Dirs::HiResPairTransformsDir());
-  
-  // TEMP
-  string tempDir = Dirs::HiResPairTransformsDir() + "/fixed";
-  create_directory(tempDir);
-  fixedStack->SetBasenames(transformBasenames);
-  Save(*fixedStack, tempDir);
-  // TEMP
+  // Save transforms and inverse transforms
+  string transformsDir = outputDir + "FinalTransforms/";
+  create_directory(transformsDir);
+  Save(*movingStack, transformsDir);
   
   // Write images
   fixedStack->updateVolumes();
   movingStack->updateVolumes();
-  // string outputDir = Dirs::ResultsDir() + "HiResPairs/";
-  // create_directory( outputDir );
   writeImage< StackType::VolumeType >( originalStack->GetVolume(), outputDir + "original.mha");
   writeImage< StackType::VolumeType >( fixedStack->GetVolume(), outputDir + "fixed.mha");
   writeImage< StackType::VolumeType >( movingStack->GetVolume(), outputDir + "moving_after.mha");

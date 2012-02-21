@@ -40,6 +40,8 @@ public:
   
 	void setSliceNumber(unsigned int sliceNumber) { m_sliceNumber = sliceNumber; }
   
+	void setOutputRootDir(const string& outputRootDir) { m_outputRootDir = outputRootDir; }
+
 	protected:
     void setCurrentIteration(const itk::Object * object)
     {
@@ -57,7 +59,7 @@ public:
     void saveTransform()
     {
       // construct paths
-      string dirPath = Dirs::IntermediateTransformsDir() +
+      string dirPath = m_outputRootDir +
                        transformType() + "/" +
                        m_stack->GetBasename(m_sliceNumber) + "/";
                        
@@ -83,6 +85,7 @@ public:
     StackBase *m_stack;
     unsigned int m_sliceNumber;
     unsigned long m_currentIteration;
+    string m_outputRootDir;
 	
 };
 #endif

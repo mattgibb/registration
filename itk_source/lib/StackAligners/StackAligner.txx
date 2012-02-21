@@ -1,10 +1,3 @@
-// The stack aligner is responsible for:
-// 1) Checking that both images exist
-// 2) Trying registration up to 5 times, whilst shrinking the mask
-// 3) Observers to write intermediate transforms
-// 4) Keeping track of Optimizer values
-
-
 #ifndef __STACKALIGNER_CXX_
 #define __STACKALIGNER_CXX_
 
@@ -37,6 +30,7 @@ template <typename StackType>
 void StackAligner< StackType >::Update() {
   // configure TranformWriter
   typename TransformWriter::Pointer transformWriter = TransformWriter::New();
+  transformWriter->setOutputRootDir(Dirs::IntermediateTransformsDir());
   transformWriter->setStack(&m_HiResStack);
   unsigned long observerId = 
     m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );

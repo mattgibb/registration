@@ -1,6 +1,13 @@
 // This object constructs and encapsulates the registration of 
 // HiRes to LoRes images in a stack.
 
+// The stack aligner is responsible for:
+// 1) Checking that both images exist
+// 2) Trying registration up to 5 times, whilst shrinking the mask
+// 3) Observers to write intermediate transforms
+// 4) Keeping track of Optimizer values
+
+
 #ifndef STACKALIGNER_HPP_
 #define STACKALIGNER_HPP_
 
