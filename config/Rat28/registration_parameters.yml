@@ -4,10 +4,10 @@ normalizeImages: true
 optimizer:
   maximize: on
   scale:
-    translation: 0.0000005 # What is an appropriate 2D translation scale?
-    rotation: 1
-    size: 1
-  maxIterations: 500
+    translation: 0.000001 # What is an appropriate 2D translation scale?
+    rotation: 6
+    size: 6
+  maxIterations: 40
   # uncomment name of optimizer you wish to use
   # regularStepGradientDescent:
   #   relaxationFactor: 0.8
@@ -16,7 +16,7 @@ optimizer:
   #   gradientMagnitudeTolerance: 0.001
   gradientDescent:
     # gradually increase learning rate from low value until it becomes unstable
-    learningRate: 0.1
+    learningRate: 0.4
 
 metric:
   # uncomment name of metric you wish to use
