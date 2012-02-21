@@ -6,7 +6,7 @@ optimizer:
   scale:
     translation: 0.000001 # What is an appropriate 2D translation scale?
     rotation: 6
-    size: 6
+    size: 60
   maxIterations: 40
   # uncomment name of optimizer you wish to use
   # regularStepGradientDescent:
