@@ -171,9 +171,9 @@ void RegistrationBuilder< StackType >::buildInterpolator() {
 template< typename OptimizerType >
 void doSetUpObservers(itk::SingleValuedNonLinearOptimizer::Pointer optimizer)
 {
-  typedef StdOutIterationUpdate< OptimizerType > StdOutObserverType;
-  typedef NormalizedDifferenceIterationUpdate< OptimizerType > NormalizedDifferenceObserverType;
-	typedef FileIterationUpdate< OptimizerType > FileObserverType;
+  typedef StdOutIterationUpdate StdOutObserverType;
+  typedef NormalizedDifferenceIterationUpdate NormalizedDifferenceObserverType;
+	typedef FileIterationUpdate FileObserverType;
   
   // instantiate observers
   typename StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();

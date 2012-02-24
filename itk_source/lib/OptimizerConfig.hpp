@@ -97,7 +97,7 @@ namespace OptimizerConfig {
     optimizer->SetMaximumNumberOfCorrections( 5 );
     
     // Create an observer and register it with the optimizer
-    typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
+    typedef StdOutIterationUpdate StdOutObserverType;
     StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
     optimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
     

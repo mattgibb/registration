@@ -115,7 +115,7 @@ int main(int argc, char const *argv[]) {
   // deformableOptimizer->MaximizeOn();
   // 
   // Create an observer and register it with the optimizer
-  // typedef StdOutIterationUpdate< itk::LBFGSBOptimizer > StdOutObserverType;
+  // typedef StdOutIterationUpdate StdOutObserverType;
   // StdOutObserverType::Pointer stdOutObserver = StdOutObserverType::New();
   // deformableOptimizer->AddObserver( itk::IterationEvent(), stdOutObserver );
   // 

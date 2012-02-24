@@ -6,7 +6,6 @@
 
 using namespace std;
 
-template<typename OptimizerType>
 class NormalizedDifferenceIterationUpdate : public CommandObserverBase
 {
 public:
@@ -16,55 +15,44 @@ public:
 
   itkNewMacro( Self );
 
-  virtual void Execute(const itk::Object * object, const itk::EventObject & event)
+  virtual void run()
   {
-    const OptimizerType* optimizer = dynamic_cast< const OptimizerType* >( object );
-		
-    if( ! itk::IterationEvent().CheckEvent( &event ) )
-    {
-      return;
-    }
-		
-    cout << optimizer->GetCurrentIteration() << " = ";
-    cout << optimizer->GetValue() << " : ";
+    cout << m_iteration << " = ";
+    cout << m_value << " : ";
     
-    typename OptimizerType::ParametersType params = optimizer->GetCurrentPosition();
-    
-    // unless this is the first event, and oldParams hasn't been set,
-    // print out the differences between oldParams and params,
+    // unless this is the first event (and thus m_oldPosition hasn't been set)
+    // print out the differences between m_oldPosition and position,
     // normalised by the optimiser scales and by the total length of
     // the step
-    if(oldParams.Size())
+    if(m_oldPosition.Size())
     {
-      typename OptimizerType::ParametersType differences( params.Size() );
-      typename OptimizerType::ScalesType scales = optimizer->GetScales();
+      ParamsType differences( m_position.Size() );
       double length = 0.0;
       
       // scale step lengths and calculate total step length
-      for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
+      for(unsigned int i=0; i<m_position.Size(); ++i)
       {
-        differences[i] = ( params[i] - oldParams[i] ) * scales[i];
+        differences[i] = ( m_position[i] - m_oldPosition[i] ) * m_scales[i];
         length += differences[i] * differences[i];
       }
       length = sqrt( length );
       
       // normalise step lengths
-      for(unsigned int i=0; i<params.GetNumberOfElements(); i++)
+      for(unsigned int i=0; i<m_position.Size(); ++i)
       {
         differences[i] = differences[i] / length;
       }
       
       cout << differences;
-    
     }
     
     cout << endl;
     
     // save params
-    oldParams = params;
+    m_oldPosition = m_position;
   }
   
 private:
-  typename OptimizerType::ParametersType oldParams;
+  ParamsType m_oldPosition;
 };
 #endif

@@ -25,13 +25,8 @@ public:
   
   itkNewMacro( Self );
   
-  virtual void Execute(const itk::Object * object, const itk::EventObject & event)
+  virtual void run()
   {
-    if( ! itk::IterationEvent().CheckEvent( &event ) )
-      return;
-    
-    setCurrentIteration(object);
-    
     saveTransform();
   }
   
@@ -43,18 +38,6 @@ public:
 	void setOutputRootDir(const string& outputRootDir) { m_outputRootDir = outputRootDir; }
 
 	protected:
-    void setCurrentIteration(const itk::Object * object)
-    {
-      typedef itk::RegularStepGradientDescentOptimizer RSGD;
-      typedef itk::GradientDescentOptimizer GD;
-      
-      // optimizer base class does not have GetCurrentIteration method,
-      // so runtime check to extract current iteration
-      if(const GD* gd = dynamic_cast< const GD* >( object ))
-        m_currentIteration = gd->GetCurrentIteration();
-      if(const RSGD * rsgd = dynamic_cast< const RSGD* >( object ))
-        m_currentIteration = rsgd->GetCurrentIteration();
-    }
     
     void saveTransform()
     {
@@ -70,7 +53,7 @@ public:
         << setfill('0')
         // 4 digits wide
         << setw(4)
-        << m_currentIteration;
+        << m_iteration;
       
       // save transform
       writeTransform(m_stack->GetTransform(m_sliceNumber), filePath.str());
@@ -84,8 +67,7 @@ public:
   private:
     StackBase *m_stack;
     unsigned int m_sliceNumber;
-    unsigned long m_currentIteration;
     string m_outputRootDir;
-	
+	  
 };
 #endif
