@@ -21,7 +21,7 @@ void StackAligner< StackType >::Update() {
   typename TransformWriter::Pointer   transformWriter   = TransformWriter::New();
   typename MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
   transformWriter->setOutputRootDir(Dirs::IntermediateTransformsDir());
-  metricValueWriter->setOutputRootDir(Dirs::ProjectRootDir() + "MetricValues/");
+  metricValueWriter->setOutputRootDir(Dirs::ResultsDir() + "MetricValues/");
   transformWriter->setStack(&m_HiResStack);
   metricValueWriter->setStack(&m_HiResStack);
   unsigned long transformWriterId = 
