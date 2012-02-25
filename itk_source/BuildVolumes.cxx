@@ -174,7 +174,6 @@ int main(int argc, char *argv[]) {
   
   // persist mask numberOfTimesTooBig and final metric values
   saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", basenames );
-  saveVectorToFiles(stackAligner.GetFinalMetricValues(), "metric_values", basenames );
   
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::HiResTransformsDir() + "CenteredAffineTransform/");

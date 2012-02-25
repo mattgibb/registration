@@ -4,8 +4,7 @@
 // The stack aligner is responsible for:
 // 1) Checking that both images exist
 // 2) Trying registration up to 5 times, whilst shrinking the mask
-// 3) Observers to write intermediate transforms
-// 4) Keeping track of Optimizer values
+// 3) Observers to write intermediate transforms and metric values
 
 
 #ifndef STACKALIGNER_HPP_
@@ -27,15 +26,10 @@ public:
 
   void Update();
   
-  vector < double > GetFinalMetricValues();
-	
-  
 protected:
   bool bothImagesExist(unsigned int slice_number);
   
   bool tryRegistration();
-  
-  double GetOptimizerValue();
   
 private:
   // Copy constructor and copy assignment operator Made private
@@ -46,7 +40,6 @@ private:
   
   StackType &m_LoResStack, &m_HiResStack;
   typename RegistrationType::Pointer m_registration;
-  vector< double > m_finalMetricValues;
 };
 
 #include "StackAligner.txx"

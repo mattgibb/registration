@@ -3,6 +3,7 @@
 
 #include "Dirs.hpp"
 #include "TransformWriter.hpp"
+#include "MetricValueWriter.hpp"
 #include "StackAligner.hpp"
 
 template <typename StackType>
@@ -15,34 +16,26 @@ StackAligner< StackType >::StackAligner(StackType &LoResStack,
                            {}
 
 template <typename StackType>
-double StackAligner< StackType >::GetOptimizerValue()
-{
-  typedef itk::GradientDescentOptimizer            GD;
-  typedef itk::RegularStepGradientDescentOptimizer RSGD;
-  
-  if(GD::Pointer gd = dynamic_cast< GD* >(m_registration->GetOptimizer()) )
-    return gd->GetValue();
-  if(RSGD::Pointer rsgd = dynamic_cast< RSGD* >(m_registration->GetOptimizer()) )
-    return rsgd->GetValue();
-  throw;
-}
-
-template <typename StackType>
 void StackAligner< StackType >::Update() {
-  // configure TranformWriter
-  typename TransformWriter::Pointer transformWriter = TransformWriter::New();
+  // configure Writer Observers
+  typename TransformWriter::Pointer   transformWriter   = TransformWriter::New();
+  typename MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
   transformWriter->setOutputRootDir(Dirs::IntermediateTransformsDir());
+  metricValueWriter->setOutputRootDir(Dirs::ProjectRootDir() + "MetricValues/");
   transformWriter->setStack(&m_HiResStack);
-  unsigned long observerId = 
+  metricValueWriter->setStack(&m_HiResStack);
+  unsigned long transformWriterId = 
     m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
+  unsigned long metricValueWriterId = 
+    m_registration->GetOptimizer()->AddObserver( itk::IterationEvent(), metricValueWriter );
   
   unsigned int number_of_slices = m_LoResStack.GetSize();
-  m_finalMetricValues = vector< double >(number_of_slices, NAN);
   
   for(unsigned int slice_number=0; slice_number < number_of_slices; slice_number++) {
     cout << "slice number: " << slice_number << endl;
     
     transformWriter->setSliceNumber(slice_number);
+    metricValueWriter->setSliceNumber(slice_number);
     
     if( bothImagesExist(slice_number) ) {
       // Could change this to register against original fixed image and fixed image masks,
@@ -74,16 +67,12 @@ void StackAligner< StackType >::Update() {
         cerr << "Tried " << tries << " times...\n\n";
         m_LoResStack.ShrinkMaskSlice(slice_number);
       }
-      
-      if(tries <= 5)
-      {
-        m_finalMetricValues[slice_number] = GetOptimizerValue();
-      }
     }
   }
   
   // tidy up observer
-  m_registration->GetOptimizer()->RemoveObserver( observerId );
+  m_registration->GetOptimizer()->RemoveObserver( transformWriterId );
+  m_registration->GetOptimizer()->RemoveObserver( metricValueWriterId );
   
   cout << "Finished registration." << endl;
 }
@@ -108,12 +97,5 @@ bool StackAligner< StackType >::tryRegistration() {
     return false;
   }
 }
-
-template <typename StackType>
-vector < double > StackAligner< StackType >::GetFinalMetricValues()
-{
-  return m_finalMetricValues;
-}
-
 
 #endif

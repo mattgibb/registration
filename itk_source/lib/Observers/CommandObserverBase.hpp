@@ -35,8 +35,13 @@ public:
     // so runtime check to extract current iteration
     if(const GD* gd = dynamic_cast< const GD* >( caller ))
       extractVariablesFromOptimizer< GD >( gd );
-    if(const RSGD * rsgd = dynamic_cast< const RSGD* >( caller ))
+    else if(const RSGD * rsgd = dynamic_cast< const RSGD* >( caller ))
       extractVariablesFromOptimizer< RSGD >( rsgd );
+    else
+    {
+      cerr << "No optimizer found." << endl;
+      exit(EXIT_FAILURE);
+    }
     
     // run the derived class virtual method run()
     run();

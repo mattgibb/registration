@@ -26,11 +26,12 @@ public:
     
     // open file IO
     m_output.close();
-		m_output.open(fileName);
+		m_output.open(filePath.c_str());
   }
   
 private:
   ofstream m_output;
   
 };
+
 #endif
