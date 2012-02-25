@@ -32,6 +32,6 @@ protected:
   StackBase *m_stack;
   string m_outputRootDir;
   unsigned int m_sliceNumber;
-  
+  WriterCommand():m_stack(0), m_sliceNumber(-1) {}
 };
 #endif
