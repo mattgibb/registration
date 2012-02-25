@@ -51,9 +51,6 @@ public:
   // Specifics of what the derived class does
   virtual void run() = 0;
   
-  // constructor
-  CommandObserverBase() {}
-  
 	// explicitly declare virtual destructor,
   // so that base pointers to derived classes will be destroyed fully
   // Made pure virtual to make class abstract
@@ -77,6 +74,9 @@ protected:
   double m_value;
   ParamsType m_position;
   ParamsType m_scales;
+  
+  // constructor
+  CommandObserverBase():m_iteration(0), m_value(0.0) {}
   
 private:
   // Copy constructor and copy assignment operator Made private
