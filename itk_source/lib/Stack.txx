@@ -258,7 +258,7 @@ template <typename TPixel,
 void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::checkSliceNumber(unsigned int slice_number) const
 {
   if( slice_number >= this->GetSize() ) {
-    cerr << "Wait a minute, trying to access slice number bigger than this stack!" << endl;
+    cerr << "Wait a minute, trying to access slice number " << slice_number << " bigger than this stack! (" << this->GetSize() <<  ")" << endl;
     exit(EXIT_FAILURE);
   }
 }
