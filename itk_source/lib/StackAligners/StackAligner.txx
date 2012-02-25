@@ -1,8 +1,9 @@
 #ifndef __STACKALIGNER_CXX_
 #define __STACKALIGNER_CXX_
 
-#include "StackAligner.hpp"
+#include "Dirs.hpp"
 #include "TransformWriter.hpp"
+#include "StackAligner.hpp"
 
 template <typename StackType>
 StackAligner< StackType >::StackAligner(StackType &LoResStack,

@@ -6,10 +6,7 @@
 #include "boost/filesystem.hpp"
 
 #include "CommandObserverBase.hpp"
-#include "itkGradientDescentOptimizer.h"
-#include "itkRegularStepGradientDescentOptimizer.h"
 
-#include "Dirs.hpp"
 #include "StackBase.hpp"
 #include "IOHelpers.hpp"
 
