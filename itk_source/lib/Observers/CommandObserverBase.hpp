@@ -68,7 +68,8 @@ protected:
   {
     m_iteration = optimizer->GetCurrentIteration();
     m_value     = optimizer->GetValue();
-    m_position  = optimizer->GetScales();
+    m_position  = optimizer->GetCurrentPosition();
+    m_scales    = optimizer->GetScales();
   }
   
   // extracted optimiser variables
