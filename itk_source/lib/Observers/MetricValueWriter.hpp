@@ -19,6 +19,8 @@ public:
   // sets slice number and resets io
   virtual void setSliceNumber(unsigned int sliceNumber)
   {
+    m_sliceNumber = sliceNumber;
+    
     // construct paths
     string dirPath = m_outputRootDir + transformType() + "/";
     create_directories(dirPath);

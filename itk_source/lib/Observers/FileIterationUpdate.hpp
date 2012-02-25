@@ -32,7 +32,7 @@ public:
     m_output.close();
 		m_output.open(fileName.c_str());
 	}
-  
+
 private:
 	ofstream m_output;
   
