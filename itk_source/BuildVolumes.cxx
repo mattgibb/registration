@@ -110,9 +110,11 @@ int main(int argc, char *argv[]) {
   // Scale parameter space
   OptimizerConfig::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
   
-  // clear intermediate transforms directory
+  // clear intermediate transforms and metric values directories
   remove_all( Dirs::IntermediateTransformsDir() );
   create_directory( Dirs::IntermediateTransformsDir() );
+  remove_all( Dirs::ResultsDir() + "MetricValues/" );
+  create_directory( Dirs::ResultsDir() + "MetricValues/" );
   
   // Add time and memory probes
   itkProbesCreate();
