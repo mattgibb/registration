@@ -74,28 +74,42 @@ int main(int argc, char *argv[]) {
     (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
   }
   
-  // read transforms from directories labeled by both ds ratios
-  string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-  string HiResTransformsDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio
-                              + "/CenteredAffineTransform";
-  
-  if(LoRes) Load(*LoResStack, LoResTransformsDir);
-  if(HiRes) Load(*HiResStack, HiResTransformsDir);
-  
-  // move stack origins to ROI
+  // prepare for possible saves
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
-  if(LoRes) StackTransforms::Translate(*LoResStack, translation);
-  if(HiRes) StackTransforms::Translate(*HiResStack, translation);
-  
-  // generate images
-  if(LoRes) LoResStack->updateVolumes();
-  if(HiRes) HiResStack->updateVolumes();
-  
-  // Write bmps
   create_directory( Dirs::ColourDir() );
   
-  if(LoRes) writeImage< StackType::VolumeType >( LoResStack->GetVolume(), (path( Dirs::ColourDir() ) / "LoRes.mha").string());
-  if(HiRes) writeImage< StackType::VolumeType >( HiResStack->GetVolume(), (path( Dirs::ColourDir() ) / "HiRes.mha").string());
+  // save LoRes image
+  if(LoRes)
+  {
+    // load transforms
+    string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+    Load(*LoResStack, LoResTransformsDir);
+    // move stack origins to ROI
+    StackTransforms::Translate(*LoResStack, translation);
+    // generate and save images
+    LoResStack->updateVolumes();
+    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ColourDir() + "LoRes.mha");
+  }
+  
+  // save HiRes rigid, similarity and affine image
+  if(HiRes)
+  {
+    // load transforms, translate to correct ROI and save
+    string HiResTransformsBaseDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
+    vector< string > HiResTransformsDirs;
+    HiResTransformsDirs.push_back("CenteredRigid2DTransform");
+    HiResTransformsDirs.push_back("CenteredSimilarity2DTransform");
+    HiResTransformsDirs.push_back("CenteredAffineTransform");
+    for(vector< string >::iterator it = HiResTransformsDirs.begin(); it != HiResTransformsDirs.end(); ++it)
+    {
+      Load(*HiResStack, HiResTransformsBaseDir + "/" + *it);
+      // move stack origins to ROI
+      StackTransforms::Translate(*HiResStack, translation);
+      // generate and save images
+      HiResStack->updateVolumes();
+      writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ColourDir() + *it + ".mha");
+    }
+  }
   
   return EXIT_SUCCESS;
 }
