@@ -56,11 +56,11 @@ int main(int argc, char *argv[]) {
   
   // construct 2 stacks from resampled images: 1:n-1 and 2:n
   StackType::SliceVectorType resampledImages = originalStack->GetResampledSlices();
-  StackType::SliceVectorType fixedImages(resampledImages.begin(), --resampledImages.end());
-  StackType::SliceVectorType movingImages(++resampledImages.begin(), resampledImages.end());
+  StackType::SliceVectorType fixedImages(++resampledImages.begin(), resampledImages.end());
+  StackType::SliceVectorType movingImages(resampledImages.begin(), --resampledImages.end());
   StackType::MaskVectorType2D resampledMasks = originalStack->GetResampled2DMasks();
-  StackType::MaskVectorType2D fixedMasks(resampledMasks.begin(), --resampledMasks.end());
-  StackType::MaskVectorType2D movingMasks(++resampledMasks.begin(), resampledMasks.end());
+  StackType::MaskVectorType2D fixedMasks(++resampledMasks.begin(), resampledMasks.end());
+  StackType::MaskVectorType2D movingMasks(resampledMasks.begin(), --resampledMasks.end());
   shared_ptr< StackType > fixedStack  = make_shared< StackType >(fixedImages,  fixedMasks,  getSpacings<3>("LoRes"), getSize(roi));
   shared_ptr< StackType > movingStack = make_shared< StackType >(movingImages, movingMasks, getSpacings<3>("LoRes"), getSize(roi));
 
