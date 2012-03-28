@@ -70,12 +70,12 @@ public:
   Stack(const SliceVectorType& images,
         const typename VolumeType::SpacingType& inputSpacings);
 
-	// constructor to specify size and start index explicitly
+	// constructor to specify size explicitly
   Stack(const SliceVectorType& images,
         const typename VolumeType::SpacingType& inputSpacings,
         const typename SliceType::SizeType& inputSize);
 	
-	// constructor to specify size and start index explicitly
+	// constructor to specify size explicitly and supply original masks
   Stack(const SliceVectorType& images,
         const MaskVectorType2D& masks,
         const typename VolumeType::SpacingType& inputSpacings,
