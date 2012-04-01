@@ -14,6 +14,7 @@
 #include "OptimizerConfig.hpp"
 #include "ScaleImages.hpp"
 #include "TransformWriter.hpp"
+#include "MetricValueWriter.hpp"
 
 using namespace boost::filesystem;
 namespace po = boost::program_options;
@@ -108,6 +109,12 @@ int main(int argc, char *argv[]) {
   transformWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
   
+  // Configure metric value writer
+  MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
+  metricValueWriter->setOutputRootDir(outputDir + "MetricValues/");
+  metricValueWriter->setStack(movingStack.get());
+  registration->GetOptimizer()->AddObserver( itk::IterationEvent(), metricValueWriter );
+  
   // Perform registration
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
   {
@@ -115,6 +122,7 @@ int main(int argc, char *argv[]) {
       " and " << basenames[slice_number + 1] << "..." << endl;
       
     transformWriter->setSliceNumber(slice_number);
+    metricValueWriter->setSliceNumber(slice_number);
     
     registration->SetFixedImage( fixedStack->GetOriginalImage(slice_number) );
     registration->SetMovingImage( movingStack->GetOriginalImage(slice_number) );
