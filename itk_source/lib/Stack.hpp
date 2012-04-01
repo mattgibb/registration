@@ -176,11 +176,18 @@ public:
     return m_basenames[slice_number];
   }
   
+  // set vector of basenames
   virtual void SetBasenames(const vector< string >& basenames)
   {
     // sanity check
     assert(basenames.size() == originalImages.size());
     m_basenames = basenames;
+  }
+  
+  // set all basenames to the same string
+  virtual void SetBasenames(const string& basename)
+  {
+    m_basenames = vector< string >(originalImages.size(), basename);
   }
   
   virtual void SetTransforms(const TransformVectorType& inputTransforms) { transforms = inputTransforms; }
