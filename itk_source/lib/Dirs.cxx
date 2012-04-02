@@ -90,7 +90,7 @@ string Dirs::HiResTransformsDir()
 string Dirs::IntermediateTransformsDir()
 {
   // read transforms from directories labeled by both ds ratios
-  return ResultsDir() + "IntermediateTransforms_" + DownsampleSuffix() + "/";
+  return ResultsDir() + "IntermediateTransforms/";
 }
 
 string Dirs::ColourDir()
