@@ -103,8 +103,9 @@ int main(int argc, char *argv[]) {
   
   // Configure intermediate transform writer
   TransformWriter::Pointer transformWriter = TransformWriter::New();
-  string intermediateTransformsDir = outputDir + "IntermediateTransforms_" + Dirs::DownsampleSuffix() + "/";
-  create_directory(intermediateTransformsDir);
+  string intermediateTransformsDir = outputDir + "IntermediateTransforms/";
+  remove_all( intermediateTransformsDir );
+  create_directory( intermediateTransformsDir );
   transformWriter->setOutputRootDir(intermediateTransformsDir);
   transformWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
