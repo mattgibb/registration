@@ -27,11 +27,9 @@ typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInter
 // function declarations
 po::variables_map parse_arguments(int argc, char *argv[]);
 vector< string > directoryContents(const string& directory);
-shared_ptr< StackType > buildLoResFixedStack    (StackType::SliceVectorType image, const string& basename);
-shared_ptr< StackType > buildHiResMovingStack   (StackType::SliceVectorType image);
-shared_ptr< StackType > buildAdjacentFixedStack (StackType::SliceVectorType image);
-shared_ptr< StackType > buildAdjacentMovingStack(StackType::SliceVectorType image);
-
+shared_ptr< StackType > buildLoResFixedStack (StackType::SliceVectorType image, const string& basename);
+shared_ptr< StackType > buildHiResMovingStack(StackType::SliceVectorType image);
+shared_ptr< StackType > buildAdjacentStack   (StackType::SliceVectorType image, const string& basename, const string& transform);
 
 int main(int argc, char *argv[]) {
   po::variables_map vm = parse_arguments(argc, argv);
@@ -40,9 +38,11 @@ int main(int argc, char *argv[]) {
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   bool buildFixedVolume = vm.count("buildFixedVolume");
-  bool adjacentPairs = vm.count("adjacentPairs");
+  bool HiResPairs = vm.count("HiResPairs");
   string transform = vm["transform"].as<string>();
-  string transformDirectory = Dirs::IntermediateTransformsDir() + transform + "/";
+  string transformDirectory = HiResPairs ?
+                              Dirs::ResultsDir() + "HiResPairs/IntermediateTransforms/" + transform + "/":
+                              Dirs::ResultsDir() + "IntermediateTransforms/" + transform + "/";
   vector< string > slicePairs = vm.count("slicePair") ?
                                         vector< string >(1, vm["slicePair"].as<string>()) :
                                         directoryContents(transformDirectory);
@@ -50,22 +50,20 @@ int main(int argc, char *argv[]) {
   // construct fixed and moving image paths
   // if building adjacent pair volumes, then extract the two slices
   // if building HiRes against LoRes volumes, then just use slicePairs
-  vector< string > fixedBasenames, fixedPaths, movingPaths;
+  vector< string > movingPaths, fixedPaths;
   
-  if(adjacentPairs)
+  if(HiResPairs)
   {
     for(vector< string >::iterator it=slicePairs.begin(); it!=slicePairs.end(); ++it)
     {
-      fixedBasenames.push_back(it->substr(0,4));
-      fixedPaths.push_back (Dirs::SliceDir() + it->substr(0,4) + ".bmp");
-      movingPaths.push_back(Dirs::SliceDir() + it->substr(5,4) + ".bmp");
+      movingPaths.push_back(Dirs::SliceDir() + it->substr(0,4) + ".bmp");
+      fixedPaths.push_back (Dirs::SliceDir() + it->substr(5,4) + ".bmp");
     }
   }
   else
   {
-    fixedBasenames = slicePairs;
-    fixedPaths  = constructPaths(Dirs::BlockDir(), slicePairs, ".bmp");
     movingPaths = constructPaths(Dirs::SliceDir(), slicePairs, ".bmp");
+    fixedPaths  = constructPaths(Dirs::BlockDir(), slicePairs, ".bmp");
   }
   
   // Generate the progress volumes, and maybe their associated reference volumes
@@ -84,15 +82,14 @@ int main(int argc, char *argv[]) {
     cout << "Building " << slicePairs[i] << " moving progress volume...";
     StackType::SliceVectorType movingImage(steps.size(), readImage< StackType::SliceType >(movingPaths[i]));
     
-    shared_ptr< StackType > movingStack = adjacentPairs ?
-                                          buildAdjacentMovingStack(movingImage) :
+    shared_ptr< StackType > movingStack = HiResPairs ?
+                                          buildAdjacentStack(movingImage, slicePairs[i].substr(0,4), transform) :
                                           buildHiResMovingStack(movingImage);
+    
     movingStack->SetBasenames(steps);
     
     // load transform at each iteration
     Load(*movingStack, stepsDirectory);
-    
-    movingStack->SetDefaultPixelValue( 255 );
     
     // generate images
     movingStack->updateVolumes();
@@ -108,11 +105,12 @@ int main(int argc, char *argv[]) {
       cout << "Building " << slicePairs[i] << " fixed comparison volume..." << flush;
       
       StackType::SliceVectorType fixedImage(steps.size(), readImage< StackType::SliceType >(fixedPaths[i]) );
-      shared_ptr< StackType > fixedStack = adjacentPairs ?
-                                           buildAdjacentFixedStack(fixedImage) :
-                                           buildLoResFixedStack(fixedImage, fixedBasenames[i]);
+      shared_ptr< StackType > fixedStack = HiResPairs ?
+                                           buildAdjacentStack(fixedImage, slicePairs[i].substr(5,4), transform) :
+                                           buildLoResFixedStack(fixedImage, slicePairs[i]);
       
       // load comparison transforms
+      
       fixedStack->updateVolumes();
       writeImage< StackType::VolumeType >( fixedStack->GetVolume(), stepsDirectory + "fixed.mha");
       cout << "done." << endl;
@@ -132,7 +130,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("transform", po::value<string>(), "Type of ITK transform that was optimised")
       ("slicePair", po::value<string>(), "the slice pair identifier e.g. 0001 for LoRes/HiRes, 0001_0002 for adjacent pairs")
       ("buildFixedVolume,f", po::value<bool>()->zero_tokens(), "generate fixed image comparison volume")
-      ("adjacentPairs", po::value<bool>()->zero_tokens(), "Generate volumes for adjacent pair registration")
+      ("HiResPairs", po::value<bool>()->zero_tokens(), "Generate volumes for adjacent pair registration")
   ;
   
   po::positional_options_description p;
@@ -201,6 +199,12 @@ vector< string > directoryContents(const string& directory)
   return contents_strings;
 }
 
+shared_ptr< StackType > buildHiResMovingStack(StackType::SliceVectorType image)
+{
+  scaleImages< StackType::SliceType >(image, getSpacings<2>("HiRes"));
+  return make_shared< StackType >(image, getSpacings<3>("LoRes"), getSize());
+}
+
 shared_ptr< StackType > buildLoResFixedStack(StackType::SliceVectorType image, const string& basename)
 {
   scaleImages< StackType::SliceType >(image, getSpacings<2>("LoRes"));
@@ -211,40 +215,26 @@ shared_ptr< StackType > buildLoResFixedStack(StackType::SliceVectorType image, c
   return stack;
 }
 
-shared_ptr< StackType > buildHiResMovingStack(StackType::SliceVectorType image)
+shared_ptr< StackType > buildAdjacentStack(StackType::SliceVectorType image, const string& basename, const string& transform)
 {
   scaleImages< StackType::SliceType >(image, getSpacings<2>("HiRes"));
-  return make_shared< StackType >(image, getSpacings<3>("LoRes"), getSize());
-}
-
-shared_ptr< StackType > buildAdjacentFixedStack(StackType::SliceVectorType image)
-{
   
-}
-
-shared_ptr< StackType > buildAdjacentMovingStack(StackType::SliceVectorType image)
-{
-  // // resample HiRes slice
-  // // build stack of resampled slice
-  // StackType::SliceVectorType movingImages(steps.size(), originalImage->GetResampledSlices()[0]);
-  // 
-  // shared_ptr< StackType > originalStack = make_shared< StackType >(originalImages, getSpacings<3>("LoRes"), getSize(roi));
-  // originalStack->SetBasenames(slicePairs);
-  // 
-  // Load(*originalStack, Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
-  // 
-  // // move stack origins to ROI
+  // resample HiRes slice with originalStack
+  StackType originalStack(image, getSpacings<3>("LoRes"), getSize());
+  originalStack.SetBasenames(basename);
+  Load(originalStack, Dirs::HiResTransformsDir() + transform + "/");
+  
+  // move stack origins to ROI
   // itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
   // StackTransforms::Translate(*originalStack, translation);
-  // 
-  // // generate images
-  // originalStack->updateVolumes();
-  // 
-  // shared_ptr< StackType > movingStack = make_shared< StackType >(movingImages, getSpacings<3>("LoRes"))
-  // make_shared< StackType >(movingImages, movingSpacings, getSize());
-  // 
-  // scaleImages< StackType::SliceType >(originalImages, getSpacings<2>("HiRes"));
-  // shared_ptr< StackType > originalStack = make_shared< StackType >(originalImages, getSpacings<3>("LoRes"), getSize(roi));
-  // 
+  
+  // build stack of resampled slice
+  originalStack.updateVolumes();
+  StackType::SliceVectorType resampledImage = originalStack.GetResampledSlices();
+  StackType::MaskVectorType2D resampledMask = originalStack.GetResampled2DMasks();
+  
+  shared_ptr< StackType > stack = make_shared< StackType >(resampledImage, resampledMask, getSpacings<3>("LoRes"), getSize());
+  StackTransforms::InitializeToIdentity(*stack);
+  
+  return stack;
 }
-
