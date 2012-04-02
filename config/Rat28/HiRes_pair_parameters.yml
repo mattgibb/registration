@@ -1,10 +1,10 @@
 optimizer:
   maximize: off
   scale:
-    translation: 0.0001 # What is an appropriate 2D translation scale?
-    # rotation: 6000
-    size: 60000
-  maxIterations: 10
+    translation: 0.000005 # What is an appropriate 2D translation scale?
+    rotation: 300
+    size: 300
+  maxIterations: 200
   # regularStepGradientDescent:
   #   relaxationFactor: 0.8
   #   maxStepLength: 0.05
@@ -12,7 +12,7 @@ optimizer:
   #   gradientMagnitudeTolerance: 0.0001
   gradientDescent:
     # gradually increase learning rate from low value until it becomes unstable
-    learningRate: 0.004
+    learningRate: 0.001
 
 metric:
   meanSquares:
