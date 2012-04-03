@@ -13,7 +13,7 @@
 #include "Dirs.hpp"
 #include "OptimizerConfig.hpp"
 #include "ScaleImages.hpp"
-#include "TransformWriter.hpp"
+#include "SimpleTransformWriter.hpp"
 #include "MetricValueWriter.hpp"
 
 using namespace boost::filesystem;
@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
   // Process command line arguments
   Dirs::SetDataSet(argv[1]);
   Dirs::SetOutputDirName(argv[2]);
+  string transform = vm["transform"].as<string>();
   string roi = vm.count("roi") ? vm["roi"].as<string>() : "ROI";
   
   // for globally available registrationParameters(),
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
   shared_ptr< StackType > originalStack = make_shared< StackType >(originalImages, getSpacings<3>("LoRes"), getSize(roi));
   originalStack->SetBasenames(basenames);
   
-  Load(*originalStack, Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
+  Load(*originalStack, Dirs::HiResTransformsDir() + transform + "/");
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
@@ -102,13 +103,12 @@ int main(int argc, char *argv[]) {
   movingStack->SetBasenames(transformBasenames);
   
   // Configure intermediate transform writer
-  TransformWriter::Pointer transformWriter = TransformWriter::New();
+  SimpleTransformWriter::Pointer simpleTransformWriter = SimpleTransformWriter::New();
   string intermediateTransformsDir = outputDir + "IntermediateTransforms/";
   remove_all( intermediateTransformsDir );
-  create_directory( intermediateTransformsDir );
-  transformWriter->setOutputRootDir(intermediateTransformsDir);
-  transformWriter->setStack(movingStack.get());
-  registration->GetOptimizer()->AddObserver( itk::IterationEvent(), transformWriter );
+  simpleTransformWriter->setOutputRootDir(intermediateTransformsDir + transform + "/");
+  simpleTransformWriter->setStack(movingStack.get());
+  registration->GetOptimizer()->AddObserver( itk::IterationEvent(), simpleTransformWriter );
   
   // Configure metric value writer
   MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
     cout << "Registering slices " << basenames[slice_number] <<
       " and " << basenames[slice_number + 1] << "..." << endl;
       
-    transformWriter->setSliceNumber(slice_number);
+    simpleTransformWriter->setSliceNumber(slice_number);
     metricValueWriter->setSliceNumber(slice_number);
     
     registration->SetFixedImage( fixedStack->GetOriginalImage(slice_number) );
@@ -166,6 +166,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to place results")
+      ("transform", po::value<string>(), "Type of ITK transform to start from")
       ("roi", po::value<string>(), "region of interest e.g. papillary_insertion")
       ("fixedBasename", po::value<string>(), "basename of fixed slice e.g. 0196")
       ("movingBasename", po::value<string>(), "basename of moving slice e.g. 0197")
@@ -174,6 +175,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
   po::positional_options_description p;
   p.add("dataSet", 1)
    .add("outputDir", 1)
+   .add("transform", 1)
    .add("roi", 1);
      
   // parse command line
@@ -198,11 +200,13 @@ po::variables_map parse_arguments(int argc, char *argv[])
   if(vm.count("help") ||
     !vm.count("dataSet") ||
     !vm.count("outputDir") ||
+    !vm.count("transform") ||
     (vm.count("fixedBasename") != vm.count("movingBasename")) )
   {
     cerr << "Usage: "
       << argv[0]
       << " [--dataSet=]RatX [--outputDir=]my_dir"
+      << " [--transform=]CenteredAffineTransform"
       << " [Options]"
       << endl << endl;
     cerr << opts << "\n";
