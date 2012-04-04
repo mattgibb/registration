@@ -1,6 +1,8 @@
 #ifndef IO_HELPERS_HPP_
 #define IO_HELPERS_HPP_
 
+#include "boost/filesystem.hpp"
+
 #include "itkImage.h"
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
@@ -10,6 +12,32 @@
 #include "PathHelpers.hpp"
 
 using namespace std;
+
+vector< string > directoryContents(const string& directory)
+{
+  using namespace boost::filesystem;
+  
+  // retrieve and sort paths
+  vector< path > contents;
+  try
+  {
+    copy(directory_iterator(directory), directory_iterator(), back_inserter(contents));
+  }
+  catch(std::exception& e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
+  sort(contents.begin(), contents.end());
+  
+  // extract leaves
+  vector< string > contents_strings;
+  for(vector< path >::const_iterator it = contents.begin(); it != contents.end(); ++it)
+  {
+    contents_strings.push_back(it->leaf().string());
+  }
+  
+  return contents_strings;
+}
 
 bool fileExists(const string& strFilename)
 {

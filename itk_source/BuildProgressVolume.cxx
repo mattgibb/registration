@@ -26,7 +26,6 @@ typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInter
 
 // function declarations
 po::variables_map parse_arguments(int argc, char *argv[]);
-vector< string > directoryContents(const string& directory);
 shared_ptr< StackType > buildLoResFixedStack (StackType::SliceVectorType image, const string& basename);
 shared_ptr< StackType > buildHiResMovingStack(StackType::SliceVectorType image);
 shared_ptr< StackType > buildAdjacentStack   (StackType::SliceVectorType image, const string& basename, const string& transform);
@@ -173,30 +172,6 @@ po::variables_map parse_arguments(int argc, char *argv[])
   }
     
   return vm;
-}
-
-vector< string > directoryContents(const string& directory)
-{
-  // retrieve and sort paths
-  vector< path > contents;
-  try
-  {
-    copy(directory_iterator(directory), directory_iterator(), back_inserter(contents));
-  }
-  catch(std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
-  sort(contents.begin(), contents.end());
-  
-  // extract leaves
-  vector< string > contents_strings;
-  for(vector< path >::const_iterator it = contents.begin(); it != contents.end(); ++it)
-  {
-    contents_strings.push_back(it->leaf().string());
-  }
-  
-  return contents_strings;
 }
 
 shared_ptr< StackType > buildHiResMovingStack(StackType::SliceVectorType image)
