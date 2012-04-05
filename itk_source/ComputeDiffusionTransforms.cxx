@@ -41,7 +41,32 @@ int main(int argc, char *argv[]) {
     TransformType::Pointer pairTransform
       = dynamic_cast< TransformType* >( readTransform(pairTransformPaths[i]).GetPointer() );
     assert(pairTransform);
+    
     pairTransforms.push_back(pairTransform);
+  }
+  
+  // write diffusion transforms
+  string diffusionTransformDir = Dirs::ResultsDir() + "HiResPairs/DiffusionTransforms/";
+  remove_all(diffusionTransformDir);
+  create_directory(diffusionTransformDir);
+  
+  for(unsigned int i=0; i<pairTransformPaths.size()-1; ++i)
+  {
+    // make sure two transforms share the same slice
+    assert(pairTransformBasenames[i  ].substr(5,4) ==
+           pairTransformBasenames[i+1].substr(0,4));
+    
+    // compose transform
+    TransformType::Pointer diffusionTransform = TransformType::New();
+    TransformType::Pointer belowTransform     = TransformType::New();
+    pairTransforms[i]->GetInverse(belowTransform);
+    TransformType::Pointer aboveTransform = pairTransforms[i+1];
+    diffusionTransform->Compose( squareRoot(belowTransform) );
+    diffusionTransform->Compose( squareRoot(aboveTransform) );
+    
+    // write transform
+    string diffusionTransformPath = diffusionTransformDir + pairTransformBasenames[i].substr(5,4);
+    writeTransform(diffusionTransform, diffusionTransformPath);
   }
   
   return EXIT_SUCCESS;
