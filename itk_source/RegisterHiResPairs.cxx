@@ -104,15 +104,17 @@ int main(int argc, char *argv[]) {
   
   // Configure intermediate transform writer
   SimpleTransformWriter::Pointer simpleTransformWriter = SimpleTransformWriter::New();
-  string intermediateTransformsDir = outputDir + "IntermediateTransforms/";
+  string intermediateTransformsDir = outputDir + "IntermediateTransforms/" + transform + "/";
   remove_all( intermediateTransformsDir );
-  simpleTransformWriter->setOutputRootDir(intermediateTransformsDir + transform + "/");
+  simpleTransformWriter->setOutputRootDir(intermediateTransformsDir);
   simpleTransformWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), simpleTransformWriter );
   
   // Configure metric value writer
   MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
-  metricValueWriter->setOutputRootDir(outputDir + "MetricValues/");
+  string metricValueDir = outputDir + "MetricValues/" + transforms + "/";
+  remove_all(metricValueDir);
+  metricValueWriter->setOutputRootDir(metricValueDir);
   metricValueWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), metricValueWriter );
   
@@ -177,7 +179,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
    .add("outputDir", 1)
    .add("transform", 1)
    .add("roi", 1);
-     
+  
   // parse command line
   po::variables_map vm;
 	try
