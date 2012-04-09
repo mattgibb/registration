@@ -112,34 +112,44 @@ int main(int argc, char *argv[]) {
   
   // Configure metric value writer
   MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
-  string metricValueDir = outputDir + "MetricValues/" + transforms + "/";
+  string metricValueDir = outputDir + "MetricValues/" + transform + "/";
   remove_all(metricValueDir);
   metricValueWriter->setOutputRootDir(metricValueDir);
   metricValueWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), metricValueWriter );
-  
+
   // Perform registration
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
   {
-    cout << "Registering slices " << basenames[slice_number] <<
-      " and " << basenames[slice_number + 1] << "..." << endl;
+    if(basenames[slice_number] != basenames[slice_number + 1])
+    {
+      cout << "Registering slices " << basenames[slice_number] <<
+        " and " << basenames[slice_number + 1] << "..." << endl;
       
-    simpleTransformWriter->setSliceNumber(slice_number);
-    metricValueWriter->setSliceNumber(slice_number);
+      simpleTransformWriter->setSliceNumber(slice_number);
+      metricValueWriter->setSliceNumber(slice_number);
     
-    registration->SetFixedImage( fixedStack->GetOriginalImage(slice_number) );
-    registration->SetMovingImage( movingStack->GetOriginalImage(slice_number) );
-    registration->GetMetric()->SetFixedImageMask( fixedStack->GetOriginal2DMask(slice_number) );
-    registration->GetMetric()->SetMovingImageMask( movingStack->GetOriginal2DMask(slice_number) );
-    registration->SetTransform( movingStack->GetTransform(slice_number) );
-    registration->SetInitialTransformParameters( movingStack->GetTransform(slice_number)->GetParameters() );
+      registration->SetFixedImage( fixedStack->GetOriginalImage(slice_number) );
+      registration->SetMovingImage( movingStack->GetOriginalImage(slice_number) );
+      registration->GetMetric()->SetFixedImageMask( fixedStack->GetOriginal2DMask(slice_number) );
+      registration->GetMetric()->SetMovingImageMask( movingStack->GetOriginal2DMask(slice_number) );
+      registration->SetTransform( movingStack->GetTransform(slice_number) );
+      registration->SetInitialTransformParameters( movingStack->GetTransform(slice_number)->GetParameters() );
     
-    try { registration->Update(); }
-    catch( itk::ExceptionObject & err )
-    { 
-      std::cerr << "ExceptionObject caught !" << std::endl;
-      std::cerr << err << std::endl;
-      return EXIT_FAILURE;
+      try { registration->Update(); }
+      catch( itk::ExceptionObject & err )
+      { 
+        std::cerr << "ExceptionObject caught !" << std::endl;
+        std::cerr << err << std::endl;
+        return EXIT_FAILURE;
+      }
+    }
+    else
+    {
+      cout << "Skipping identical slice pair "
+        << basenames[slice_number] << " and "
+        << basenames[slice_number + 1]
+        << "..." << endl;
     }
   }
   
