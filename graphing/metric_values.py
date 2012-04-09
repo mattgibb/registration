@@ -4,12 +4,11 @@ from numpy import genfromtxt, array
 
 class MetricValues:
     def __init__(self, transform_dir):
-        value_list = [genfromtxt(join(transform_dir, file)) for file in listdir(transform_dir)]
-        self._values = array(value_list)
+        self._values = [genfromtxt(join(transform_dir, file)) for file in listdir(transform_dir)]
     
     def values(self):
         return self._values
     
     def delta_values(self):
         # subtract the previous value from each value
-        return self._values[:,1:] - self._values[:,:-1]
+        return [row[1:] - row[:-1] for row in self._values]
