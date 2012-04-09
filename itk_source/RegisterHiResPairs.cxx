@@ -14,7 +14,7 @@
 #include "OptimizerConfig.hpp"
 #include "ScaleImages.hpp"
 #include "SimpleTransformWriter.hpp"
-#include "MetricValueWriter.hpp"
+#include "SimpleMetricValueWriter.hpp"
 
 using namespace boost::filesystem;
 namespace po = boost::program_options;
@@ -111,12 +111,12 @@ int main(int argc, char *argv[]) {
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), simpleTransformWriter );
   
   // Configure metric value writer
-  MetricValueWriter::Pointer metricValueWriter = MetricValueWriter::New();
+  SimpleMetricValueWriter::Pointer simpleMetricValueWriter = SimpleMetricValueWriter::New();
   string metricValueDir = outputDir + "MetricValues/" + transform + "/";
   remove_all(metricValueDir);
-  metricValueWriter->setOutputRootDir(metricValueDir);
-  metricValueWriter->setStack(movingStack.get());
-  registration->GetOptimizer()->AddObserver( itk::IterationEvent(), metricValueWriter );
+  simpleMetricValueWriter->setOutputRootDir(metricValueDir);
+  simpleMetricValueWriter->setStack(movingStack.get());
+  registration->GetOptimizer()->AddObserver( itk::IterationEvent(), simpleMetricValueWriter );
 
   // Perform registration
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
         " and " << basenames[slice_number + 1] << "..." << endl;
       
       simpleTransformWriter->setSliceNumber(slice_number);
-      metricValueWriter->setSliceNumber(slice_number);
+      simpleMetricValueWriter->setSliceNumber(slice_number);
     
       registration->SetFixedImage( fixedStack->GetOriginalImage(slice_number) );
       registration->SetMovingImage( movingStack->GetOriginalImage(slice_number) );

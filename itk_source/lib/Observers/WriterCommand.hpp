@@ -23,7 +23,7 @@ public:
 	void setOutputRootDir(const string& outputRootDir) { m_outputRootDir = outputRootDir; }
   
 protected:
-    
+  
   const char *transformType()
   {
     return m_stack->GetTransform(m_sliceNumber)->GetNameOfClass();
