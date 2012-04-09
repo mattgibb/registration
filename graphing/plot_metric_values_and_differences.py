@@ -30,6 +30,7 @@ if len(argv) > 2:
         ax = fig.gca()
         x = range(len(values))
         ax.plot(x, values)
+        plt.grid(axis="y")
         plt.show()
         
     metric_values = genfromtxt(join(metric_values_dir, argv[2]))
