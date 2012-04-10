@@ -12,3 +12,13 @@ class MetricValues:
     def delta_values(self):
         # subtract the previous value from each value
         return [row[1:] - row[:-1] for row in self._values]
+    
+    def initial_values(self):
+        return [row[0] for row in self._values]
+        
+    def final_values(self):
+        return [row[-1] for row in self._values]
+    
+    def number_of_slices(self):
+        return len(self._values)
+        
