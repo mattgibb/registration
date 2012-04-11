@@ -59,21 +59,6 @@ int main(int argc, char *argv[]) {
   if(HiRes) HiResStack->SetBasenames(basenames);
   if(HiRes) HiResStack->SetDefaultPixelValue( 255 );
   
-  // Load transforms from files
-  // get downsample ratios
-  string LoResDownsampleRatio, HiResDownsampleRatio;
-  if( vm.count("loResRatio") && vm.count("hiResRatio") )
-  {
-    LoResDownsampleRatio = vm["loResRatio"].as<string>();
-    HiResDownsampleRatio = vm["hiResRatio"].as<string>();
-  }
-  else
-  {
-    shared_ptr<YAML::Node> downsample_ratios = config("downsample_ratios.yml");
-    (*downsample_ratios)["LoRes"] >> LoResDownsampleRatio;
-    (*downsample_ratios)["HiRes"] >> HiResDownsampleRatio;
-  }
-  
   // prepare for possible saves
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
   create_directory( Dirs::ColourDir() );
@@ -82,8 +67,8 @@ int main(int argc, char *argv[]) {
   if(LoRes)
   {
     // load transforms
-    string LoResTransformsDir = Dirs::ResultsDir() + "LoResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-    Load(*LoResStack, LoResTransformsDir);
+    string loResTransformDir = vm.count("loResTransformDir") ? vm["loResTransformDir"].as<string>() : Dirs::LoResTransformsDir();
+    Load(*LoResStack, loResTransformDir);
     // move stack origins to ROI
     StackTransforms::Translate(*LoResStack, translation);
     // generate and save images
@@ -94,21 +79,35 @@ int main(int argc, char *argv[]) {
   // save HiRes rigid, similarity and affine image
   if(HiRes)
   {
-    // load transforms, translate to correct ROI and save
-    string HiResTransformsBaseDir = Dirs::ResultsDir() + "HiResTransforms_" + LoResDownsampleRatio + "_" + HiResDownsampleRatio;
-    vector< string > HiResTransformsDirs;
-    HiResTransformsDirs.push_back("CenteredRigid2DTransform");
-    HiResTransformsDirs.push_back("CenteredSimilarity2DTransform");
-    HiResTransformsDirs.push_back("CenteredAffineTransform");
-    for(vector< string >::iterator it = HiResTransformsDirs.begin(); it != HiResTransformsDirs.end(); ++it)
+    if(vm.count("hiResTransformDir")) // just process single directory from command line
     {
-      Load(*HiResStack, HiResTransformsBaseDir + "/" + *it);
+      string dir = Dirs::ResultsDir() + vm["hiResTransformDir"].as<string>();
+      Load(*HiResStack, dir);
       // move stack origins to ROI
       StackTransforms::Translate(*HiResStack, translation);
       // generate and save images
       HiResStack->updateVolumes();
-      writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ColourDir() + *it + ".mha");
+      writeImage< StackType::VolumeType >( HiResStack->GetVolume(), dir + "/HiRes.mha");
+      
     }
+    else // process all three transform optimisations
+    {
+      // load transforms, translate to correct ROI and save
+      vector< string > HiResTransformsDirs;
+      HiResTransformsDirs.push_back("CenteredRigid2DTransform");
+      HiResTransformsDirs.push_back("CenteredSimilarity2DTransform");
+      HiResTransformsDirs.push_back("CenteredAffineTransform");
+      for(vector< string >::iterator it = HiResTransformsDirs.begin(); it != HiResTransformsDirs.end(); ++it)
+      {
+        Load(*HiResStack, Dirs::HiResTransformsDir() + *it);
+        // move stack origins to ROI
+        StackTransforms::Translate(*HiResStack, translation);
+        // generate and save images
+        HiResStack->updateVolumes();
+        writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ColourDir() + *it + ".mha");
+      }
+    }
+    
   }
   
   return EXIT_SUCCESS;
@@ -123,8 +122,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to source transforms and place results")
       ("roi", po::value<string>()->default_value("whole_heart"), "set region of interest")
-      ("loResRatio", po::value<string>(), "LoRes ratio used to source transforms")
-      ("hiResRatio", po::value<string>(), "HiRes ratio used to source transforms")
+      ("loResTransformDir", po::value<string>(), "directory containing LoRes transform files, relative to ResultsDir")
+      ("hiResTransformDir", po::value<string>(), "directory containing HiRes transform files, relative to ResultsDir")
       ("blockDir", po::value<string>(), "directory containing LoRes originals")
 
       // three different ways of not specifying value for flag
