@@ -1,3 +1,3 @@
 ADD_EXECUTABLE(Brain Brain.cxx )
-TARGET_LINK_LIBRARIES(Brain ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(Brain ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                       Dirs Parameters)

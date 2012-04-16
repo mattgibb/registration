@@ -5,7 +5,6 @@ PROJECT(REGISTRATION)
 # ITK
 FIND_PACKAGE(ITK REQUIRED)
 INCLUDE(${ITK_USE_FILE})
-SET(ITKLibs ITKCommon ITKBasicFilters ITKIO ITKNumerics)  
 
 # Boost
 FIND_PACKAGE(Boost 1.44 COMPONENTS program_options filesystem system REQUIRED)
@@ -44,54 +43,51 @@ ADD_SUBDIRECTORY(lib)
 
 # Targets
 ADD_EXECUTABLE(ShrinkImage ShrinkImage.cxx )
-TARGET_LINK_LIBRARIES(ShrinkImage ${ITKLibs})
-
-# ADD_EXECUTABLE(Register Register.cxx )
-# TARGET_LINK_LIBRARIES(Register ${ITKLibs} ${YAML_LIBRARY})
+TARGET_LINK_LIBRARIES(ShrinkImage ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(FlipImage FlipImage.cxx )
-TARGET_LINK_LIBRARIES(FlipImage ${ITKLibs})
+TARGET_LINK_LIBRARIES(FlipImage ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(RotateImage RotateImage.cxx )
-TARGET_LINK_LIBRARIES(RotateImage ${ITKLibs})
+TARGET_LINK_LIBRARIES(RotateImage ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(BuildVolumes BuildVolumes.cxx )
-TARGET_LINK_LIBRARIES(BuildVolumes ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(BuildVolumes ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs Parameters)
 
 ADD_EXECUTABLE(ResampleBMP ResampleBMP.cxx )
-TARGET_LINK_LIBRARIES(ResampleBMP ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(ResampleBMP ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs Parameters)
 
 ADD_EXECUTABLE(DeformableRegistration DeformableRegistration.cxx )
-TARGET_LINK_LIBRARIES(DeformableRegistration ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(DeformableRegistration ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(ConvertRGBAToRGB ConvertRGBAToRGB.cxx )
-TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs)
 
 ADD_EXECUTABLE(ComposeTransformSeries ComposeTransformSeries.cxx )
-TARGET_LINK_LIBRARIES(ComposeTransformSeries ${ITKLibs} ${Boost_LIBRARIES} Dirs)
+TARGET_LINK_LIBRARIES(ComposeTransformSeries ${ITK_LIBRARIES} ${Boost_LIBRARIES} Dirs)
 
 ADD_EXECUTABLE(RegisterROI RegisterROI.cxx )
-TARGET_LINK_LIBRARIES(RegisterROI ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(RegisterROI ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(RegisterLoResPair RegisterLoResPair.cxx )
-TARGET_LINK_LIBRARIES(RegisterLoResPair ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(RegisterLoResPair ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(RegisterHiResPairs RegisterHiResPairs.cxx )
-TARGET_LINK_LIBRARIES(RegisterHiResPairs ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(RegisterHiResPairs ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(SplitVolumeIntoSlices SplitVolumeIntoSlices.cxx )
-TARGET_LINK_LIBRARIES(SplitVolumeIntoSlices ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(SplitVolumeIntoSlices ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs)
 
 ADD_EXECUTABLE(VolumeReadWrite VolumeReadWrite.cxx )
-TARGET_LINK_LIBRARIES(VolumeReadWrite ${ITKLibs} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+TARGET_LINK_LIBRARIES(VolumeReadWrite ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(TestPrincipalAxes TestPrincipalAxes.cxx )
