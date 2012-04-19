@@ -7,11 +7,13 @@
 #include "itkImageFileReader.h"
 #include "itkImageFileWriter.h"
 #include "itkTransformFileReader.h"
-#include "itkTransformFileWriter.h"
+#include "itkTxtTransformIO.h"
 
 #include "PathHelpers.hpp"
 
 using namespace std;
+typedef itk::TxtTransformIO TransformIOType;
+
 
 vector< string > directoryContents(const string& directory)
 {
@@ -58,16 +60,17 @@ bool fileExists(const string& strFilename)
   return(blnReturn); 
 }
 
-// Reader helpers
+// Transform helpers
+// specific IO is picked rather than using factory
+// because we need TxtTransformIO, regardless of file extension
 itk::TransformBase::Pointer readTransform(const string& fileName)
 {
-  typedef itk::TransformFileReader ReaderType;
-  ReaderType::Pointer reader = ReaderType::New();
-  reader->SetFileName( fileName.c_str() );
+  TransformIOType::Pointer transformIO = TransformIOType::New();
+  transformIO->SetFileName(fileName);
   
   try
   {
-    reader->Update();
+    transformIO->Read();
   }
   catch( itk::ExceptionObject & err )
   {
@@ -76,9 +79,31 @@ itk::TransformBase::Pointer readTransform(const string& fileName)
 		exit(EXIT_FAILURE);
   }
   
-  return *(reader->GetTransformList()->begin());
+  return *(transformIO->GetTransformList().begin());
 }
 
+void writeTransform(const itk::TransformBase *transform, const string& fileName)
+{
+  TransformIOType::Pointer transformIO = TransformIOType::New();
+  transformIO->SetAppendMode(false);
+  transformIO->SetFileName(fileName);
+  
+  TransformIOType::ConstTransformListType transformList(1, TransformIOType::ConstTransformPointer(transform));
+  transformIO->SetTransformList(transformList);
+  
+  try
+  {
+    transformIO->Write();
+  }
+  catch( itk::ExceptionObject & err )
+  {
+    std::cerr << "ExceptionObject caught while writing transform." << std::endl;
+    cerr << err << endl;
+		exit(EXIT_FAILURE);
+  }
+}
+
+// Image helpers
 template<typename ImageType>
 typename ImageType::Pointer readImage(const string& fileName)
 {
@@ -120,14 +145,14 @@ vector< typename ImageType::Pointer > readImages(vector< string > fileNames)
   return originalImages;
 }
 
-// Writer helpers
-// const Data
-template<typename WriterType, typename DataType>
-void writeData(const typename DataType::ConstPointer data, const string& fileName)
+// Const Image
+template<typename ImageType>
+void writeImage(const typename ImageType::ConstPointer image, const string& fileName)
 {
+  typedef itk::ImageFileWriter< ImageType > WriterType;
   typename WriterType::Pointer writer = WriterType::New();
 	
-	writer->SetInput( data );
+	writer->SetInput( image );
   // writer->AddTransform( anotherTransform ); // only applies to writing transforms
   
   writer->SetFileName( fileName.c_str() );
@@ -142,33 +167,11 @@ void writeData(const typename DataType::ConstPointer data, const string& fileNam
 	}
 }
 
-// Data
-template<typename WriterType, typename DataType>
-void writeData(const typename DataType::Pointer data, const string& fileName)
-{
-  writeData< WriterType, DataType >( (typename DataType::ConstPointer) data, fileName);
-}
-
-// Const Image
-template<typename ImageType>
-void writeImage(const typename ImageType::ConstPointer image, const string& fileName)
-{
-  writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
-}
-
 // Image
 template<typename ImageType>
 void writeImage(const typename ImageType::Pointer image, const string& fileName)
 {
-  writeData< itk::ImageFileWriter< ImageType >, ImageType >( image, fileName );
+  writeImage< ImageType >( (typename ImageType::ConstPointer) image, fileName);
 }
-
-// Transform
-void writeTransform(const itk::TransformBase *transform, const string& fileName)
-{
-  itk::TransformBase::ConstPointer transformConstPointer(transform);
-  writeData< itk::TransformFileWriter, itk::TransformBase >( transformConstPointer, fileName );
-}
-
 
 #endif

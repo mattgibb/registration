@@ -67,8 +67,7 @@ int main(int argc, char const *argv[]) {
   HiResStack->updateVolumes();
   
   // write transform and results
-  writeData< itk::TransformFileWriter, StackType::TransformType >
-    (HiResStack->GetTransform(0), outputDir + "Transforms");
+  writeTransform(HiResStack->GetTransform(0), outputDir + "Transforms");
   
   cout << "outputDir: " << outputDir << endl;
   
