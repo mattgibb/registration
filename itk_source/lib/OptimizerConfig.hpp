@@ -7,7 +7,6 @@
 
 #include "itkSingleValuedNonLinearOptimizer.h"
 #include "itkBSplineDeformableTransform.h"
-#include "itkBSplineDeformableTransformInitializer.h"
 #include "itkLBFGSBOptimizer.h"
 
 using namespace std;

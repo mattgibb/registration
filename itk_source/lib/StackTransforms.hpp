@@ -11,7 +11,6 @@
 #include "itkCenteredAffineTransform.h"
 #include "itkSingleValuedNonLinearOptimizer.h"
 #include "itkBSplineDeformableTransform.h"
-#include "itkBSplineDeformableTransformInitializer.h"
 #include "itkLBFGSBOptimizer.h"
 
 
@@ -197,44 +196,45 @@ namespace StackTransforms {
   template <typename StackType>
   void InitializeBSplineDeformableFromBulk(StackType& LoResStack, StackType& HiResStack)
   {
-    // Perform non-rigid registration
-    typedef double CoordinateRepType;
-    const unsigned int SpaceDimension = 2;
-    const unsigned int SplineOrder = 3;
-    typedef itk::BSplineDeformableTransform< CoordinateRepType, SpaceDimension, SplineOrder > TransformType;
-    typedef itk::BSplineDeformableTransformInitializer< TransformType, typename StackType::SliceType > InitializerType;
-    typename StackType::TransformVectorType newTransforms;
-    
-    for(unsigned int slice_number=0; slice_number<HiResStack.GetSize(); slice_number++)
-    {
-      // instantiate transform
-      TransformType::Pointer transform( TransformType::New() );
-      
-      // initialise transform
-      typename InitializerType::Pointer initializer = InitializerType::New();
-      initializer->SetTransform( transform );
-      initializer->SetImage( LoResStack.GetResampledSlice(slice_number) );
-      unsigned int gridSize;
-      boost::shared_ptr<YAML::Node> deformableParameters = config("deformable_parameters.yml");
-      (*deformableParameters)["bsplineTransform"]["gridSize"] >> gridSize;
-      TransformType::RegionType::SizeType gridSizeInsideTheImage;
-      gridSizeInsideTheImage.Fill(gridSize);
-      initializer->SetGridSizeInsideTheImage( gridSizeInsideTheImage );
-      
-      initializer->InitializeTransform();
-      
-      transform->SetBulkTransform( HiResStack.GetTransform(slice_number) );
-      
-      // set initial parameters to zero
-      TransformType::ParametersType initialDeformableTransformParameters( transform->GetNumberOfParameters() );
-      initialDeformableTransformParameters.Fill( 0.0 );
-      transform->SetParametersByValue( initialDeformableTransformParameters );
-      
-      // add transform to vector
-      typename StackType::TransformType::Pointer baseTransform( transform );
-      newTransforms.push_back( baseTransform );
-    }
-    HiResStack.SetTransforms(newTransforms);
+    // Interface changed in ITKv4, so commented out
+    // // Perform non-rigid registration
+    // typedef double CoordinateRepType;
+    // const unsigned int SpaceDimension = 2;
+    // const unsigned int SplineOrder = 3;
+    // typedef itk::BSplineDeformableTransform< CoordinateRepType, SpaceDimension, SplineOrder > TransformType;
+    // typedef itk::BSplineDeformableTransformInitializer< TransformType, typename StackType::SliceType > InitializerType;
+    // typename StackType::TransformVectorType newTransforms;
+    // 
+    // for(unsigned int slice_number=0; slice_number<HiResStack.GetSize(); slice_number++)
+    // {
+    //   // instantiate transform
+    //   TransformType::Pointer transform( TransformType::New() );
+    //   
+    //   // initialise transform
+    //   typename InitializerType::Pointer initializer = InitializerType::New();
+    //   initializer->SetTransform( transform );
+    //   initializer->SetImage( LoResStack.GetResampledSlice(slice_number) );
+    //   unsigned int gridSize;
+    //   boost::shared_ptr<YAML::Node> deformableParameters = config("deformable_parameters.yml");
+    //   (*deformableParameters)["bsplineTransform"]["gridSize"] >> gridSize;
+    //   TransformType::RegionType::SizeType gridSizeInsideTheImage;
+    //   gridSizeInsideTheImage.Fill(gridSize);
+    //   initializer->SetGridSizeInsideTheImage( gridSizeInsideTheImage );
+    //   
+    //   initializer->InitializeTransform();
+    //   
+    //   transform->SetBulkTransform( HiResStack.GetTransform(slice_number) );
+    //   
+    //   // set initial parameters to zero
+    //   TransformType::ParametersType initialDeformableTransformParameters( transform->GetNumberOfParameters() );
+    //   initialDeformableTransformParameters.Fill( 0.0 );
+    //   transform->SetParametersByValue( initialDeformableTransformParameters );
+    //   
+    //   // add transform to vector
+    //   typename StackType::TransformType::Pointer baseTransform( transform );
+    //   newTransforms.push_back( baseTransform );
+    // }
+    // HiResStack.SetTransforms(newTransforms);
   }
   
   // Translate a single slice
