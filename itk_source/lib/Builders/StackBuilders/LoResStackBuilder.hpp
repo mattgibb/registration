@@ -6,13 +6,13 @@
 
 template <typename StackType>
 class LoResStackBuilder: public StackBuilder< StackType > {
-  virtual string getImageLoadDir();
+  virtual string getDefaultImageLoadDir();
   
   virtual typename StackType::SliceType::SpacingType getOriginalSpacings();
 };
 
 template<typename StackType>
-string LoResStackBuilder<StackType>::getImageLoadDir()
+string LoResStackBuilder<StackType>::getDefaultImageLoadDir()
 { return Dirs::BlockDir(); }
 
 template<typename StackType>

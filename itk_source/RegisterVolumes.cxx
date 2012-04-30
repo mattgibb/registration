@@ -32,8 +32,6 @@ int main(int argc, char *argv[]) {
   // Process command line arguments
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
-  string blockDir = vm.count("blockDir") ? vm["blockDir"].as<string>() + "/" : Dirs::BlockDir();
-  string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
@@ -49,11 +47,14 @@ int main(int argc, char *argv[]) {
     hiResBuilder.setBasename(vm["slice"].as<string>());
   }
   
+  if( vm.count("blockDir") )
+    loResBuilder.setImageLoadDir( vm["blockDir"].as<string>() + "/" );
+  
+  if( vm.count("sliceDir") )
+    hiResBuilder.setImageLoadDir( vm["sliceDir"].as<string>() + "/" );
+  
   shared_ptr<StackType> LoResStack = loResBuilder.getStack();
   shared_ptr<StackType> HiResStack = hiResBuilder.getStack();
-  
-  // Assert stacks have the same number of slices
-  assert(LoResStack->GetSize() == HiResStack->GetSize());
   
   // initialize stacks' transforms so that 2D images line up at their centres.
   if( vm.count("blockDir") )

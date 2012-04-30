@@ -33,11 +33,19 @@ public:
   
   void setBasename(const string& basename);
   
+  void setImageLoadDir(const string& imageLoadDir);
+  
   void setNormalizeOriginals(bool normalizeSlices)
   { m_normalizeSlices = normalizeSlices; }
   
 protected:
-  virtual string getImageLoadDir()=0;
+  // subclasses must supply a default image load dir
+  // in case setImageLoadDir isn't used by client
+  // pure virtual function in order to fail at compile
+  // time instead of runtime
+  virtual string getDefaultImageLoadDir()=0;
+  
+  string getImageLoadDir();
   vector< string > m_basenames;
   bool m_normalizeSlices;
   
@@ -47,7 +55,7 @@ private:
   // deliberately not implemented so not even class methods can use them
   StackBuilderBase(const StackBuilderBase&);
   StackBuilderBase& operator=(const StackBuilderBase&);
-  
+  string m_imageLoadDir;
 };
 
 // Constructor
@@ -70,6 +78,19 @@ void StackBuilderBase::setBasenames(const vector<string>& basenames)
 void StackBuilderBase::setBasename(const string& basename)
 {
   m_basenames = vector< string >(1, basename);
+}
+
+void StackBuilderBase::setImageLoadDir(const string& imageLoadDir)
+{
+  m_imageLoadDir = imageLoadDir;
+}
+
+string StackBuilderBase::getImageLoadDir()
+{
+  if ( m_imageLoadDir.empty() )
+    return getDefaultImageLoadDir();
+  else
+    return m_imageLoadDir;
 }
 
 #endif

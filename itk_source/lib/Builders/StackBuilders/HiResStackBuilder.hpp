@@ -6,13 +6,13 @@
 
 template <typename StackType>
 class HiResStackBuilder: public StackBuilder< StackType > {
-  virtual string getImageLoadDir();
+  virtual string getDefaultImageLoadDir();
   
   virtual typename StackType::SliceType::SpacingType getOriginalSpacings();
 };
 
 template<typename StackType>
-string HiResStackBuilder<StackType>::getImageLoadDir()
+string HiResStackBuilder<StackType>::getDefaultImageLoadDir()
 { return Dirs::SliceDir(); }
 
 template<typename StackType>
