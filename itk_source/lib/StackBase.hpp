@@ -11,6 +11,7 @@ public:
 	typedef vector< TransformType::Pointer > TransformVectorType;
 	
   StackBase();
+  
   // abstract polymorphic base
   // see Effective C++ item 7
   virtual ~StackBase()=0;

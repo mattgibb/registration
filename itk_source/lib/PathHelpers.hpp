@@ -1,8 +1,8 @@
 #ifndef PATH_HELPERS_HPP_
 #define PATH_HELPERS_HPP_
 
+#include <fstream>
 #include "boost/filesystem.hpp"
-#include <sys/stat.h> // for fileExists
 
 using namespace std;
 using namespace boost::filesystem;

@@ -1,6 +1,7 @@
 #ifndef IO_HELPERS_HPP_
 #define IO_HELPERS_HPP_
 
+#include <sys/stat.h> // for fileExists
 #include "boost/filesystem.hpp"
 
 #include "itkImage.h"
