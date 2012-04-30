@@ -36,12 +36,6 @@ int main(int argc, char *argv[]) {
   string sliceDir = vm.count("sliceDir") ? vm["sliceDir"].as<string>() + "/" : Dirs::SliceDir();
   const bool writeImages = vm["writeImages"].as<bool>();
   
-  // basenames is either single name from command line
-  // or list from config file
-  vector< string > basenames = vm.count("slice") ?
-                               vector< string >(1, vm["slice"].as<string>()) :
-                               getBasenames(Dirs::ImageList());
-  
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   
   // initialise stack objects with correct spacings, sizes etc
@@ -174,7 +168,7 @@ int main(int argc, char *argv[]) {
   LoResStack->updateVolumes();
   
   // persist mask numberOfTimesTooBig and final metric values
-  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", basenames );
+  saveVectorToFiles(HiResStack->GetNumberOfTimesTooBig(), "number_of_times_too_big", HiResStack->GetBasenames() );
   
   // write transforms to directories labeled by both ds ratios
   create_directory(Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
