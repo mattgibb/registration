@@ -6,8 +6,8 @@
 
 // my files
 #include "Stack.hpp"
-#include "NormalizeImages.hpp"
-#include "ScaleImages.hpp"
+#include "LoResStackBuilder.hpp"
+#include "HiResStackBuilder.hpp"
 #include "RegistrationBuilder.hpp"
 #include "StackAligner.hpp"
 #include "StackIOHelpers.hpp"
@@ -42,22 +42,21 @@ int main(int argc, char *argv[]) {
                                vector< string >(1, vm["slice"].as<string>()) :
                                getBasenames(Dirs::ImageList());
   
-  // prepend directory to each filename in list
-  vector< string > LoResFilePaths = constructPaths(blockDir, basenames, ".bmp");
-  vector< string > HiResFilePaths = constructPaths(sliceDir, basenames, ".bmp");
+  typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   
   // initialise stack objects with correct spacings, sizes etc
-  typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
-  StackType::SliceVectorType HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
-  normalizeImages< StackType::SliceType >(LoResImages);
-  normalizeImages< StackType::SliceType >(HiResImages);
-  scaleImages< StackType::SliceType >(LoResImages, getSpacings<2>("LoRes"));
-  scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
-  shared_ptr< StackType > LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize());
-  shared_ptr< StackType > HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize());
-  LoResStack->SetBasenames(basenames);
-  HiResStack->SetBasenames(basenames);
+  LoResStackBuilder<StackType> loResBuilder;
+  HiResStackBuilder<StackType> hiResBuilder;
+  
+  // optionally specify single slice, default is the contents of image_list.txt
+  if( vm.count("slice") )
+  {
+    loResBuilder.setBasename(vm["slice"].as<string>());
+    hiResBuilder.setBasename(vm["slice"].as<string>());
+  }
+  
+  shared_ptr<StackType> LoResStack = loResBuilder.getStack();
+  shared_ptr<StackType> HiResStack = hiResBuilder.getStack();
   
   // Assert stacks have the same number of slices
   assert(LoResStack->GetSize() == HiResStack->GetSize());
