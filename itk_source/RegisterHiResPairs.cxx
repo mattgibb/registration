@@ -15,6 +15,7 @@
 #include "ScaleImages.hpp"
 #include "SimpleTransformWriter.hpp"
 #include "SimpleMetricValueWriter.hpp"
+#include "HiResStackBuilder.hpp"
 
 using namespace boost::filesystem;
 namespace po = boost::program_options;
@@ -27,27 +28,32 @@ int main(int argc, char *argv[]) {
   po::variables_map vm = parse_arguments(argc, argv);
   
   // Process command line arguments
-  Dirs::SetDataSet(argv[1]);
-  Dirs::SetOutputDirName(argv[2]);
-  string transform = vm["transform"].as<string>();
+  Dirs::SetDataSet( vm["dataSet"].as<string>() );
+  Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
+  string outputSubdir = vm["outputSubdir"].as<string>();
+  string inputTransformsDir = vm["inputTransformsDir"].as<string>();
   string roi = vm.count("roi") ? vm["roi"].as<string>() : "ROI";
   
   // for globally available registrationParameters(),
   // used in e.g. OptimizerConfig
   Dirs::SetParamsFile( Dirs::ConfigDir() + "HiRes_pair_parameters.yml" );
   
-  // construct basenames and paths
-  vector< string > basenames = getBasenames(Dirs::ImageList());
-  vector< string > paths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
-  
   // initialise stack with correct spacings, sizes, basenames etc
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
-  StackType::SliceVectorType originalImages = readImages< StackType::SliceType >(paths);
-  scaleImages< StackType::SliceType >(originalImages, getSpacings<2>("HiRes"));
-  shared_ptr< StackType > originalStack = make_shared< StackType >(originalImages, getSpacings<3>("LoRes"), getSize(roi));
-  originalStack->SetBasenames(basenames);
+  HiResStackBuilder<StackType> hiResBuilder;
   
-  Load(*originalStack, Dirs::HiResTransformsDir() + transform + "/");
+  // set basenames to a single pair if specified on command line
+  if(vm.count("fixedBasename"))
+  {
+    vector< string > basenames;
+    basenames.push_back(vm["movingBasename"].as<string>());
+    basenames.push_back(vm["fixedBasename"].as<string>());
+    hiResBuilder.setBasenames(basenames);
+  }
+  
+  shared_ptr<StackType> originalStack = hiResBuilder.getStack();
+  
+  Load(*originalStack, Dirs::ResultsDir() + inputTransformsDir);
   
   // move stack origins to ROI
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
@@ -87,8 +93,9 @@ int main(int argc, char *argv[]) {
   fixedStack->updateVolumes();
   movingStack->updateVolumes();
   string outputDir = Dirs::ResultsDir() + "HiResPairs/";
-  create_directory( outputDir );
-  writeImage< StackType::VolumeType >( movingStack->GetVolume(), outputDir + "moving_before.mha");
+  string volumesDir = outputDir + "OutputVolumes/" + outputSubdir + "/";
+  create_directories(volumesDir);
+  writeImage< StackType::VolumeType >( movingStack->GetVolume(), volumesDir + "moving_before.mha");
   
   // Get number of slices for registration and transform basenames
   unsigned int number_of_slices = fixedStack->GetSize();
@@ -98,13 +105,16 @@ int main(int argc, char *argv[]) {
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
   {
     // construct basenames e.g. "0001_0002"
-    transformBasenames.push_back(basenames[slice_number] + "_" + basenames[slice_number + 1]);
+    transformBasenames.push_back(originalStack->GetBasename(slice_number) +
+                                 "_" +
+                                 originalStack->GetBasename(slice_number + 1)
+                                );
   }
   movingStack->SetBasenames(transformBasenames);
   
   // Configure intermediate transform writer
   SimpleTransformWriter::Pointer simpleTransformWriter = SimpleTransformWriter::New();
-  string intermediateTransformsDir = outputDir + "IntermediateTransforms/" + transform + "/";
+  string intermediateTransformsDir = outputDir + "IntermediateTransforms/" + outputSubdir + "/";
   remove_all( intermediateTransformsDir );
   simpleTransformWriter->setOutputRootDir(intermediateTransformsDir);
   simpleTransformWriter->setStack(movingStack.get());
@@ -112,7 +122,7 @@ int main(int argc, char *argv[]) {
   
   // Configure metric value writer
   SimpleMetricValueWriter::Pointer simpleMetricValueWriter = SimpleMetricValueWriter::New();
-  string metricValueDir = outputDir + "MetricValues/" + transform + "/";
+  string metricValueDir = outputDir + "MetricValues/" + outputSubdir + "/";
   remove_all(metricValueDir);
   simpleMetricValueWriter->setOutputRootDir(metricValueDir);
   simpleMetricValueWriter->setStack(movingStack.get());
@@ -121,10 +131,11 @@ int main(int argc, char *argv[]) {
   // Perform registration
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
   {
-    if(basenames[slice_number] != basenames[slice_number + 1])
+    // if 2 slices are not the same image
+    if(originalStack->GetBasename(slice_number) != originalStack->GetBasename(slice_number + 1))
     {
-      cout << "Registering slices " << basenames[slice_number] <<
-        " and " << basenames[slice_number + 1] << "..." << endl;
+      cout << "Registering slices " << originalStack->GetBasename(slice_number) <<
+        " and " << originalStack->GetBasename(slice_number + 1) << "..." << endl;
       
       simpleTransformWriter->setSliceNumber(slice_number);
       simpleMetricValueWriter->setSliceNumber(slice_number);
@@ -147,25 +158,25 @@ int main(int argc, char *argv[]) {
     else
     {
       cout << "Skipping identical slice pair "
-        << basenames[slice_number] << " and "
-        << basenames[slice_number + 1]
+        << originalStack->GetBasename(slice_number) << " and "
+        << originalStack->GetBasename(slice_number + 1)
         << "..." << endl;
     }
   }
   
   // Save transforms and inverse transforms
-  string transformsDir = outputDir + "FinalTransforms/";
-  create_directory(transformsDir);
+  string transformsDir = outputDir + "FinalTransforms/" + outputSubdir;
+  create_directories(transformsDir);
   Save(*movingStack, transformsDir);
   
   // Write images
   fixedStack->updateVolumes();
   movingStack->updateVolumes();
-  writeImage< StackType::VolumeType >( originalStack->GetVolume(), outputDir + "original.mha");
-  writeImage< StackType::VolumeType >( fixedStack->GetVolume(), outputDir + "fixed.mha");
-  writeImage< StackType::VolumeType >( movingStack->GetVolume(), outputDir + "moving_after.mha");
-  writeImage< StackType::MaskVolumeType >( fixedStack->Get3DMask()->GetImage(), outputDir + "fixed_mask.mha");
-  writeImage< StackType::MaskVolumeType >( movingStack->Get3DMask()->GetImage(), outputDir + "moving_mask.mha");
+  writeImage< StackType::VolumeType >( originalStack->GetVolume(), volumesDir + "original.mha");
+  writeImage< StackType::VolumeType >( fixedStack->GetVolume(), volumesDir + "fixed.mha");
+  writeImage< StackType::VolumeType >( movingStack->GetVolume(), volumesDir + "moving_after.mha");
+  writeImage< StackType::MaskVolumeType >( fixedStack->Get3DMask()->GetImage(), volumesDir + "fixed_mask.mha");
+  writeImage< StackType::MaskVolumeType >( movingStack->Get3DMask()->GetImage(), volumesDir + "moving_mask.mha");
   
   return EXIT_SUCCESS;
 }
@@ -178,7 +189,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to place results")
-      ("transform", po::value<string>(), "Type of ITK transform to start from")
+      ("inputTransformsDir", po::value<string>(), "transforms to start from, relative to ResultsDir")
+      ("outputSubdir", po::value<string>(), "namespace to save results under")
       ("roi", po::value<string>(), "region of interest e.g. papillary_insertion")
       ("fixedBasename", po::value<string>(), "basename of fixed slice e.g. 0196")
       ("movingBasename", po::value<string>(), "basename of moving slice e.g. 0197")
@@ -187,7 +199,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
   po::positional_options_description p;
   p.add("dataSet", 1)
    .add("outputDir", 1)
-   .add("transform", 1)
+   .add("inputTransformsDir", 1)
+   .add("outputSubdir", 1)
    .add("roi", 1);
   
   // parse command line
@@ -212,13 +225,15 @@ po::variables_map parse_arguments(int argc, char *argv[])
   if(vm.count("help") ||
     !vm.count("dataSet") ||
     !vm.count("outputDir") ||
-    !vm.count("transform") ||
+    !vm.count("inputTransformsDir") ||
+    !vm.count("outputSubdir") ||
     (vm.count("fixedBasename") != vm.count("movingBasename")) )
   {
     cerr << "Usage: "
       << argv[0]
       << " [--dataSet=]RatX [--outputDir=]my_dir"
-      << " [--transform=]CenteredAffineTransform"
+      << " [--inputTransformsDir=]HiResTransforms_1_8/CenteredAffineTransform"
+      << " [--outputSubdir=]CenteredAffineTransform_first_diffusion"
       << " [Options]"
       << endl << endl;
     cerr << opts << "\n";
