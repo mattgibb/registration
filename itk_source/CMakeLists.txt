@@ -57,8 +57,8 @@ ADD_EXECUTABLE(RegisterVolumes RegisterVolumes.cxx )
 TARGET_LINK_LIBRARIES(RegisterVolumes ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs Parameters)
 
-ADD_EXECUTABLE(ResampleBMP ResampleBMP.cxx )
-TARGET_LINK_LIBRARIES(ResampleBMP ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+ADD_EXECUTABLE(BuildColourVolume BuildColourVolume.cxx )
+TARGET_LINK_LIBRARIES(BuildColourVolume ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs Parameters)
 
 ADD_EXECUTABLE(DeformableRegistration DeformableRegistration.cxx )
