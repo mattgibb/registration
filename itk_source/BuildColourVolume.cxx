@@ -67,8 +67,8 @@ int main(int argc, char *argv[]) {
   if(LoRes)
   {
     // load transforms
-    string loResTransformDir = vm.count("loResTransformDir") ? vm["loResTransformDir"].as<string>() : Dirs::LoResTransformsDir();
-    Load(*LoResStack, loResTransformDir);
+    string loResTransformsDir = vm.count("loResTransformsDir") ? vm["loResTransformsDir"].as<string>() : Dirs::LoResTransformsDir();
+    Load(*LoResStack, loResTransformsDir);
     // move stack origins to ROI
     StackTransforms::Translate(*LoResStack, translation);
     // generate and save images
@@ -79,9 +79,9 @@ int main(int argc, char *argv[]) {
   // save HiRes rigid, similarity and affine image
   if(HiRes)
   {
-    if(vm.count("hiResTransformDir")) // just process single directory from command line
+    if(vm.count("hiResTransformsDir")) // just process single directory from command line
     {
-      string dir = Dirs::ResultsDir() + vm["hiResTransformDir"].as<string>();
+      string dir = Dirs::ResultsDir() + vm["hiResTransformsDir"].as<string>();
       Load(*HiResStack, dir);
       // move stack origins to ROI
       StackTransforms::Translate(*HiResStack, translation);
@@ -122,8 +122,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to source transforms and place results")
       ("roi", po::value<string>()->default_value("whole_heart"), "set region of interest")
-      ("loResTransformDir", po::value<string>(), "directory containing LoRes transform files, relative to ResultsDir")
-      ("hiResTransformDir", po::value<string>(), "directory containing HiRes transform files, relative to ResultsDir")
+      ("loResTransformsDir", po::value<string>(), "directory containing LoRes transform files, relative to ResultsDir")
+      ("hiResTransformsDir", po::value<string>(), "directory containing HiRes transform files, relative to ResultsDir")
       ("blockDir", po::value<string>(), "directory containing LoRes originals")
 
       // three different ways of not specifying value for flag
