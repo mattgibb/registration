@@ -39,11 +39,12 @@ int main(int argc, char *argv[]) {
   
   for(unsigned int i=0; i<pairTransformPaths.size(); ++i)
   {
-    TransformType::Pointer pairTransform
-      = dynamic_cast< TransformType* >( readTransform(pairTransformPaths[i]).GetPointer() );
-    assert(pairTransform);
+    itk::TransformBase::Pointer bpPairTransform = readTransform(pairTransformPaths[i]);
+    TransformType::Pointer pPairTransform
+      = dynamic_cast< TransformType* >( bpPairTransform.GetPointer() );
+    assert(pPairTransform);
     
-    pairTransforms.push_back(pairTransform);
+    pairTransforms.push_back(pPairTransform);
   }
   
   // write diffusion transforms

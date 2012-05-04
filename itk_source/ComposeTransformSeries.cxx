@@ -33,16 +33,14 @@ int main(int argc, char const *argv[]) {
   
 	// clear results directory
   remove_all(argv[3]);
-  create_directory(argv[3]);
-	
+  create_directories(argv[3]);
+  
 	// Some transforms might not be registered
   // with the factory so we add them manually
   itk::TransformFactoryBase::RegisterDefaultTransforms();
   // itk::TransformFactory< itk::TranslationTransform< double, 2 > >::RegisterTransform();
   
 	// Generate new transforms
-	typedef itk::TransformFileReader ReaderType;
-	typedef itk::TransformFileWriter WriterType;
 	// TranslationTransform also has a Compose() interface, but only with other TranslationTransforms
   typedef itk::MatrixOffsetTransformBase< double, 2, 2 > ComposableTransformType;
   typedef itk::AffineTransform< double, 2 > AffineTransformType;
@@ -51,17 +49,11 @@ int main(int argc, char const *argv[]) {
   // apply adjustments for every other slice
   for(unsigned int i=1; i < originalPaths.size() - 1; ++i)
   {
-    // Load input transforms
-    ReaderType::Pointer originalReader = ReaderType::New();
-    ReaderType::Pointer adjustmentReader = ReaderType::New();
-    originalReader->SetFileName(  originalPaths[i].c_str()  );
-    adjustmentReader->SetFileName( adjustmentPaths[i].c_str() );
-    originalReader->Update();
-    adjustmentReader->Update();
-    
     // check that transforms are of the right dynamic type
-    ComposableTransformType *pOriginalTransform  = dynamic_cast<ComposableTransformType*>( originalReader->GetTransformList()->begin()->GetPointer() );
-    ComposableTransformType *pAdjustmentTransform = dynamic_cast<ComposableTransformType*>( adjustmentReader->GetTransformList()->begin()->GetPointer() );
+    itk::TransformBase::Pointer bpOriginalTransform = readTransform(originalPaths[i]);
+    itk::TransformBase::Pointer bpAdjustmentTransform = readTransform(adjustmentPaths[i]);
+    ComposableTransformType *pOriginalTransform  = dynamic_cast<ComposableTransformType*>( bpOriginalTransform.GetPointer() );
+    ComposableTransformType *pAdjustmentTransform = dynamic_cast<ComposableTransformType*>( bpAdjustmentTransform.GetPointer() );
     assert( pOriginalTransform != 0 && pAdjustmentTransform != 0 );
     
     // compose transforms
@@ -74,11 +66,7 @@ int main(int argc, char const *argv[]) {
     outputTransform->Compose(pAdjustmentTransform);
     
     // save output transform
-    WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( outputPaths[i].c_str() );
-    writer->AddTransform( outputTransform );
-    writer->Update();
-    
+    writeTransform(outputTransform, outputPaths[i]);
   }
   
   // write out the unaltered first and last transforms
