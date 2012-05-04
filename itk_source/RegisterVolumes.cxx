@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   const bool writeImages = vm["writeImages"].as<bool>();
+  const string volumesDir = Dirs::ResultsDir() + "OutputVolumes/";
   
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   
@@ -72,7 +73,7 @@ int main(int argc, char *argv[]) {
   LoResStack->updateVolumes();
   
   // save LoResTransforms
-  create_directory(Dirs::ResultsDir());
+  create_directories(volumesDir);
   create_directory(Dirs::LoResTransformsDir());
   Save(*LoResStack, Dirs::LoResTransformsDir());
   
@@ -87,12 +88,9 @@ int main(int argc, char *argv[]) {
     StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
   }
   
-  // create output dir before write operations
-  create_directory( Dirs::ResultsDir() );
-  
   if( writeImages )
   {
-    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ResultsDir() + "LoResStack.mha" );
+    writeImage< StackType::VolumeType >( LoResStack->GetVolume(), volumesDir + "LoResStack.mha" );
   }
   
   // initialise registration framework
@@ -125,8 +123,8 @@ int main(int argc, char *argv[]) {
   if( writeImages )
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResRigidStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResRigidMask.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResRigidStack.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), volumesDir + "HiResRigidMask.mha" );
   }
   
   // save CenteredRigid2DTransforms
@@ -146,7 +144,7 @@ int main(int argc, char *argv[]) {
   if( writeImages )
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResSimilarityStack.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResSimilarityStack.mha" );
   }
   
   // save CenteredSimilarity2DTransforms
@@ -161,8 +159,8 @@ int main(int argc, char *argv[]) {
   if( writeImages )
   {
     HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ResultsDir() + "HiResAffineStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), Dirs::ResultsDir() + "HiResAffineMask.mha" );
+    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResAffineStack.mha" );
+    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), volumesDir + "HiResAffineMask.mha" );
   }
   
   // Update LoRes as the masks might have shrunk
