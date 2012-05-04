@@ -27,11 +27,12 @@ int main(int argc, char *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
+  const string transformsName = vm["transformsName"].as<string>();
   
   // set up pair transforms paths
-  string pairTransformDir = Dirs::ResultsDir() + "HiResPairs/FinalTransforms/";
-  vector< string > pairTransformBasenames = directoryContents(pairTransformDir);
-  vector< string > pairTransformPaths = constructPaths(pairTransformDir, pairTransformBasenames);
+  const string pairTransformsDir = Dirs::ResultsDir() + "HiResPairs/FinalTransforms/" + transformsName;
+  vector< string > pairTransformBasenames = directoryContents(pairTransformsDir);
+  vector< string > pairTransformPaths = constructPaths(pairTransformsDir, pairTransformBasenames);
   
   // read transforms
   vector< TransformType::Pointer > pairTransforms;
@@ -46,9 +47,9 @@ int main(int argc, char *argv[]) {
   }
   
   // write diffusion transforms
-  string diffusionTransformDir = Dirs::ResultsDir() + "HiResPairs/DiffusionTransforms/";
-  remove_all(diffusionTransformDir);
-  create_directory(diffusionTransformDir);
+  const string diffusionTransformsDir = Dirs::ResultsDir() + "HiResPairs/DiffusionTransforms/" + transformsName + "/";
+  remove_all(diffusionTransformsDir);
+  create_directories(diffusionTransformsDir);
   
   for(unsigned int i=0; i<pairTransformPaths.size()-1; ++i)
   {
@@ -65,7 +66,7 @@ int main(int argc, char *argv[]) {
     diffusionTransform->Compose( squareRoot(aboveTransform) );
     
     // write transform
-    string diffusionTransformPath = diffusionTransformDir + pairTransformBasenames[i].substr(5,4);
+    string diffusionTransformPath = diffusionTransformsDir + pairTransformBasenames[i].substr(5,4);
     writeTransform(diffusionTransform, diffusionTransformPath);
   }
   
@@ -80,11 +81,13 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to place results")
+      ("transformsName", po::value<string>(), "name of transform group")
   ;
   
   po::positional_options_description p;
   p.add("dataSet", 1)
    .add("outputDir", 1)
+   .add("transformsName", 1)
   ;
      
   // parse command line
@@ -108,11 +111,13 @@ po::variables_map parse_arguments(int argc, char *argv[])
   // if help is specified, or positional args aren't present
   if(vm.count("help") ||
     !vm.count("dataSet") ||
-    !vm.count("outputDir") )
+    !vm.count("outputDir") ||
+    !vm.count("transformsName") )
   {
     cerr << "Usage: "
       << argv[0]
       << " [--dataSet=]RatX [--outputDir=]my_dir"
+      << " [--transformsName=]CenteredAffineTransform_first_diffusion"
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);
