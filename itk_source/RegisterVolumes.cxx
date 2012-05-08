@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   const bool writeImages = vm["writeImages"].as<bool>();
   const string volumesDir = Dirs::ResultsDir() + "OutputVolumes/";
+  const bool loadRigid      = vm["loadRigid"].as<bool>();
+  const bool loadSimilarity = vm["loadSimilarity"].as<bool>();
   
   typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
   
@@ -77,17 +79,6 @@ int main(int argc, char *argv[]) {
   create_directory(Dirs::LoResTransformsDir());
   Save(*LoResStack, Dirs::LoResTransformsDir());
   
-  if( vm["pca"].as<bool>() )
-  {
-    // update both volumes so that their principal components align
-    StackTransforms::InitializeWithPCA(*LoResStack, *HiResStack);
-  }
-  else
-  {
-    StackTransforms::InitializeToCommonCentre( *HiResStack );
-    StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
-  }
-  
   if( writeImages )
   {
     writeImage< StackType::VolumeType >( LoResStack->GetVolume(), volumesDir + "LoResStack.mha" );
@@ -99,57 +90,92 @@ int main(int argc, char *argv[]) {
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
   StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
-  // Scale parameter space
-  OptimizerConfig::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
+  cerr << "loadRigid: " << loadRigid << endl;
+  cerr << "loadSimilarity: " << loadSimilarity << endl;
   
-  // clear intermediate transforms and metric values directories
-  remove_all( Dirs::IntermediateTransformsDir() );
-  create_directory( Dirs::IntermediateTransformsDir() );
-  remove_all( Dirs::ResultsDir() + "MetricValues/" );
-  create_directory( Dirs::ResultsDir() + "MetricValues/" );
-  
-  // Add time and memory probes
-  itkProbesCreate();
-  
-  // perform centered rigid 2D registration on each pair of slices
-  itkProbesStart( "Aligning stacks" );
-  stackAligner.Update();
-  itkProbesStop( "Aligning stacks" );
-  
-  // Report the time and memory taken by the registration
-  itkProbesReport( std::cout );
-  
-  // write rigid transforms
-  if( writeImages )
+  // unless loadSimilarity, initialise transforms from rigid and run similarity registration
+  if( !loadSimilarity )
   {
-    HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResRigidStack.mha" );
-    // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), volumesDir + "HiResRigidMask.mha" );
+    // unless loadRigid, initialise transforms from scratch and run registration
+    if( !loadRigid )
+    {
+      if( vm["pca"].as<bool>() )
+      {
+        // update both volumes so that their principal components align
+        StackTransforms::InitializeWithPCA(*LoResStack, *HiResStack);
+      }
+      else
+      {
+        StackTransforms::InitializeToCommonCentre( *HiResStack );
+        StackTransforms::SetMovingStackCenterWithFixedStack( *LoResStack, *HiResStack );
+      }
+  
+      // Scale parameter space
+      OptimizerConfig::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
+  
+      // clear intermediate transforms and metric values directories
+      remove_all( Dirs::IntermediateTransformsDir() );
+      create_directory( Dirs::IntermediateTransformsDir() );
+      remove_all( Dirs::ResultsDir() + "MetricValues/" );
+      create_directory( Dirs::ResultsDir() + "MetricValues/" );
+  
+      // Add time and memory probes
+      itkProbesCreate();
+  
+      // perform centered rigid 2D registration on each pair of slices
+      itkProbesStart( "Aligning stacks" );
+      stackAligner.Update();
+      itkProbesStop( "Aligning stacks" );
+    
+      // Report the time and memory taken by the registration
+      itkProbesReport( std::cout );
+    
+      // save CenteredRigid2DTransforms
+      create_directory(Dirs::HiResTransformsDir());
+      create_directory(Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
+      Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
+    
+      // write rigid volumes
+      if( writeImages )
+      {
+        HiResStack->updateVolumes();
+        writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResRigidStack.mha" );
+        // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), volumesDir + "HiResRigidMask.mha" );
+      }
+    }
+    // if loadRigid, load transforms from previous saved run
+    else
+    {
+      Load(*HiResStack, Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
+    }
+    
+    StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
+  
+    // Scale parameter space
+    OptimizerConfig::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
+  
+    // perform similarity rigid 2D registration
+    stackAligner.Update();
+    
+    // save CenteredSimilarity2DTransforms
+    create_directory(Dirs::HiResTransformsDir() +  "CenteredSimilarity2DTransform/");
+    Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredSimilarity2DTransform/");
+    
+    // write similarity volumes
+    if( writeImages )
+    {
+      HiResStack->updateVolumes();
+      writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResSimilarityStack.mha" );
+    }
+  
   }
-  
-  // save CenteredRigid2DTransforms
-  create_directory(Dirs::HiResTransformsDir());
-  create_directory(Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
-  Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredRigid2DTransform/");
-  
-  StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredSimilarity2DTransform< double > >(*HiResStack);
-  
-  // Scale parameter space
-  OptimizerConfig::SetOptimizerScalesForCenteredSimilarity2DTransform( registration->GetOptimizer() );
-  
-  // perform similarity rigid 2D registration
-  stackAligner.Update();
-  
-  // write similarity transforms
-  if( writeImages )
+  // if loadSimilarity, load transforms from previous saved run
+  else
   {
-    HiResStack->updateVolumes();
-    writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResSimilarityStack.mha" );
+    cerr << "Loading similarity transforms..." << endl;
+    Load(*HiResStack, Dirs::HiResTransformsDir() + "CenteredSimilarity2DTransform/");
+    cerr << "done." << endl;
   }
-  
-  // save CenteredSimilarity2DTransforms
-  create_directory(Dirs::HiResTransformsDir() +  "CenteredSimilarity2DTransform/");
-  Save(*HiResStack, Dirs::HiResTransformsDir() + "CenteredSimilarity2DTransform/");
   
   // repeat registration with affine transform
   StackTransforms::InitializeFromCurrentTransforms< StackType, itk::CenteredAffineTransform< double, 2 > >(*HiResStack);
@@ -189,6 +215,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("sliceDir", po::value<string>(), "directory containing HiRes originals")
       ("writeImages", po::bool_switch(), "output images and masks")
       ("pca", po::bool_switch(), "align principal axes of HiRes images with LoRes")
+      ("loadRigid", po::bool_switch(), "skip rigid registration, loading results from a previous run")
+      ("loadSimilarity", po::bool_switch(), "skip rigid and similarity registrations, loading results from a previous run")
   ;
   
   po::positional_options_description p;
@@ -214,8 +242,18 @@ po::variables_map parse_arguments(int argc, char *argv[])
   }
   po::notify(vm);
   
-  // if help is specified, or positional args aren't present
-  if (vm.count("help") || !vm.count("dataSet") || !vm.count("outputDir")) {
+  // if help is specified, or positional args aren't present,
+  // or more than one loadX flag
+  if(    vm.count("help")
+     || !vm.count("dataSet")
+     || !vm.count("outputDir")
+     || ( vm["loadRigid"].as<bool>() && vm["loadSimilarity"].as<bool>() )
+    )
+  {
+    cerr << "vm.count(\"loadRigid\"): " << vm.count("loadRigid") << endl;
+    cerr << "vm.count(\"loadSimilarity\"): " << vm.count("loadSimilarity") << endl;
+    cerr << "vm[\"loadRigid\"].as<bool>(): " << vm["loadRigid"].as<bool>() << endl;
+    cerr << "vm[\"loadSimilarity\"].as<bool>(): " << vm["loadSimilarity"].as<bool>() << endl;
     cerr << "Usage: "
       << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [Options]"
       << endl << endl;
