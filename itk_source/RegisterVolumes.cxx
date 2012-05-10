@@ -110,15 +110,22 @@ int main(int argc, char *argv[]) {
       // Scale parameter space
       OptimizerConfig::SetOptimizerScalesForCenteredRigid2DTransform( registration->GetOptimizer() );
   
-      // clear intermediate transforms and metric values directories
-      remove_all( Dirs::IntermediateTransformsDir() );
+      // if we're running a full stack registration, rather than
+      // an individual slice, old results need to be destroyed
+      // as we're starting from scratch
+      if( !vm.count("slice") )
+      {
+        // clear intermediate transforms and metric values directories
+        remove_all( Dirs::IntermediateTransformsDir() );
+        remove_all( Dirs::ResultsDir() + "MetricValues/" );
+      }
+      
       create_directory( Dirs::IntermediateTransformsDir() );
-      remove_all( Dirs::ResultsDir() + "MetricValues/" );
       create_directory( Dirs::ResultsDir() + "MetricValues/" );
-  
+      
       // Add time and memory probes
       itkProbesCreate();
-  
+      
       // perform centered rigid 2D registration on each pair of slices
       itkProbesStart( "Aligning stacks" );
       stackAligner.Update();
