@@ -90,9 +90,6 @@ int main(int argc, char *argv[]) {
   RegistrationBuilderType::RegistrationType::Pointer registration = registrationBuilder.GetRegistration();
   StackAligner< StackType > stackAligner(*LoResStack, *HiResStack, registration);
   
-  cerr << "loadRigid: " << loadRigid << endl;
-  cerr << "loadSimilarity: " << loadSimilarity << endl;
-  
   // unless loadSimilarity, initialise transforms from rigid and run similarity registration
   if( !loadSimilarity )
   {
@@ -142,6 +139,8 @@ int main(int argc, char *argv[]) {
         writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResRigidStack.mha" );
         // writeImage< StackType::MaskVolumeType >( HiResStack->Get3DMask()->GetImage(), volumesDir + "HiResRigidMask.mha" );
       }
+      
+      if( vm["stopAfterRigid"].as<bool>() ) return EXIT_SUCCESS;
     }
     // if loadRigid, load transforms from previous saved run
     else
@@ -167,7 +166,8 @@ int main(int argc, char *argv[]) {
       HiResStack->updateVolumes();
       writeImage< StackType::VolumeType >( HiResStack->GetVolume(), volumesDir + "HiResSimilarityStack.mha" );
     }
-  
+    
+    if( vm["stopAfterSimilarity"].as<bool>() ) return EXIT_SUCCESS;
   }
   // if loadSimilarity, load transforms from previous saved run
   else
@@ -217,6 +217,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("pca", po::bool_switch(), "align principal axes of HiRes images with LoRes")
       ("loadRigid", po::bool_switch(), "skip rigid registration, loading results from a previous run")
       ("loadSimilarity", po::bool_switch(), "skip rigid and similarity registrations, loading results from a previous run")
+      ("stopAfterRigid", po::bool_switch(), "quit after rigid registration has been performed")
+      ("stopAfterSimilarity", po::bool_switch(), "quit after similarity registration has been performed")
   ;
   
   po::positional_options_description p;
@@ -250,10 +252,6 @@ po::variables_map parse_arguments(int argc, char *argv[])
      || ( vm["loadRigid"].as<bool>() && vm["loadSimilarity"].as<bool>() )
     )
   {
-    cerr << "vm.count(\"loadRigid\"): " << vm.count("loadRigid") << endl;
-    cerr << "vm.count(\"loadSimilarity\"): " << vm.count("loadSimilarity") << endl;
-    cerr << "vm[\"loadRigid\"].as<bool>(): " << vm["loadRigid"].as<bool>() << endl;
-    cerr << "vm[\"loadSimilarity\"].as<bool>(): " << vm["loadSimilarity"].as<bool>() << endl;
     cerr << "Usage: "
       << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [Options]"
       << endl << endl;
