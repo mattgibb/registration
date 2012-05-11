@@ -36,3 +36,4 @@ StackBase::StackBase() {}
 StackBase::~StackBase() {}
 
 #endif
+
