@@ -307,8 +307,8 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::GenerateMaskSli
   double totalMaskShrinkFactor = pow(maskShrinkFactor, (int)numberOfTimesTooBig[slice_number]);
   
   for(unsigned int i=0; i<2; i++) {
-    size[i] = region.GetSize(i) * totalMaskShrinkFactor;
-    index[i] = region.GetSize(i) * ( 1.0 - totalMaskShrinkFactor ) / 2;
+    size[i] = itk::SizeValueType ( region.GetSize(i) * totalMaskShrinkFactor );
+    index[i] = itk::IndexValueType ( region.GetSize(i) * ( 1.0 - totalMaskShrinkFactor ) / 2 );
   }
   
   MaskSliceType::RegionType subRegion;
@@ -334,3 +334,4 @@ void Stack< TPixel, ResampleImageFilterType, InterpolatorType >::GenerateMaskSli
 }
 
 #endif
+
