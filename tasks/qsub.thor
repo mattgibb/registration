@@ -7,7 +7,7 @@ include FileUtils::Verbose
 class Qsub < Thor
   include Thor::Actions
   
-  BUILD_DIR = File.join PROJECT_ROOT, 'itk_build_sal' 
+  BUILD_DIR = File.join PROJECT_ROOT, 'itk_release_sal' 
   PBS_DIR = File.join PROJECT_ROOT, 'pbs_scripts', 'sal'
 
   desc "make", "Build C++ source"
@@ -15,9 +15,9 @@ class Qsub < Thor
     run "cd #{BUILD_DIR} && make", :capture => false
   end
 
-  desc "build_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
+  desc "register_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
   method_option :blockDir, :type => :string
-  def build_volumes(dataset, output_dir, image="")
+  def register_volumes(dataset, output_dir, image="")
     invoke :make, []
 
     image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
@@ -28,7 +28,7 @@ class Qsub < Thor
       mkdir -p #{job_output_dir}
       cd #{job_output_dir} && \
       for image in #{image_list}
-        do echo #{File.join PBS_DIR, 'build_volumes'} #{dataset} #{output_dir} --slice $image #{block_dir_flag} | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
+        do echo #{File.join PBS_DIR, 'register_volumes'} #{dataset} #{output_dir} --slice $image #{block_dir_flag} | qsub -V -l walltime=2:00:00 -l select=1:mpiprocs=8 -N $image
       done}
     run command, :capture => false
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
@@ -50,4 +50,3 @@ class Qsub < Thor
     end
   end
 end
-

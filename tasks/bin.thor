@@ -4,17 +4,17 @@ require File.expand_path("../init", __FILE__)
 
 class Bin < Thor
   include Thor::Actions
-  BUILD_DIR = File.join PROJECT_ROOT, 'itk_build' 
-
+  BUILD_DIR = File.join PROJECT_ROOT, 'itk_release'
+  
   desc "make", "Build C++ source"
   def make
     run "cd #{BUILD_DIR} && make", :capture => false
   end
   
-  desc "build_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
-  def build_volumes(dataset, output_dir, slice="")
+  desc "register_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
+  def register_volumes(dataset, output_dir, slice="")
     invoke :make, []
-    run "#{BUILD_DIR}/BuildVolumes #{dataset} #{output_dir} #{slice}", :capture => false
+    run "#{BUILD_DIR}/RegisterVolumes #{dataset} #{output_dir} #{slice}", :capture => false
     run "say done"
   end
 

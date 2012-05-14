@@ -5,5 +5,5 @@
 #PBS -N build_volumes
 
 cd $PBS_O_WORKDIR
-~/registration/itk_build_sal/BuildVolumes $@
+~/registration/itk_release_sal/RegisterVolumes $@
 echo "finished."
