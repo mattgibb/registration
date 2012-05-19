@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
   if(LoRes)
   {
     // load transforms
-    string loResTransformsDir = vm.count("loResTransformsDir") ? vm["loResTransformsDir"].as<string>() : Dirs::LoResTransformsDir();
+    string loResTransformsDir = vm.count("loResTransformsDir") ? Dirs::ResultsDir() + vm["loResTransformsDir"].as<string>() : Dirs::LoResTransformsDir();
     Load(*LoResStack, loResTransformsDir);
     // move stack origins to ROI
     StackTransforms::Translate(*LoResStack, translation);
