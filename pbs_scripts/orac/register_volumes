@@ -2,12 +2,12 @@
 #PBS -V
 #PBS -l walltime=1:00:00
 #PBS -l ncpus=4
-#PBS -N BuildVolumes
+#PBS -N RegisterVolumes
 
 # 4 cores per node on orac, so take total memory usage, divide by 12GB or 24GB, then multiply by 4
 # total orac cores is 256?
 # 1TB ram on orac
 cd $PBS_O_WORKDIR
 date +%s > dates
-~/registration/itk_build/BuildVolumes Rat24 BuildVolumes
+~/registration/itk_build/RegisterVolumes Rat24 RegisterVolumes
 date +%s >> dates
