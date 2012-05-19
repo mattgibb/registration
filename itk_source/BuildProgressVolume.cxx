@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
-  bool buildFixedVolume = vm.count("buildFixedVolume");
+  bool buildFixedVolume = !vm.count("skipFixedVolume");
   bool HiResPairs = vm.count("HiResPairs");
   string transform = vm["transform"].as<string>();
   string transformDirectory = HiResPairs ?
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     vector< string > steps = directoryContents(stepsDirectory);
     
     // initialise stack with correct spacings, sizes, transforms etc
-    cout << "Building " << slicePairs[i] << " moving progress volume...";
+    cout << "Building " << slicePairs[i] << " moving progress volume..." << flush;
     StackType::SliceVectorType movingImage(steps.size(), readImage< StackType::SliceType >(movingPaths[i]));
     
     shared_ptr< StackType > movingStack = HiResPairs ?
@@ -128,14 +128,15 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("outputDir", po::value<string>(), "directory to place results")
       ("transform", po::value<string>(), "Type of ITK transform that was optimised")
       ("slicePair", po::value<string>(), "the slice pair identifier e.g. 0001 for LoRes/HiRes, 0001_0002 for adjacent pairs")
-      ("buildFixedVolume,f", po::value<bool>()->zero_tokens(), "generate fixed image comparison volume")
+      ("skipFixedVolume,f", po::value<bool>()->zero_tokens(), "skip generating fixed image comparison volume")
       ("HiResPairs", po::value<bool>()->zero_tokens(), "Generate volumes for adjacent pair registration")
   ;
   
   po::positional_options_description p;
   p.add("dataSet", 1)
    .add("outputDir", 1)
-   .add("transform", 1);
+   .add("transform", 1)
+   .add("slicePair", 1);
      
   // parse command line
   po::variables_map vm;
@@ -155,7 +156,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
   }
   po::notify(vm);
   
-  // if help is specified, or positional args aren't present
+  // if help is specified, or if necessary positional args aren't present
   if(vm.count("help") ||
     !vm.count("dataSet") ||
     !vm.count("outputDir") ||
@@ -165,6 +166,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       << argv[0]
       << " [--dataSet=]RatX [--outputDir=]my_dir"
       << " [--transform=]CenteredRigid2DTransform "
+      << " [[--slicePair=]0001] "
       << " [Options]"
       << endl << endl;
     cerr << opts << "\n";
