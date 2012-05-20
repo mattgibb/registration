@@ -1,1 +1,1 @@
-single.txt
+full_curated_list.txt
