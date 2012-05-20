@@ -21,7 +21,7 @@ class Qsub < Thor
     invoke :make, []
     
     image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
-    image_list = image.empty? ? File.read(image_list_file).split.join(' ') : image
+    image_list = image.empty? ? File.read(image_list_file).split.uniq.join(' ') : image
     job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
     block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
     command = %{
