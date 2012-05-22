@@ -4,6 +4,8 @@ plots the intermediate metric values of each slice registration
 
 Usage:
 plot_metric_values_and_differences values_dir [slice]
+plot_metric_values_and_differences values_dir --batch-size X
+
 """
 
 from os.path import *
@@ -13,7 +15,6 @@ from numpy import genfromtxt
 from metric_values import MetricValues
 
 metric_values_dir = argv[1]
-basenames = listdir(metric_values_dir)
 
 # plot 3d line
 import matplotlib as mpl
@@ -23,8 +24,11 @@ import matplotlib.pyplot as plt
 
 mpl.rcParams['legend.fontsize'] = 10
 
-# plot particular slice
-if len(argv) > 2:
+if len(argv) == 3:
+    # plot 3d lines in batches
+    batch_size = argv[3]
+        
+    # plot particular slice
     def plot_2d_line(values):
         fig = plt.figure()
         ax = fig.gca()
@@ -32,12 +36,14 @@ if len(argv) > 2:
         ax.plot(x, values)
         plt.grid(axis="y")
         plt.show()
-        
+    
     metric_values = genfromtxt(join(metric_values_dir, argv[2]))
     plot_2d_line(metric_values)
     plot_2d_line(metric_values[1:] - metric_values[:-1])
+        
 # plot all slices
 else:
+    basenames = listdir(metric_values_dir)
     def plot_3d_lines(values):
         fig = plt.figure()
         ax = fig.gca(projection='3d')
@@ -49,5 +55,18 @@ else:
         plt.show()
     
     metric_values = MetricValues(metric_values_dir)
-    plot_3d_lines(metric_values.values())
-    plot_3d_lines(metric_values.delta_values())    
+    
+    # plot slices in batches
+    if len(argv) == 4 and argv[2] == '--batch-size':
+        def batch_gen(data, batch_size):
+            for i in range(0, len(data), batch_size):
+                    yield data[i:i+batch_size]
+        
+        batch_size = int(argv[3])
+        for values_batch in batch_gen(metric_values.values(), batch_size):
+            plot_3d_lines(values_batch)
+    
+    # plot the whole set of slices together    
+    else:
+        plot_3d_lines(metric_values.values())
+        plot_3d_lines(metric_values.delta_values())    
