@@ -43,8 +43,7 @@ if len(argv) == 3:
         
 # plot all slices
 else:
-    basenames = listdir(metric_values_dir)
-    def plot_3d_lines(values):
+    def plot_3d_lines(values, basenames):
         fig = plt.figure()
         ax = fig.gca(projection='3d')
         for i, slice in enumerate(values):
@@ -54,17 +53,14 @@ else:
         ax.legend()
         plt.show()
     
+    basenames = listdir(metric_values_dir)
     metric_values = MetricValues(metric_values_dir)
     
     # plot slices in batches
     if len(argv) == 4 and argv[2] == '--batch-size':
-        def batch_gen(data, batch_size):
-            for i in range(0, len(data), batch_size):
-                    yield data[i:i+batch_size]
-        
         batch_size = int(argv[3])
-        for values_batch in batch_gen(metric_values.values(), batch_size):
-            plot_3d_lines(values_batch)
+        for i in range(0,len(metric_values.values()), batch_size):
+            plot_3d_lines(metric_values.values()[i:i+batch_size], basenames[i:i+batch_size])
     
     # plot the whole set of slices together    
     else:
