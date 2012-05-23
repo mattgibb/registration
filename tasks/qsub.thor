@@ -34,10 +34,17 @@ class Qsub < Thor
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
   
-  desc "resample_bmp DATASET OUTPUT_DIR", "generate registered colour volume"
-  def resample_bmp(dataset, output_dir)
+  desc "build_colour_volume DATASET OUTPUT_DIR", "generate registered colour volume"
+  def build_colour_volume(dataset, output_dir)
     invoke :make, []
-    run "echo #{File.join PBS_DIR, 'resample_bmp'} #{dataset} #{output_dir} | qsub -V -l walltime=0:10:00 -l select=1:mpiprocs=8 -N resample_bmp", :capture => false
+    command = lambda do |flag|
+      "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
+       --hiResTransformsDir HiResTransforms_1_8/CenteredRigid2DTransform \
+       --loResTransformsDir LoResTransforms_8_64 -#{flag} \
+       | qsub -V -l walltime=0:15 -l select=1:mpiprocs=8 -N build_colour_volume"
+    end
+    run command.call("H"), :capture => false
+    run command.call("L"), :capture => false
   end
 
   desc "clear_jobs", "qdel all pending jobs"
@@ -49,4 +56,5 @@ class Qsub < Thor
       run "qdel #{job_number}", :capture => false
     end
   end
+  
 end
