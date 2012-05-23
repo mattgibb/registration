@@ -1,0 +1,9 @@
+#!/bin/bash
+#PBS -V
+#PBS -l walltime=0:15:00
+#PBS -l select=1:mpiprocs=8
+#PBS -N build_colour_volume
+
+cd $PBS_O_WORKDIR
+~/registration/itk_release_sal/BuildColourVolume $@
+echo "finished."
