@@ -41,7 +41,7 @@ class Qsub < Thor
       "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
        --hiResTransformsDir HiResTransforms_1_8/CenteredRigid2DTransform \
        --loResTransformsDir LoResTransforms_8_64 -#{flag} \
-       | qsub -V -l walltime=0:15 -l select=1:mpiprocs=8 -N #{flag}vol"
+       | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N #{flag}vol"
     end
     run command.call("H"), :capture => false
     run command.call("L"), :capture => false
