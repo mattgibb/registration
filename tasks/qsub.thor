@@ -34,17 +34,22 @@ class Qsub < Thor
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
   
-  desc "build_colour_volume DATASET OUTPUT_DIR", "generate registered colour volume"
-  def build_colour_volume(dataset, output_dir)
+  desc "build_lores_volume DATASET OUTPUT_DIR", "generate reference LoRes colour volume"
+  def build_lores_volume(dataset, output_dir)
     invoke :make, []
-    command = lambda do |flag|
-      "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
-       --hiResTransformsDir HiResTransforms_1_8/CenteredRigid2DTransform \
-       --loResTransformsDir LoResTransforms_1_8 -#{flag} \
-       | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N #{flag}vol"
+    run "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
+       --loResTransformsDir LoResTransforms_1_8 -H \
+       | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N LoRes_vol", :capture => false
     end
-    run command.call("H"), :capture => false
-    run command.call("L"), :capture => false
+  end
+  
+  desc "build_hires_volume DATASET OUTPUT_DIR", "generate registered HiRes colour volume"
+  def build_hires_volume(dataset, output_dir)
+    invoke :make, []
+    run "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
+       --hiResTransformsDir HiResTransforms_1_8/CenteredRigid2DTransform -L \
+       | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N HiRes_vol", :capture => false
+    end
   end
 
   desc "clear_jobs", "qdel all pending jobs"
@@ -56,5 +61,4 @@ class Qsub < Thor
       run "qdel #{job_number}", :capture => false
     end
   end
-  
 end
