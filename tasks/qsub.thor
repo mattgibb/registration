@@ -40,7 +40,6 @@ class Qsub < Thor
     run "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
        --loResTransformsDir LoResTransforms_1_8 -H \
        | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N LoRes_vol", :capture => false
-    end
   end
   
   desc "build_hires_volume DATASET OUTPUT_DIR", "generate registered HiRes colour volume"
@@ -49,7 +48,6 @@ class Qsub < Thor
     run "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
        --hiResTransformsDir HiResTransforms_1_8/CenteredRigid2DTransform -L \
        | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N HiRes_vol", :capture => false
-    end
   end
 
   desc "clear_jobs", "qdel all pending jobs"
