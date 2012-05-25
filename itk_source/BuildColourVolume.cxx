@@ -38,26 +38,40 @@ int main(int argc, char *argv[]) {
   bool HiRes = !vm["no-HiRes"].as<bool>();
   string roi = vm["roi"].as<string>();
   
+  // info
+  if(LoRes) 
+  if(HiRes) cout << "Building HiRes Volume." << endl;
+  
   // get file names
   vector< string > basenames = getBasenames(Dirs::ImageList());
   vector< string > LoResFilePaths, HiResFilePaths;
-  if(LoRes) LoResFilePaths = constructPaths(blockDir,         basenames, ".bmp");
-  if(HiRes) HiResFilePaths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
 	
-  // initialise stack with correct spacings, sizes, transforms etc
+  // initialise stacks with correct spacings, sizes, transforms etc
   typedef itk::RGBPixel< unsigned char > PixelType;
   typedef Stack< PixelType, itk::VectorResampleImageFilter, itk::VectorLinearInterpolateImageFunction > StackType;
   StackType::SliceVectorType LoResImages, HiResImages;
-  if(LoRes) LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
-  if(HiRes) HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
-  if(LoRes) scaleImages< StackType::SliceType >(LoResImages, getSpacings<2>("LoRes"));
-  if(HiRes) scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
   shared_ptr< StackType > LoResStack, HiResStack;
-  if(LoRes) LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize(roi));
-  if(HiRes) HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize(roi));
-  if(LoRes) LoResStack->SetBasenames(basenames);
-  if(HiRes) HiResStack->SetBasenames(basenames);
-  if(HiRes) HiResStack->SetDefaultPixelValue( 255 );
+  if(LoRes)
+  {
+    cout << "Creating LoRes stack..." << flush;
+    LoResFilePaths = constructPaths(blockDir, basenames, ".bmp");
+    LoResImages = readImages< StackType::SliceType >(LoResFilePaths);
+    scaleImages< StackType::SliceType >(LoResImages, getSpacings<2>("LoRes"));
+    LoResStack = make_shared< StackType >(LoResImages, getSpacings<3>("LoRes"), getSize(roi));
+    LoResStack->SetBasenames(basenames);
+    cout << "done." << endl;
+  }
+  if(HiRes)
+  {
+    cout << "Creating HiRes stack..." << flush;
+    HiResFilePaths = constructPaths(Dirs::SliceDir(), basenames, ".bmp");
+    HiResImages = readImages< StackType::SliceType >(HiResFilePaths);
+    scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
+    HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize(roi));
+    HiResStack->SetBasenames(basenames);
+    HiResStack->SetDefaultPixelValue( 255 );
+    cout << "done." << endl;
+  }
   
   // prepare for possible saves
   itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
@@ -66,6 +80,7 @@ int main(int argc, char *argv[]) {
   // save LoRes image
   if(LoRes)
   {
+    cout << "Saving LoRes volume..." << flush;
     // load transforms
     string loResTransformsDir = vm.count("loResTransformsDir") ? Dirs::ResultsDir() + vm["loResTransformsDir"].as<string>() : Dirs::LoResTransformsDir();
     Load(*LoResStack, loResTransformsDir);
@@ -74,6 +89,7 @@ int main(int argc, char *argv[]) {
     // generate and save images
     LoResStack->updateVolumes();
     writeImage< StackType::VolumeType >( LoResStack->GetVolume(), Dirs::ColourDir() + "LoRes.mha");
+    cout << "done." << endl;
   }
   
   // save HiRes rigid, similarity and affine image
@@ -81,6 +97,7 @@ int main(int argc, char *argv[]) {
   {
     if(vm.count("hiResTransformsDir")) // just process single directory from command line
     {
+      cout << "Saving HiRes volume..." << flush;
       string dir = Dirs::ResultsDir() + vm["hiResTransformsDir"].as<string>();
       Load(*HiResStack, dir);
       // move stack origins to ROI
@@ -93,6 +110,7 @@ int main(int argc, char *argv[]) {
     else // process all three transform optimisations
     {
       // load transforms, translate to correct ROI and save
+      cout << "Saving 3 HiRes volumes..." << flush;
       vector< string > HiResTransformsDirs;
       HiResTransformsDirs.push_back("CenteredRigid2DTransform");
       HiResTransformsDirs.push_back("CenteredSimilarity2DTransform");
@@ -107,7 +125,7 @@ int main(int argc, char *argv[]) {
         writeImage< StackType::VolumeType >( HiResStack->GetVolume(), Dirs::ColourDir() + *it + ".mha");
       }
     }
-    
+    cout << "done." << endl;
   }
   
   return EXIT_SUCCESS;
