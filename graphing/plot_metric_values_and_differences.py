@@ -25,9 +25,6 @@ import matplotlib.pyplot as plt
 mpl.rcParams['legend.fontsize'] = 10
 
 if len(argv) == 3:
-    # plot 3d lines in batches
-    batch_size = argv[3]
-        
     # plot particular slice
     def plot_2d_line(values):
         fig = plt.figure()
