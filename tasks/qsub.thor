@@ -42,11 +42,11 @@ class Qsub < Thor
        | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N LoRes_vol", :capture => false
   end
   
-  desc "build_hires_volume DATASET OUTPUT_DIR", "generate registered HiRes colour volume"
-  def build_hires_volume(dataset, output_dir)
+  desc "build_hires_volume DATASET OUTPUT_DIR HIRES_TRANSFORMS_DIR", "generate registered HiRes colour volume"
+  def build_hires_volume(dataset, output_dir, hires_transforms_dir)
     invoke :make, []
     run "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
-       --hiResTransformsDir HiResTransforms_1_8/CenteredRigid2DTransform -L \
+       --hiResTransformsDir #{hires_transforms_dir} -L \
        | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N HiRes_vol", :capture => false
   end
 
