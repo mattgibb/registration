@@ -17,6 +17,7 @@ class Qsub < Thor
 
   desc "register_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
   method_option :blockDir, :type => :string
+  method_option :transform, :type => :string
   def register_volumes(dataset, output_dir, image="")
     invoke :make, []
     
@@ -24,11 +25,19 @@ class Qsub < Thor
     image_list = image.empty? ? File.read(image_list_file).split.uniq.join(' ') : image
     job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
     block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
+    transform_flags = case options[:transform]
+    when "rigid"
+      "--stopAfterRigid"
+    when "similarity"
+      "--loadRigid --stopAfterSimilarity"
+    when "affine"
+      "--loadSimilarity"
+    end
     command = %{
       mkdir -p #{job_output_dir}
       cd #{job_output_dir} && \
       for image in #{image_list}
-        do echo #{File.join PBS_DIR, 'register_volumes'} #{dataset} #{output_dir} --slice $image #{block_dir_flag} --stopAfterRigid | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N $image
+        do echo #{File.join PBS_DIR, 'register_volumes'} #{dataset} #{output_dir} --slice $image #{block_dir_flag} #{transform_flags} | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N $image
       done}
     run command, :capture => false
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
@@ -47,7 +56,7 @@ class Qsub < Thor
     invoke :make, []
     run "echo #{File.join PBS_DIR, 'build_colour_volume'} #{dataset} #{output_dir} \
        --hiResTransformsDir #{hires_transforms_dir} -L \
-       | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N HiRes_vol", :capture => false
+       | qsub -V -l walltime=0:020:00 -l select=1:mpiprocs=8 -N HiRes_vol", :capture => false
   end
 
   desc "clear_jobs", "qdel all pending jobs"
