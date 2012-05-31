@@ -5,5 +5,5 @@
 #PBS -N register_hires_pairs
 
 cd $PBS_O_WORKDIR
-~/registration/itk_release_sal/RegisterVolumes $@
+~/registration/itk_release_sal/RegisterHiResPairs $@
 echo "finished."
