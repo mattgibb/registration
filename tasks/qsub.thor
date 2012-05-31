@@ -21,8 +21,7 @@ class Qsub < Thor
   def register_volumes(dataset, output_dir, image="")
     invoke :make, []
     
-    image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
-    image_list = image.empty? ? File.read(image_list_file).split.uniq.join(' ') : image
+    images = image.empty? ? image_list(dataset).join(' ') : image
     job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
     block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
     transform_flags = case options[:transform]
@@ -36,11 +35,44 @@ class Qsub < Thor
     command = %{
       mkdir -p #{job_output_dir}
       cd #{job_output_dir} && \
-      for image in #{image_list}
+      for image in #{images}
         do echo #{File.join PBS_DIR, 'register_volumes'} #{dataset} #{output_dir} --slice $image #{block_dir_flag} #{transform_flags} | qsub -V -l walltime=0:015:00 -l select=1:mpiprocs=8 -N $image
       done}
     run command, :capture => false
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
+  end
+  
+  desc "register_hires_pairs DATASET OUTPUT_DIR INPUT_TRANSFORMS_DIR OUTPUT_SUBDIR [FIXED_BASENAME MOVING_BASENAME]", "Register adjacent HiRes images to each other"
+  def register_hires_pairs(dataset, output_dir, input_transforms_dir, output_subdir, fixed_basename=nil, moving_basename=nil)
+    raise if fixed_basename.nil? != moving_basename.nil?
+    
+    invoke :make, []
+    
+    # construct array of pairs
+    if fixed_basename
+      image_pairs = [[fixed_basename, moving_basename]]
+    else
+      list = image_list(dataset)
+      image_pairs = list[0..-2].zip list[1..-1]
+    end
+    
+    job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
+    run "mkdir -p #{job_output_dir}", :capture => false
+    command = lambda do |fixed, moving|
+      %{cd #{job_output_dir} && \
+        echo #{File.join PBS_DIR, 'register_hires_pairs'} #{dataset} #{output_dir} #{input_transforms_dir} #{output_subdir} \
+          --fixedBasename #{fixed} --movingBasename #{moving} \
+          | qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N pairs_#{fixed}_#{moving}
+      }
+    end
+    
+    # submit jobs
+    image_pairs.each do |pair|
+      run command.call(pair[0], pair[1]), :capture => false
+    end
+    
+    # copy parameters file to results
+    run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'deformable_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
   
   desc "build_lores_volume DATASET OUTPUT_DIR", "generate reference LoRes colour volume"
@@ -67,5 +99,11 @@ class Qsub < Thor
     end.each do |job_number|
       run "qdel #{job_number}", :capture => false
     end
+  end
+  
+  private
+  def image_list(dataset)
+    image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
+    File.read(image_list_file).split.uniq
   end
 end
