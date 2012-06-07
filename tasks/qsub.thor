@@ -58,11 +58,11 @@ class Qsub < Thor
     
     job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
     run "mkdir -p #{job_output_dir}", :capture => false
-    command = lambda do |fixed, moving|
+    command = lambda do |moving, fixed|
       %{cd #{job_output_dir} && \
         echo #{File.join PBS_DIR, 'register_hires_pairs'} #{dataset} #{output_dir} #{input_transforms_dir} #{output_subdir} \
           --fixedBasename #{fixed} --movingBasename #{moving} \
-          | qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N pairs_#{fixed}_#{moving}
+          | qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N pairs_#{moving}_#{fixed}
       }
     end
     
