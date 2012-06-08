@@ -48,6 +48,13 @@ class Qsub < Thor
     
     invoke :make, []
     
+    # clear any old results
+    results_root = File.join PROJECT_ROOT, 'results', dataset, output_dir
+    hires_pairs_path = File.join results_root, "HiResPairs"
+    %W(FinalTransforms IntermediateTransforms MetricValues OutputVolumes).each do |dir|
+      rm_rf File.join(hires_pairs_path, dir, output_subdir)
+    end
+    
     # construct array of pairs
     if fixed_basename
       image_pairs = [[fixed_basename, moving_basename]]
@@ -56,7 +63,7 @@ class Qsub < Thor
       image_pairs = list[0..-2].zip list[1..-1]
     end
     
-    job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
+    job_output_dir = File.join results_root, 'job_output'
     run "mkdir -p #{job_output_dir}", :capture => false
     command = lambda do |moving, fixed|
       %{cd #{job_output_dir} && \
@@ -68,7 +75,7 @@ class Qsub < Thor
     
     # submit jobs
     image_pairs.each do |pair|
-      run command.call(pair[0], pair[1]), :capture => false
+      run command.call(*pair), :capture => false
     end
     
     # copy parameters file to results
