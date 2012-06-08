@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   string outputSubdir = vm["outputSubdir"].as<string>();
   string inputTransformsDir = vm["inputTransformsDir"].as<string>();
   string roi = vm.count("roi") ? vm["roi"].as<string>() : "ROI";
+  bool singlePair = vm.count("fixedBasename");
   
   // for globally available registrationParameters(),
   // used in e.g. OptimizerConfig
@@ -43,7 +44,7 @@ int main(int argc, char *argv[]) {
   HiResStackBuilder<StackType> hiResBuilder;
   
   // set basenames to a single pair if specified on command line
-  if(vm.count("fixedBasename"))
+  if(singlePair)
   {
     vector< string > basenames;
     basenames.push_back(vm["movingBasename"].as<string>());
@@ -95,7 +96,7 @@ int main(int argc, char *argv[]) {
   string outputDir = Dirs::ResultsDir() + "HiResPairs/";
   string volumesDir = outputDir + "OutputVolumes/" + outputSubdir + "/";
   create_directories(volumesDir);
-  writeImage< StackType::VolumeType >( movingStack->GetVolume(), volumesDir + "moving_before.mha");
+  if(!singlePair) writeImage< StackType::VolumeType >( movingStack->GetVolume(), volumesDir + "moving_before.mha");
   
   // Get number of slices for registration and transform basenames
   unsigned int number_of_slices = fixedStack->GetSize();
@@ -115,7 +116,8 @@ int main(int argc, char *argv[]) {
   // Configure intermediate transform writer
   SimpleTransformWriter::Pointer simpleTransformWriter = SimpleTransformWriter::New();
   string intermediateTransformsDir = outputDir + "IntermediateTransforms/" + outputSubdir + "/";
-  remove_all( intermediateTransformsDir );
+  // clear old intermediate transforms if run on all slices
+  if(!singlePair) remove_all( intermediateTransformsDir );
   simpleTransformWriter->setOutputRootDir(intermediateTransformsDir);
   simpleTransformWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), simpleTransformWriter );
@@ -123,11 +125,12 @@ int main(int argc, char *argv[]) {
   // Configure metric value writer
   SimpleMetricValueWriter::Pointer simpleMetricValueWriter = SimpleMetricValueWriter::New();
   string metricValueDir = outputDir + "MetricValues/" + outputSubdir + "/";
-  remove_all(metricValueDir);
+  // clear old metric values if run on all slices
+  if(!singlePair) remove_all(metricValueDir);
   simpleMetricValueWriter->setOutputRootDir(metricValueDir);
   simpleMetricValueWriter->setStack(movingStack.get());
   registration->GetOptimizer()->AddObserver( itk::IterationEvent(), simpleMetricValueWriter );
-
+  
   // Perform registration
   for(unsigned int slice_number=0; slice_number < number_of_slices; ++slice_number)
   {
@@ -166,17 +169,21 @@ int main(int argc, char *argv[]) {
   
   // Save transforms and inverse transforms
   string transformsDir = outputDir + "FinalTransforms/" + outputSubdir;
+  if(!singlePair) remove_all(transformsDir);
   create_directories(transformsDir);
   Save(*movingStack, transformsDir);
   
   // Write images
-  fixedStack->updateVolumes();
-  movingStack->updateVolumes();
-  writeImage< StackType::VolumeType >( originalStack->GetVolume(), volumesDir + "original.mha");
-  writeImage< StackType::VolumeType >( fixedStack->GetVolume(), volumesDir + "fixed.mha");
-  writeImage< StackType::VolumeType >( movingStack->GetVolume(), volumesDir + "moving_after.mha");
-  writeImage< StackType::MaskVolumeType >( fixedStack->Get3DMask()->GetImage(), volumesDir + "fixed_mask.mha");
-  writeImage< StackType::MaskVolumeType >( movingStack->Get3DMask()->GetImage(), volumesDir + "moving_mask.mha");
+  if(!singlePair)
+  {
+    fixedStack->updateVolumes();
+    movingStack->updateVolumes();
+    writeImage< StackType::VolumeType >( originalStack->GetVolume(), volumesDir + "original.mha");
+    writeImage< StackType::VolumeType >( fixedStack->GetVolume(), volumesDir + "fixed.mha");
+    writeImage< StackType::VolumeType >( movingStack->GetVolume(), volumesDir + "moving_after.mha");
+    writeImage< StackType::MaskVolumeType >( fixedStack->Get3DMask()->GetImage(), volumesDir + "fixed_mask.mha");
+    writeImage< StackType::MaskVolumeType >( movingStack->Get3DMask()->GetImage(), volumesDir + "moving_mask.mha");
+  }
   
   return EXIT_SUCCESS;
 }
