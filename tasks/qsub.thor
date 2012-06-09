@@ -2,10 +2,10 @@
 
 require File.expand_path("../init", __FILE__)
 require 'fileutils'
-include FileUtils::Verbose
 
 class Qsub < Thor
   include Thor::Actions
+  include FileUtils::Verbose
   
   BUILD_DIR = File.join PROJECT_ROOT, 'itk_release_sal' 
   PBS_DIR = File.join PROJECT_ROOT, 'pbs_scripts', 'sal'
