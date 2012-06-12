@@ -154,4 +154,3 @@ string Dirs::DownsampleSuffix()
 Dirs::Dirs() {}
 
 #endif
-

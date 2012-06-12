@@ -108,4 +108,8 @@ ADD_EXECUTABLE(ComputeDiffusionTransforms ComputeDiffusionTransforms.cxx )
 TARGET_LINK_LIBRARIES(ComputeDiffusionTransforms ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(GenerateNoisyTransforms GenerateNoisyTransforms.cxx )
+TARGET_LINK_LIBRARIES(GenerateNoisyTransforms ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
