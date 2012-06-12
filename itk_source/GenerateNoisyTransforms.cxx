@@ -60,13 +60,27 @@ int main(int argc, char *argv[]) {
     StackTransforms::MoveCenter(static_cast< StackTransforms::LinearTransformType* >( transform.GetPointer() ), center);
     
     // add noise, scaled by parameter type
-    // StackType::TransformType::ParametersType parameters(5) transform
+    StackType::TransformType::ParametersType parameters = transform->GetParameters();
+    StackType::TransformType::ParametersType scalings(8);
+    scalings[0] = scalings[1] = scalings[2] = scalings[3] = 0.02; // matrix params
+    scalings[4] = scalings[5] = 0;                                // rotation params
+    scalings[6] = scalings[7] = 100;                              // translation params
+    
+    for(unsigned int i=0; i<8; ++i)
+    {
+      parameters[i] += varGen() * scalings[i];
+    }
+    
+    transform->SetParameters(parameters);
     
     // write transform
     writeTransform(transform, paths[slice_number]);
   }
   
   Save(*stack, Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
+  
+  stack->updateVolumes();
+  writeImage< StackType::VolumeType >(stack->GetVolume(), "/Users/Matt/Desktop/stack.mha");
   
   return EXIT_SUCCESS;
 }
