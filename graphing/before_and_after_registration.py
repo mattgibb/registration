@@ -3,7 +3,7 @@
 plots the metric values at the start and end of each slice registration
 
 Usage:
-before_and_after_HiRes_pair_registration values_dir
+before_and_after_registration values_dir
 """
 
 from sys import argv
