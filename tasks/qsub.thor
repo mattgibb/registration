@@ -42,9 +42,10 @@ class Qsub < Thor
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
   
-  desc "register_hires_pairs DATASET OUTPUT_DIR INPUT_TRANSFORMS_DIR OUTPUT_SUBDIR [FIXED_BASENAME MOVING_BASENAME]", "Register adjacent HiRes images to each other"
-  def register_hires_pairs(dataset, output_dir, input_transforms_dir, output_subdir, fixed_basename=nil, moving_basename=nil)
+  desc "register_hires_pairs DATASET OUTPUT_DIR ITERATION [FIXED_BASENAME MOVING_BASENAME]", "Register adjacent HiRes images to each other"
+  def register_hires_pairs(dataset, output_dir, i, fixed_basename=nil, moving_basename=nil)
     raise if fixed_basename.nil? != moving_basename.nil?
+    i = Integer(i)
     
     invoke :make, []
     
@@ -55,6 +56,11 @@ class Qsub < Thor
       rm_rf File.join(hires_pairs_path, dir, output_subdir)
     end
     
+    # if necessary, copy original registration transforms to AdjustedTransforms dir
+    if i == 1 and fixed_basename.nil?
+      run "cp -r #{results_root}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}", :capture => false
+    end
+    
     # construct array of pairs
     if fixed_basename
       image_pairs = [[fixed_basename, moving_basename]]
@@ -63,14 +69,15 @@ class Qsub < Thor
       image_pairs = list[0..-2].zip list[1..-1]
     end
     
-    job_output_dir = File.join results_root, 'job_output'
-    run "mkdir -p #{job_output_dir}", :capture => false
+    job_output_path = File.join hires_pairs_path, 'job_output'
+    run "mkdir -p #{job_output_path}", :capture => false
     command = lambda do |moving, fixed|
-      %{cd #{job_output_dir} && \
-        echo #{File.join PBS_DIR, 'register_hires_pairs'} #{dataset} #{output_dir} #{input_transforms_dir} #{output_subdir} \
-          --fixedBasename #{fixed} --movingBasename #{moving} \
-          | qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N pairs_#{moving}_#{fixed}
-      }
+      "cd #{job_output_path} && " +
+      "echo #{File.join PBS_DIR, 'register_hires_pairs'} #{dataset} #{output_dir} " +
+      "HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1} " +
+      "CenteredAffineTransform_diffusion_#{i} " +
+      "--fixedBasename #{fixed} --movingBasename #{moving} " +
+      "| qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N #{moving}_#{fixed}_#{i}"
     end
     
     # submit jobs
