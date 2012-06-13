@@ -16,10 +16,10 @@ using namespace boost;
 
 typedef itk::CenteredAffineTransform< double, 2 > TransformType;
 
-TransformType::Pointer squareRoot(TransformType::Pointer transform);
-
 // function declarations
 po::variables_map parse_arguments(int argc, char *argv[]);
+TransformType::Pointer squareRoot(TransformType::Pointer transform);
+TransformType::Pointer interpolateTransforms(TransformType::Pointer a, TransformType::Pointer b, double alpha);
 
 int main(int argc, char *argv[]) {
   po::variables_map vm = parse_arguments(argc, argv);
@@ -58,13 +58,14 @@ int main(int argc, char *argv[]) {
     assert(pairTransformBasenames[i  ].substr(5,4) ==
            pairTransformBasenames[i+1].substr(0,4));
     
-    // compose transform
-    TransformType::Pointer diffusionTransform = TransformType::New();
+    // construct transform
     TransformType::Pointer belowTransform     = TransformType::New();
     pairTransforms[i]->GetInverse(belowTransform);
-    TransformType::Pointer aboveTransform = pairTransforms[i+1];
-    diffusionTransform->Compose( squareRoot(belowTransform) );
-    diffusionTransform->Compose( squareRoot(aboveTransform) );
+    TransformType::Pointer aboveTransform     = pairTransforms[i+1];
+    TransformType::Pointer meanTransform      = interpolateTransforms(belowTransform, aboveTransform, 0.5);
+    // interpolate by alpha from identity transform to meanTransform
+    TransformType::Pointer diffusionTransform = TransformType::New();
+    diffusionTransform = interpolateTransforms(diffusionTransform, meanTransform, vm["alpha"].as<double>());
     
     // write transform
     string diffusionTransformPath = diffusionTransformsDir + pairTransformBasenames[i].substr(5,4);
@@ -83,6 +84,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to place results")
       ("transformsName", po::value<string>(), "name of transform group")
+      ("alpha", po::value<double>(), "coefficient of diffusion")
   ;
   
   po::positional_options_description p;
@@ -113,12 +115,14 @@ po::variables_map parse_arguments(int argc, char *argv[])
   if(vm.count("help") ||
     !vm.count("dataSet") ||
     !vm.count("outputDir") ||
-    !vm.count("transformsName") )
+    !vm.count("transformsName") ||
+    !vm.count("alpha") )
   {
     cerr << "Usage: "
       << argv[0]
       << " [--dataSet=]RatX [--outputDir=]my_dir"
       << " [--transformsName=]CenteredAffineTransform_first_diffusion"
+      << " --alpha=0.4"
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);
@@ -169,4 +173,23 @@ TransformType::Pointer squareRoot(TransformType::Pointer transform)
   root->SetMatrix(m);
   root->SetOffset(o);
   return root;
+}
+
+TransformType::Pointer interpolateTransforms(TransformType::Pointer a, TransformType::Pointer b, double alpha)
+{
+  // extract matrices and offsets
+  TransformType::MatrixType M_a = a->GetMatrix();
+  TransformType::MatrixType M_b = b->GetMatrix();
+  TransformType::OffsetType O_a = a->GetOffset();
+  TransformType::OffsetType O_b = b->GetOffset();
+  
+  // construct new transform from linear interpolation of parameters
+  TransformType::MatrixType M_c = M_a * (1 - alpha) + M_b * alpha;
+  TransformType::OffsetType O_c = O_a * (1 - alpha) + O_b * alpha;
+  
+  TransformType::Pointer c = TransformType::New();
+  c->SetMatrix(M_c);
+  c->SetOffset(O_c);
+  
+  return c;
 }
