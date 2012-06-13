@@ -69,7 +69,7 @@ class Qsub < Thor
       image_pairs = list[0..-2].zip list[1..-1]
     end
     
-    job_output_path = File.join hires_pairs_path, 'job_output'
+    job_output_path = File.join hires_pairs_path, "job_output/#{i}"
     run "mkdir -p #{job_output_path}", :capture => false
     command = lambda do |moving, fixed|
       "cd #{job_output_path} && " +
@@ -77,7 +77,7 @@ class Qsub < Thor
       "HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1} " +
       "CenteredAffineTransform_diffusion_#{i} " +
       "--fixedBasename #{fixed} --movingBasename #{moving} " +
-      "| qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N #{moving}_#{fixed}_#{i}"
+      "| qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N #{moving}_#{fixed}"
     end
     
     # submit jobs
