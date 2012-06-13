@@ -92,7 +92,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
    .add("outputDir", 1)
    .add("transformsName", 1)
   ;
-     
+  
   // parse command line
   po::variables_map vm;
 	try
