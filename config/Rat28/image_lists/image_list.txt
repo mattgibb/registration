@@ -1,1 +1,1 @@
-every_fifteenth_slice.txt
+full_curated_list.txt
