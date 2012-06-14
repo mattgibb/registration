@@ -5,6 +5,7 @@ require File.expand_path("../init", __FILE__)
 class Bin < Thor
   include Thor::Actions
   BUILD_DIR = File.join PROJECT_ROOT, 'itk_release'
+  BUILD_DIR += "_sal" if ENV["HOST"] == "sal"
   
   desc "make", "Build C++ source"
   def make
@@ -45,6 +46,7 @@ class Bin < Thor
   
   desc "compute_adjusted_transforms DATASET OUTPUT_DIR ITERATION", "compute adjusted transforms from registration results"
   def compute_adjusted_transforms(dataset, output_dir, i)
+    i = Integer(i)
     invoke :make, []
     run "#{BUILD_DIR}/ComputeDiffusionTransforms #{dataset} #{output_dir} CenteredAffineTransform_diffusion_#{i} --alpha=0.4", :capture => false
     run "#{BUILD_DIR}/ComposeTransformSeries #{results_path(dataset, output_dir)}/HiResPairs/{AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1},{Diffusion,Adjusted}Transforms/CenteredAffineTransform_diffusion_#{i}}", :capture => false
