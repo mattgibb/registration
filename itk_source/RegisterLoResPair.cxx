@@ -94,7 +94,13 @@ int main(int argc, char const *argv[]) {
   
   registration->SetInitialTransformParameters( slice2Stack->GetTransform(0)->GetParameters() );
   
-  try { registration->Update(); }
+  try
+  {
+    registration->Update();
+    std::cout << "Optimizer stop condition: "
+              << registration->GetOptimizer()->GetStopConditionDescription()
+              << std::endl;
+  }
   catch( itk::ExceptionObject & err ) 
   { 
     std::cerr << "ExceptionObject caught !" << std::endl;

@@ -150,7 +150,13 @@ int main(int argc, char *argv[]) {
       registration->SetTransform( movingStack->GetTransform(slice_number) );
       registration->SetInitialTransformParameters( movingStack->GetTransform(slice_number)->GetParameters() );
     
-      try { registration->Update(); }
+      try
+      {
+        registration->Update();
+        std::cout << "Optimizer stop condition: "
+                  << registration->GetOptimizer()->GetStopConditionDescription()
+                  << std::endl;
+      }
       catch( itk::ExceptionObject & err )
       { 
         std::cerr << "ExceptionObject caught !" << std::endl;
