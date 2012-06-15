@@ -2,6 +2,7 @@
 // added to the parameters, in order to test the effectiveness
 // of the diffusion transform algorithm
 
+#include "boost/program_options.hpp"
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
 
@@ -14,16 +15,21 @@
 #include "StackTransforms.hpp"
 #include "StackIOHelpers.hpp"
 
+namespace po = boost::program_options;
 using namespace boost::filesystem;
 using namespace boost;
 
 typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunction > StackType;
 typedef itk::CenteredAffineTransform< double, 2 > TransformType;
 
+po::variables_map parse_arguments(int argc, char *argv[]);
+
 int main(int argc, char *argv[]) {
+  po::variables_map vm = parse_arguments(argc, argv);
+  
 	// set directories
   Dirs::SetDataSet( "dummy" );
-  Dirs::SetOutputDirName( "noisy_dummy" );
+  Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   
   // initialise random number generator
   boost::mt19937 rng;
@@ -83,4 +89,46 @@ int main(int argc, char *argv[]) {
   writeImage< StackType::VolumeType >(stack->GetVolume(), "/Users/Matt/Desktop/stack.mha");
   
   return EXIT_SUCCESS;
+}
+
+po::variables_map parse_arguments(int argc, char *argv[])
+{
+  // Declare the supported options.
+  po::options_description opts("Options");
+  opts.add_options()
+      ("help,h", "produce help message")
+      ("outputDir", po::value<string>(), "directory to source transforms and place results")
+  ;
+  
+  po::positional_options_description p;
+  p.add("outputDir", 1);
+  
+  // parse command line
+  po::variables_map vm;
+	try
+	{
+  po::store(po::command_line_parser(argc, argv)
+            .options(opts)
+            .positional(p)
+            .run(),
+            vm);
+	}
+	catch (std::exception& e)
+	{
+	  cerr << "caught command-line parsing error" << endl;
+    std::cerr << e.what() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  po::notify(vm);
+  
+  // if help is specified, or positional args aren't present
+  if (vm.count("help") || !vm.count("outputDir")) {
+    cerr << "Usage: "
+      << argv[0] << " [--outputDir=]my_dir"
+      << endl << endl;
+    cerr << opts << "\n";
+    exit(EXIT_FAILURE);
+  }
+    
+  return vm;
 }
