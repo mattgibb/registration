@@ -38,7 +38,10 @@ class Bin < Thor
     i = Integer(i)
     invoke :make, []
     # on the first iteration, copy transforms from original registration to CenteredAffineTransform_diffusion_0
-    run "cp -r #{results_path(dataset, output_dir)}/{HiResTransforms_1_8/CenteredAffineTransform/,HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}}", :capture => false if i == 1
+    if i == 1
+      run "mkdir -p #{results_path(dataset, output_dir)}/HiResPairs/AdjustedTransforms", capture: false
+      run "cp -r #{results_path(dataset, output_dir)}/{HiResTransforms_1_8/CenteredAffineTransform/,HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}}", :capture => false
+    end
     run "#{BUILD_DIR}/RegisterHiResPairs #{dataset} #{output_dir} HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}/ CenteredAffineTransform_diffusion_#{i}", :capture => false
     invoke :compute_adjusted_transforms
     run "#{BUILD_DIR}/BuildColourVolume #{dataset} #{output_dir} -L --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}", :capture => false
