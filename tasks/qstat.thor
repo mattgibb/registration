@@ -13,11 +13,11 @@ class Qstat < Thor
   
   desc "count", "display the number of jobs left to complete"
   def count
-    run "qstat | grep mattgibb | wc -l", :capture => false
+    run "echo total: $(qstat | grep mattgibb | wc -l), active: $(qstat | grep mattgibb | grep -v ' 0 ' | wc -l)", :capture => false
   end
   
   desc "counting", "display a running number of jobs left to complete"
   def counting
-    run "while [ 1 ]; do qstat | grep mattgibb | wc -l; sleep 2; done", :capture => false
+    run "while [ 1 ]; do echo total: $(qstat | grep mattgibb | wc -l), active: $(qstat | grep mattgibb | grep -v ' 0 ' | wc -l); sleep 2; done", :capture => false
   end
 end
