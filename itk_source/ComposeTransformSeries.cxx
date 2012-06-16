@@ -26,7 +26,9 @@ int main(int argc, char const *argv[]) {
 	checkUsage(argc, argv);
 	
 	// Generate file lists
-  vector< string > basenames = directoryContents(argv[1]);
+	// use argv[2] instead of argv[1] because we might be examining a subset
+	// of the original paths e.g. for testing and debugging
+  vector< string > basenames = directoryContents(argv[2]);
   vector< string > originalPaths   = constructPaths(argv[1], basenames);
   vector< string > adjustmentPaths = constructPaths(argv[2], basenames);
   vector< string > outputPaths     = constructPaths(argv[3], basenames);
