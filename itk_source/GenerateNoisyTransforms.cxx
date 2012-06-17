@@ -158,7 +158,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
   return vm;
 }
 
-template <typename T = double>
+template <typename T>
 vector<T> linspace(T a, T b, size_t N) {
   T h = (b - a) / static_cast<T>(N-1);
   vector<T> xs(N);
@@ -169,7 +169,7 @@ vector<T> linspace(T a, T b, size_t N) {
   return xs;
 }
 
-template <typename T = double>
+template <typename T>
 vector<T> sinspace(T a, T b, size_t N) {
   vector<T> line = linspace(a, b, N);
   vector<T> sine(line.size());
