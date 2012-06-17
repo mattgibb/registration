@@ -49,17 +49,20 @@ class Qsub < Thor
     
     invoke :make, []
     
-    # clear any old results
     results_root = File.join PROJECT_ROOT, 'results', dataset, output_dir
     hires_pairs_path = File.join results_root, "HiResPairs"
-    %W(FinalTransforms IntermediateTransforms MetricValues OutputVolumes).each do |dir|
-      rm_rf File.join(hires_pairs_path, dir, "CenteredAffineTransform_diffusion_#{i}")
-    end
     
-    # if necessary, copy original registration transforms to AdjustedTransforms dir
-    if i == 1 and fixed_basename.nil?
-      run "mkdir -p #{hires_pairs_path}/AdjustedTransforms"
-      run "cp -r #{results_root}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}", :capture => false
+    unless fixed_basename
+      # clear any old results
+      %W(FinalTransforms IntermediateTransforms MetricValues OutputVolumes).each do |dir|
+        rm_rf File.join(hires_pairs_path, dir, "CenteredAffineTransform_diffusion_#{i}")
+      end
+      
+      # if necessary, copy original registration transforms to AdjustedTransforms dir
+      if i == 1
+        run "mkdir -p #{hires_pairs_path}/AdjustedTransforms"
+        run "cp -r #{results_root}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}", :capture => false
+      end
     end
     
     # construct array of pairs
