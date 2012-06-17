@@ -2,6 +2,9 @@
 // added to the parameters, in order to test the effectiveness
 // of the diffusion transform algorithm
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "boost/program_options.hpp"
 #include <boost/random.hpp>
 #include <boost/random/normal_distribution.hpp>
@@ -23,6 +26,9 @@ typedef Stack< float, itk::ResampleImageFilter, itk::LinearInterpolateImageFunct
 typedef itk::CenteredAffineTransform< double, 2 > TransformType;
 
 po::variables_map parse_arguments(int argc, char *argv[]);
+
+template <typename T>
+vector<T> sinspace(T a, T b, size_t N);
 
 int main(int argc, char *argv[]) {
   po::variables_map vm = parse_arguments(argc, argv);
@@ -56,6 +62,8 @@ int main(int argc, char *argv[]) {
   center[0] = getSpacings<2>("LoRes")[0] * (double)getSize()[0] / 2.0;
   center[1] = getSpacings<2>("LoRes")[1] * (double)getSize()[1] / 2.0;
   
+  vector<double> sine = sinspace(0.0, 2 * M_PI, stack->GetSize());
+  
   // create identity transforms with added noise
   for(unsigned int slice_number=0; slice_number<stack->GetSize(); ++slice_number)
   {
@@ -75,6 +83,21 @@ int main(int argc, char *argv[]) {
     for(unsigned int i=0; i<8; ++i)
     {
       parameters[i] += varGen() * scalings[i];
+    }
+    
+    if(vm.count("rotation"))
+    {
+      double angle = sine[slice_number];
+      parameters[0] += cos(angle) - 1;
+      parameters[1] -= sin(angle);
+      parameters[2] += sin(angle);
+      parameters[3] += cos(angle) - 1;
+    }
+    
+    if(vm.count("translation"))
+    {
+      parameters[6] += 20 * scalings[6] * sine[slice_number];
+      parameters[7] += 20 * scalings[7] * sine[slice_number];
     }
     
     transform->SetParameters(parameters);
@@ -98,6 +121,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
   opts.add_options()
       ("help,h", "produce help message")
       ("outputDir", po::value<string>(), "directory to source transforms and place results")
+      ("translation,t", po::value<bool>()->zero_tokens(), "add translational sinusoidal signal")
+      ("rotation,r",    po::value<bool>()->zero_tokens(), "add rotational sinusoidal signal")
   ;
   
   po::positional_options_description p;
@@ -124,11 +149,33 @@ po::variables_map parse_arguments(int argc, char *argv[])
   // if help is specified, or positional args aren't present
   if (vm.count("help") || !vm.count("outputDir")) {
     cerr << "Usage: "
-      << argv[0] << " [--outputDir=]my_dir"
+      << argv[0] << " [--outputDir=]my_dir [OPTIONS]"
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);
   }
     
   return vm;
+}
+
+template <typename T = double>
+vector<T> linspace(T a, T b, size_t N) {
+  T h = (b - a) / static_cast<T>(N-1);
+  vector<T> xs(N);
+  typename vector<T>::iterator x;
+  T val;
+  for (x = xs.begin(), val = a; x != xs.end(); ++x, val += h)
+    *x = val;
+  return xs;
+}
+
+template <typename T = double>
+vector<T> sinspace(T a, T b, size_t N) {
+  vector<T> line = linspace(a, b, N);
+  vector<T> sine(line.size());
+  for(unsigned int i=0; i<sine.size(); ++i)
+  {
+    sine[i] = sin(line[i]);
+  }
+  return sine;
 }
