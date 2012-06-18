@@ -108,9 +108,6 @@ int main(int argc, char *argv[]) {
   
   Save(*stack, Dirs::HiResTransformsDir() + "CenteredAffineTransform/");
   
-  stack->updateVolumes();
-  writeImage< StackType::VolumeType >(stack->GetVolume(), "/Users/Matt/Desktop/stack.mha");
-  
   return EXIT_SUCCESS;
 }
 
