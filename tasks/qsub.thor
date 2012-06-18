@@ -55,13 +55,13 @@ class Qsub < Thor
     unless fixed_basename
       # clear any old results
       %W(FinalTransforms IntermediateTransforms MetricValues OutputVolumes).each do |dir|
-        rm_rf File.join(hires_pairs_path, dir, "CenteredAffineTransform_diffusion_#{i}")
+        rm_rf File.join(hires_pairs_path, dir, "CenteredAffineTransform_#{i}")
       end
       
       # if necessary, copy original registration transforms to AdjustedTransforms dir
       if i == 1
         run "mkdir -p #{hires_pairs_path}/AdjustedTransforms"
-        run "cp -r #{results_root}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}", :capture => false
+        run "cp -r #{results_root}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_0", :capture => false
       end
     end
     
@@ -78,8 +78,8 @@ class Qsub < Thor
     command = lambda do |moving, fixed|
       "cd #{job_output_path} && " +
       "echo #{File.join PBS_DIR, 'register_hires_pairs'} #{dataset} #{output_dir} " +
-      "HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1} " +
-      "CenteredAffineTransform_diffusion_#{i} " +
+      "HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i - 1} " +
+      "CenteredAffineTransform_#{i} " +
       "--fixedBasename #{fixed} --movingBasename #{moving} " +
       "| qsub -V -l walltime=0:010:00 -l select=1:mpiprocs=8 -N #{moving}_#{fixed}"
     end
@@ -90,7 +90,7 @@ class Qsub < Thor
     end
     
     # copy parameters file to results
-    run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'deformable_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
+    run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'HiRes_pair_parameters.yml'} #{hires_pairs_path}", :capture => false
   end
   
   desc "build_lores_volume DATASET OUTPUT_DIR", "generate reference LoRes colour volume"

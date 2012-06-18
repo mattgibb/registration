@@ -37,22 +37,22 @@ class Bin < Thor
   def diffusion_registration(dataset, output_dir, i)
     i = Integer(i)
     invoke :make, []
-    # on the first iteration, copy transforms from original registration to CenteredAffineTransform_diffusion_0
+    # on the first iteration, copy transforms from original registration to CenteredAffineTransform_0
     if i == 1
       run "mkdir -p #{results_path(dataset, output_dir)}/HiResPairs/AdjustedTransforms", capture: false
-      run "cp -r #{results_path(dataset, output_dir)}/{HiResTransforms_1_8/CenteredAffineTransform/,HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}}", :capture => false
+      run "cp -r #{results_path(dataset, output_dir)}/{HiResTransforms_1_8/CenteredAffineTransform/,HiResPairs/AdjustedTransforms/CenteredAffineTransform_0}", :capture => false
     end
-    run "#{BUILD_DIR}/RegisterHiResPairs #{dataset} #{output_dir} HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}/ CenteredAffineTransform_diffusion_#{i}", :capture => false
+    run "#{BUILD_DIR}/RegisterHiResPairs #{dataset} #{output_dir} HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i - 1}/ CenteredAffineTransform_#{i}", :capture => false
     invoke :compute_adjusted_transforms
-    run "#{BUILD_DIR}/BuildColourVolume #{dataset} #{output_dir} -L --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1}", :capture => false
+    run "#{BUILD_DIR}/BuildColourVolume #{dataset} #{output_dir} -L --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i - 1}", :capture => false
   end
   
   desc "compute_adjusted_transforms DATASET OUTPUT_DIR ITERATION", "compute adjusted transforms from registration results"
   def compute_adjusted_transforms(dataset, output_dir, i)
     i = Integer(i)
     invoke :make, []
-    run "#{BUILD_DIR}/ComputeDiffusionTransforms #{dataset} #{output_dir} CenteredAffineTransform_diffusion_#{i} --alpha=0.4", :capture => false
-    run "#{BUILD_DIR}/ComposeTransformSeries #{results_path(dataset, output_dir)}/HiResPairs/{AdjustedTransforms/CenteredAffineTransform_diffusion_#{i - 1},{Diffusion,Adjusted}Transforms/CenteredAffineTransform_diffusion_#{i}}", :capture => false
+    run "#{BUILD_DIR}/ComputeDiffusionTransforms #{dataset} #{output_dir} CenteredAffineTransform_#{i} --alpha=0.4", :capture => false
+    run "#{BUILD_DIR}/ComposeTransformSeries #{dataset} #{output_dir} CenteredAffineTransform #{i}", :capture => false
   end
   
   private
