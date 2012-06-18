@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     TransformType::Pointer meanTransform      = interpolateTransforms(belowTransform, aboveTransform, 0.5);
     // interpolate by alpha from identity transform to meanTransform
     TransformType::Pointer diffusionTransform = TransformType::New();
-    diffusionTransform = interpolateTransforms(diffusionTransform, meanTransform, vm["alpha"].as<double>());
+    diffusionTransform = interpolateTransforms(diffusionTransform, meanTransform, 2 * vm["alpha"].as<double>());
     
     // write transform
     string diffusionTransformPath = diffusionTransformsDir + pairTransformBasenames[i].substr(5,4);
@@ -91,6 +91,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
   p.add("dataSet", 1)
    .add("outputDir", 1)
    .add("transformsName", 1)
+   .add("alpha", 1)
   ;
   
   // parse command line
@@ -121,8 +122,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
     cerr << "Usage: "
       << argv[0]
       << " [--dataSet=]RatX [--outputDir=]my_dir"
-      << " [--transformsName=]CenteredAffineTransform_first_diffusion"
-      << " --alpha=0.4"
+      << " [--transformsName=]CenteredAffineTransform_diffusion_1"
+      << " [--alpha=]0.4"
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);
