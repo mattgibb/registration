@@ -1,6 +1,9 @@
 // Composes two transform sets.
 // Output transform is the result of applying the first input transform, followed by the second.
 
+#include <boost/lexical_cast.hpp>
+#include "boost/program_options.hpp"
+
 #include <assert.h>
 
 #include "itkTransformFileReader.h"
@@ -11,31 +14,35 @@
 #include "IOHelpers.hpp"
 #include "Dirs.hpp" 
 
+namespace po = boost::program_options;
+using namespace boost;
 
-void checkUsage(int argc, char const *argv[]) {
-  if( argc < 3 )
-  {
-    cerr << "\nUsage: " << endl;
-    cerr << argv[0] << " originalDir adjustmentDir outputDir\n\n";
-    exit(EXIT_FAILURE);
-  }
-}
+po::variables_map parse_arguments(int argc, char *argv[]);
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
 	// Verify the number of parameters in the command line
-	checkUsage(argc, argv);
+  po::variables_map vm = parse_arguments(argc, argv);
 	
-	// Generate file lists
-	// use argv[2] instead of argv[1] because we might be examining a subset
-	// of the original paths e.g. for testing and debugging
-  vector< string > basenames = directoryContents(argv[2]);
-  vector< string > originalPaths   = constructPaths(argv[1], basenames);
-  vector< string > adjustmentPaths = constructPaths(argv[2], basenames);
-  vector< string > outputPaths     = constructPaths(argv[3], basenames);
+	// Process command line arguments
+  Dirs::SetDataSet( vm["dataSet"].as<string>() );
+  Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
+  const string transformsName = vm["transformsName"].as<string>();
+	const unsigned int iteration = vm["iteration"].as<unsigned int>();
+  
+  // set up diffusion and adjustment paths
+  const string originalDir  = Dirs::ResultsDir() + "HiResPairs/AdjustedTransforms/"  + transformsName + "_" + lexical_cast<string>(iteration - 1);
+  const string diffusionDir = Dirs::ResultsDir() + "HiResPairs/DiffusionTransforms/" + transformsName + "_" + lexical_cast<string>(iteration);
+  const string adjustedDir  = Dirs::ResultsDir() + "HiResPairs/AdjustedTransforms/"  + transformsName + "_" + lexical_cast<string>(iteration);
+
+	// set up file lists
+  vector< string > basenames = getBasenames(Dirs::ImageList());
+  vector< string > originalPaths   = constructPaths(originalDir,  basenames);
+  vector< string > diffusionPaths  = constructPaths(diffusionDir, basenames);
+  vector< string > adjustedPaths   = constructPaths(adjustedDir,  basenames);
   
 	// clear results directory
-  remove_all(argv[3]);
-  create_directories(argv[3]);
+  remove_all(adjustedDir);
+  create_directories(adjustedDir);
   
 	// Some transforms might not be registered
   // with the factory so we add them manually
@@ -53,28 +60,86 @@ int main(int argc, char const *argv[]) {
   {
     // check that transforms are of the right dynamic type
     itk::TransformBase::Pointer bpOriginalTransform = readTransform(originalPaths[i]);
-    itk::TransformBase::Pointer bpAdjustmentTransform = readTransform(adjustmentPaths[i]);
+    itk::TransformBase::Pointer bpDiffusionTransform = readTransform(diffusionPaths[i]);
     ComposableTransformType *pOriginalTransform  = dynamic_cast<ComposableTransformType*>( bpOriginalTransform.GetPointer() );
-    ComposableTransformType *pAdjustmentTransform = dynamic_cast<ComposableTransformType*>( bpAdjustmentTransform.GetPointer() );
-    assert( pOriginalTransform != 0 && pAdjustmentTransform != 0 );
+    ComposableTransformType *pDiffusionTransform = dynamic_cast<ComposableTransformType*>( bpDiffusionTransform.GetPointer() );
+    assert( pOriginalTransform != 0 && pDiffusionTransform != 0 );
     
     // compose transforms
     // If the argument pre is true (default false), then other is precomposed with self; that is, the resulting transformation consists of first
     // applying other to the source, followed by self. If pre is false or omitted, then other is post-composed with self; that is the resulting
     // transformation consists of first applying self to the source, followed by other. This updates the Translation based on current center.
-    AffineTransformType::Pointer outputTransform = AffineTransformType::New();
-    outputTransform->SetIdentity();
-    outputTransform->Compose(pOriginalTransform);
-    outputTransform->Compose(pAdjustmentTransform);
+    AffineTransformType::Pointer adjustedTransform = AffineTransformType::New();
+    adjustedTransform->SetIdentity();
+    adjustedTransform->Compose(pOriginalTransform);
+    adjustedTransform->Compose(pDiffusionTransform);
     
     // save output transform
-    writeTransform(outputTransform, outputPaths[i]);
+    writeTransform(adjustedTransform, adjustedPaths[i]);
   }
   
   // write out the unaltered first and last transforms
-  copy_file( *(originalPaths.begin()), *(outputPaths.begin()) );
-  copy_file( *(--originalPaths.end()), *(--outputPaths.end()) );
+  copy_file( *(originalPaths.begin()), *(adjustedPaths.begin()) );
+  copy_file( *(--originalPaths.end()), *(--adjustedPaths.end()) );
   
   
   return EXIT_SUCCESS;
 }
+
+po::variables_map parse_arguments(int argc, char *argv[])
+{
+  // Declare the supported options.
+  po::options_description opts("Options");
+  opts.add_options()
+      ("help,h", "produce help message")
+      ("dataSet", po::value<string>(), "which rat to use")
+      ("outputDir", po::value<string>(), "directory to place results")
+      ("transformsName", po::value<string>(), "name of transform group")
+      ("iteration", po::value<unsigned int>(), "iteration number of diffusion smoothing")
+  ;
+  
+  po::positional_options_description p;
+  p.add("dataSet", 1)
+   .add("outputDir", 1)
+   .add("transformsName", 1)
+   .add("iteration", 1)
+  ;
+  
+  // parse command line
+  po::variables_map vm;
+	try
+	{
+  po::store(po::command_line_parser(argc, argv)
+            .options(opts)
+            .positional(p)
+            .run(),
+            vm);
+	}
+	catch (std::exception& e)
+	{
+	  cerr << "caught command-line parsing error" << endl;
+    std::cerr << e.what() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  po::notify(vm);
+  
+  // if help is specified, or positional args aren't present
+  if(vm.count("help") ||
+    !vm.count("dataSet") ||
+    !vm.count("outputDir") ||
+    !vm.count("transformsName") ||
+    !vm.count("iteration") )
+  {
+    cerr << "Usage: "
+      << argv[0]
+      << " [--dataSet=]RatX [--outputDir=]my_dir"
+      << " [--transformsName=]CenteredAffineTransform"
+      << " [--iteration=]1"
+      << endl << endl;
+    cerr << opts << "\n";
+    exit(EXIT_FAILURE);
+  }
+    
+  return vm;
+}
+
