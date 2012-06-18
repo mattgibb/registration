@@ -6,8 +6,10 @@ optimizer:
   scale:
     translation: 0.0001 # What is an appropriate 2D translation scale?
     rotation: 100
-    size: 1000
-  maxIterations: 200
+    # size: 1000 # for rigid registration
+    size: 500 # for size and affine registration
+  # maxIterations: 1500 # for rigid registration
+  maxIterations: 100 # for size and affine registration
   # uncomment name of optimizer you wish to use
   # regularStepGradientDescent:
   #   relaxationFactor: 0.8
@@ -16,7 +18,8 @@ optimizer:
   #   gradientMagnitudeTolerance: 0.001
   gradientDescent:
     # gradually increase learning rate from low value until it becomes unstable
-    learningRate: 0.2
+    # learningRate: 0.2 # for rigid registration
+    learningRate: 0.05 # for size and affine registration
 
 metric:
   # uncomment name of metric you wish to use
