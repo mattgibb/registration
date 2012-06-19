@@ -30,6 +30,9 @@ po::variables_map parse_arguments(int argc, char *argv[]);
 template <typename T>
 vector<T> sinspace(T a, T b, size_t N);
 
+template <typename T>
+vector<T> cosspace(T a, T b, size_t N);
+
 int main(int argc, char *argv[]) {
   po::variables_map vm = parse_arguments(argc, argv);
   
@@ -62,7 +65,8 @@ int main(int argc, char *argv[]) {
   center[0] = getSpacings<2>("LoRes")[0] * (double)getSize()[0] / 2.0;
   center[1] = getSpacings<2>("LoRes")[1] * (double)getSize()[1] / 2.0;
   
-  vector<double> sine = sinspace(0.0, 2 * M_PI, stack->GetSize());
+  vector<double> sine   = sinspace(0.0, 2 * M_PI, stack->GetSize());
+  vector<double> cosine = cosspace(0.0, 2 * M_PI, stack->GetSize());
   
   // create identity transforms with added noise
   for(unsigned int slice_number=0; slice_number<stack->GetSize(); ++slice_number)
@@ -73,21 +77,24 @@ int main(int argc, char *argv[]) {
     // set centre of rotation
     StackTransforms::MoveCenter(static_cast< StackTransforms::LinearTransformType* >( transform.GetPointer() ), center);
     
-    // add noise, scaled by parameter type
+    // scalings for different parameter types
     StackType::TransformType::ParametersType parameters = transform->GetParameters();
     StackType::TransformType::ParametersType scalings(8);
     scalings[0] = scalings[1] = scalings[2] = scalings[3] = 0.02; // matrix params
-    scalings[4] = scalings[5] = 0;                                // rotation params
+    scalings[4] = scalings[5] = 0;                                // centre of rotation params
     scalings[6] = scalings[7] = 100;                              // translation params
     
-    for(unsigned int i=0; i<8; ++i)
+    if(vm.count("noise"))
     {
-      parameters[i] += varGen() * scalings[i];
+      for(unsigned int i=0; i<8; ++i)
+      {
+        parameters[i] += varGen() * scalings[i];
+      }
     }
     
     if(vm.count("rotation"))
     {
-      double angle = sine[slice_number];
+      double angle = cosine[slice_number];
       parameters[0] += cos(angle) - 1;
       parameters[1] -= sin(angle);
       parameters[2] += sin(angle);
@@ -120,6 +127,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("outputDir", po::value<string>(), "directory to source transforms and place results")
       ("translation,t", po::value<bool>()->zero_tokens(), "add translational sinusoidal signal")
       ("rotation,r",    po::value<bool>()->zero_tokens(), "add rotational sinusoidal signal")
+      ("noise,n",       po::value<bool>()->zero_tokens(), "add noise")
   ;
   
   po::positional_options_description p;
@@ -175,4 +183,15 @@ vector<T> sinspace(T a, T b, size_t N) {
     sine[i] = sin(line[i]);
   }
   return sine;
+}
+
+template <typename T>
+vector<T> cosspace(T a, T b, size_t N) {
+  vector<T> line = linspace(a, b, N);
+  vector<T> cosine(line.size());
+  for(unsigned int i=0; i<cosine.size(); ++i)
+  {
+    cosine[i] = cos(line[i]);
+  }
+  return cosine;
 }
