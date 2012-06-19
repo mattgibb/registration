@@ -8,8 +8,8 @@ class Bin < Thor
   BUILD_DIR += "_sal" if ENV["HOST"] == "sal"
   
   desc "make", "Build C++ source"
-  def make
-    run "cd #{BUILD_DIR} && make", :capture => false
+  def make(*args)
+    run "cd #{BUILD_DIR} && make #{args.join(" ")}", :capture => false
   end
   
   desc "register_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
@@ -53,6 +53,16 @@ class Bin < Thor
     invoke :make, []
     run "#{BUILD_DIR}/ComputeDiffusionTransforms #{dataset} #{output_dir} CenteredAffineTransform_#{i} --alpha=0.4", :capture => false
     run "#{BUILD_DIR}/ComposeTransformSeries #{dataset} #{output_dir} CenteredAffineTransform #{i}", :capture => false
+  end
+  
+  desc "generate_all_noisy_transforms RESULTS_PREFIX", "generate transforms for identity (plain noise), translation signal, rotation signal and both"
+  def generate_all_noisy_transforms(prefix)
+    invoke :make, ["GenerateNoisyTransforms"]
+    run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix} -n", :capture => false
+    run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}r -nr", :capture => false
+    run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}t -nt", :capture => false
+    run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}rt -nrt", :capture => false
+    run "for result in #{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_1_8/CenteredAffineTransform/; done", capture: false
   end
   
   private
