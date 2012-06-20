@@ -33,8 +33,8 @@ class Bin < Thor
     run "say done"
   end
   
-  desc "diffusion_registration DATASET OUTPUT_DIR ITERATION", "iteratively apply diffusion registration"
-  def diffusion_registration(dataset, output_dir, i)
+  desc "register_hires_pairs DATASET OUTPUT_DIR ITERATION", "iteratively apply diffusion registration"
+  def register_hires_pairs(dataset, output_dir, i)
     i = Integer(i)
     invoke :make, []
     # on the first iteration, copy transforms from original registration to CenteredAffineTransform_0
