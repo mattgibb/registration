@@ -7,8 +7,8 @@
 #include "itkRGBPixel.h"
 
 // my files
-#include "Dirs.hpp"
 #include "IOHelpers.hpp"
+#include "ScaleImages.hpp"
 
 
 namespace po = boost::program_options;
@@ -50,6 +50,15 @@ void doSplitVolumeIntoSlices(const po::variables_map& vm)
   typename VolumeType::Pointer volume = readImage<VolumeType>(vm["inputFile"].as<string>());
   cerr << "done." << endl;
   
+  // shrink image spacings so that latex can fit them on a page
+  if(vm["shrink"].as<bool>())
+  {
+    cerr << "spacings before: " << volume->GetSpacing() << endl;
+    typename VolumeType::SpacingType spacings = volume->GetSpacing() / 100;
+    volume->SetSpacing(spacings);
+    cerr << "spacings after:  " << volume->GetSpacing() << endl;
+  }
+  
   // set up splitter
   typename SplitterType::Pointer splitter = SplitterType::New();
   splitter->SetInput( volume );
@@ -64,7 +73,7 @@ void doSplitVolumeIntoSlices(const po::variables_map& vm)
   sliceRegion.SetIndex( sliceIndex );
   
   for(unsigned int i=0; i<volumeSize[sliceDimension]; ++i) {
-    cerr << "slice " << setw(4) << i << ": ";
+    cerr << "slice " << setw(3) << i << ": ";
     // Set the z-coordinate of the slice to be extracted
     sliceRegion.SetIndex(sliceDimension, i);
     
@@ -115,6 +124,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("pixelType,p", po::value<string>()->default_value("rgb"), "type of image pixel e.g. rgb, unsigned char, float etc.")
       ("sliceDimension,d", po::value<unsigned int>()->default_value(0), "dimension perpendicular to slices")
       ("outputExtension,e", po::value<string>()->default_value("bmp"), "filetype extension of output slices")
+      ("shrink,s", po::bool_switch(), "shrink pixel spacings so images fit in a Latex document")
   ;
   
   po::positional_options_description p;
