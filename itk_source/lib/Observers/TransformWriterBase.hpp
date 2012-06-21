@@ -1,6 +1,7 @@
 #ifndef TRANSFORMWRITERBASE_HPP_
 #define TRANSFORMWRITERBASE_HPP_
 
+#include <iomanip>
 #include "WriterCommand.hpp"
 #include "IOHelpers.hpp"
 

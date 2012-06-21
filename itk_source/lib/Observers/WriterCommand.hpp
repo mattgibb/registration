@@ -2,7 +2,6 @@
 #define WRITERCOMMAND_HPP_
 
 #include <sstream>
-#include <iomanip>
 #include "boost/filesystem.hpp"
 
 #include "CommandObserverBase.hpp"
