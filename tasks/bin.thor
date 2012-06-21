@@ -40,7 +40,7 @@ class Bin < Thor
     # on the first iteration, copy transforms from original registration to CenteredAffineTransform_0
     if i == 1
       run "mkdir -p #{results_path(dataset, output_dir)}/HiResPairs/AdjustedTransforms", capture: false
-      run "cp -r #{results_path(dataset, output_dir)}/{HiResTransforms_1_8/CenteredAffineTransform/,HiResPairs/AdjustedTransforms/CenteredAffineTransform_0}", :capture => false
+      run "cp -r #{results_path(dataset, output_dir)}/{HiResTransforms_#{downsample_suffix}/CenteredAffineTransform/,HiResPairs/AdjustedTransforms/CenteredAffineTransform_0}", :capture => false
     end
     run "#{BUILD_DIR}/RegisterHiResPairs #{dataset} #{output_dir} HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i - 1}/ CenteredAffineTransform_#{i}", :capture => false
     invoke :compute_adjusted_transforms
