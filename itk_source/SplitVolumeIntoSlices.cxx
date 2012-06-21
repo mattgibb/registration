@@ -11,20 +11,11 @@
 #include "IOHelpers.hpp"
 
 
-void checkUsage(int argc, char *argv[]) {
-  if( argc < 4 )
-  {
-    cerr << "\nUsage: " << endl;
-    std::cerr << argv[0] << " inputFile outputDir" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-}
-
 namespace po = boost::program_options;
 using namespace boost::filesystem;
 
 template <typename PixelType>
-void doSplitVolumeIntoSlices(const string& inputFile, const string& outputDir, const unsigned int sliceDimension);
+void doSplitVolumeIntoSlices(const po::variables_map& vm);
 
 po::variables_map parse_arguments(int argc, char *argv[]);
 
@@ -36,21 +27,19 @@ int main( int argc, char *argv[] )
   // Process command line arguments
   create_directories(vm["outputDir"].as<string>());
   
-  unsigned int sliceDimension = vm["sliceDimension"].as<unsigned int>();
-  
   if(vm["pixelType"].as<string>() == "rgb")
   {
-    doSplitVolumeIntoSlices< itk::RGBPixel< unsigned char > >(vm["inputFile"].as<string>(),
-                                                              vm["outputDir"].as<string>(),
-                                                              sliceDimension);
+    doSplitVolumeIntoSlices< itk::RGBPixel< unsigned char > >(vm);
   }
   
   return EXIT_SUCCESS;
 }
 
 template <typename PixelType>
-void doSplitVolumeIntoSlices(const string& inputFile, const string& outputDir, const unsigned int sliceDimension)
+void doSplitVolumeIntoSlices(const po::variables_map& vm)
 {
+  const unsigned int sliceDimension = vm["sliceDimension"].as<unsigned int>();
+  
   // typedefs
   typedef itk::Image< PixelType, 3 > VolumeType;
   typedef itk::Image< PixelType, 2 > SliceType;
@@ -58,7 +47,7 @@ void doSplitVolumeIntoSlices(const string& inputFile, const string& outputDir, c
   
   // read volume
   cerr << "Reading volume...";
-  typename VolumeType::Pointer volume = readImage<VolumeType>(inputFile);
+  typename VolumeType::Pointer volume = readImage<VolumeType>(vm["inputFile"].as<string>());
   cerr << "done." << endl;
   
   // set up splitter
@@ -97,13 +86,14 @@ void doSplitVolumeIntoSlices(const string& inputFile, const string& outputDir, c
     
     // write slice
     stringstream outputFile;
-    outputFile << outputDir << "/"
+    outputFile << vm["outputDir"].as<string>() << "/"
                // leading zeros
                << setfill('0')
                // 4 digits wide
                << setw(3)
                << i
-               << ".tiff";
+               << "."
+               << vm["outputExtension"].as<string>();
     
     typename SliceType::Pointer outputSlice = splitter->GetOutput();
     
@@ -124,6 +114,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("outputDir", po::value<string>(), "directory to contain output slices")
       ("pixelType,p", po::value<string>()->default_value("rgb"), "type of image pixel e.g. rgb, unsigned char, float etc.")
       ("sliceDimension,d", po::value<unsigned int>()->default_value(0), "dimension perpendicular to slices")
+      ("outputExtension,e", po::value<string>()->default_value("bmp"), "filetype extension of output slices")
   ;
   
   po::positional_options_description p;
