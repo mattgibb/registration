@@ -1,5 +1,5 @@
 # Binary command-line interface for a mac
-
+require 'yaml'
 require File.expand_path("../init", __FILE__)
 
 class Bin < Thor
@@ -62,14 +62,19 @@ class Bin < Thor
     run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}r -nr", :capture => false
     run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}t -nt", :capture => false
     run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}rt -nrt", :capture => false
-    run "for result in #{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_1_8/CenteredAffineTransform/; done", capture: false
+    
+    
+    run "for result in #{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_#{downsample_suffix}/CenteredAffineTransform/; done", capture: false
   end
   
   private
   def results_path(dataset, output_dir)
     File.join PROJECT_ROOT, 'results', dataset, output_dir
   end
+  
+  def downsample_suffix
+    ratios_file = File.join PROJECT_ROOT, 'config/dummy/downsample_ratios.yml'
+    ratios = YAML::load( File.open ratios_file )
+    "#{ratios["LoRes"]}_#{ratios["HiRes"]}"
+  end
 end
-
-# String to label results folders with: Time.now.utc.strftime("%Y%m%d%H%M%S")
-
