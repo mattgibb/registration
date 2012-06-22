@@ -1,21 +1,13 @@
 #include "boost/filesystem.hpp"
 #include "boost/program_options.hpp"
-#include <assert.h>
-#include <iomanip>
 
-#include "itkExtractImageFilter.h"
 #include "itkRGBPixel.h"
 
 // my files
-#include "IOHelpers.hpp"
-#include "ScaleImages.hpp"
-
+#include "VolumeSplitter.hpp"
 
 namespace po = boost::program_options;
 using namespace boost::filesystem;
-
-template <typename PixelType>
-void doSplitVolumeIntoSlices(const po::variables_map& vm);
 
 po::variables_map parse_arguments(int argc, char *argv[]);
 
@@ -29,89 +21,13 @@ int main( int argc, char *argv[] )
   
   if(vm["pixelType"].as<string>() == "rgb")
   {
-    doSplitVolumeIntoSlices< itk::RGBPixel< unsigned char > >(vm);
+    VolumeSplitter< itk::RGBPixel< unsigned char > > splitter(vm);
+    splitter.Split();
   }
   
   return EXIT_SUCCESS;
 }
 
-template <typename PixelType>
-void doSplitVolumeIntoSlices(const po::variables_map& vm)
-{
-  const unsigned int sliceDimension = vm["sliceDimension"].as<unsigned int>();
-  
-  // typedefs
-  typedef itk::Image< PixelType, 3 > VolumeType;
-  typedef itk::Image< PixelType, 2 > SliceType;
-  typedef itk::ExtractImageFilter< VolumeType, SliceType > SplitterType;
-  
-  // read volume
-  cerr << "Reading volume...";
-  typename VolumeType::Pointer volume = readImage<VolumeType>(vm["inputFile"].as<string>());
-  cerr << "done." << endl;
-  
-  // shrink image spacings so that latex can fit them on a page
-  if(vm["shrink"].as<bool>())
-  {
-    cerr << "spacings before: " << volume->GetSpacing() << endl;
-    typename VolumeType::SpacingType spacings = volume->GetSpacing() / 100;
-    volume->SetSpacing(spacings);
-    cerr << "spacings after:  " << volume->GetSpacing() << endl;
-  }
-  
-  // set up splitter
-  typename SplitterType::Pointer splitter = SplitterType::New();
-  splitter->SetInput( volume );
-  typename VolumeType::SizeType volumeSize = volume->GetLargestPossibleRegion().GetSize();
-  typename VolumeType::SizeType sliceSize  = volumeSize;
-  sliceSize[sliceDimension] = 0;
-  
-  typename VolumeType::IndexType sliceIndex = {{0, 0, 0}};
-  
-  typename VolumeType::RegionType sliceRegion;
-  sliceRegion.SetSize( sliceSize );
-  sliceRegion.SetIndex( sliceIndex );
-  
-  for(unsigned int i=0; i<volumeSize[sliceDimension]; ++i) {
-    cerr << "slice " << setw(3) << i << ": ";
-    // Set the z-coordinate of the slice to be extracted
-    sliceRegion.SetIndex(sliceDimension, i);
-    
-    splitter->SetExtractionRegion( sliceRegion );
-    splitter->SetDirectionCollapseToIdentity();
-    
-    // split volume
-    try
-    {
-      cerr << "extracting slice...";
-      splitter->Update();
-    }
-    catch( itk::ExceptionObject & err )
-    {
-      std::cerr << "ExceptionObject caught while updating volume splitter." << std::endl;
-      cerr << err << endl;
-  		exit(EXIT_FAILURE);
-    }
-    
-    // write slice
-    stringstream outputFile;
-    outputFile << vm["outputDir"].as<string>() << "/"
-               // leading zeros
-               << setfill('0')
-               // 4 digits wide
-               << setw(3)
-               << i
-               << "."
-               << vm["outputExtension"].as<string>();
-    
-    typename SliceType::Pointer outputSlice = splitter->GetOutput();
-    
-    cerr << "writing slice...";
-    writeImage< SliceType >(outputSlice, outputFile.str());
-    cerr << "done." << endl;
-  }
-  
-}
 
 po::variables_map parse_arguments(int argc, char *argv[])
 {
@@ -124,7 +40,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("pixelType,p", po::value<string>()->default_value("rgb"), "type of image pixel e.g. rgb, unsigned char, float etc.")
       ("sliceDimension,d", po::value<unsigned int>()->default_value(0), "dimension perpendicular to slices")
       ("outputExtension,e", po::value<string>()->default_value("bmp"), "filetype extension of output slices")
-      ("shrink,s", po::bool_switch(), "shrink pixel spacings so images fit in a Latex document")
+      ("latex,l", po::bool_switch(), "shrink pixel spacings so images fit in a Latex document")
+      ("slice,s", po::value<unsigned int>(), "pick a single slice number to output")
   ;
   
   po::positional_options_description p;
