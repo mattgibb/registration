@@ -12,7 +12,7 @@ int main( int argc, char * argv[] )
 {
   if( argc < 3 ) {
     cerr << "Usage: " << endl;
-    cerr << argv[0] << "  inputImageFile   outputImageFile" << endl;
+    cerr << argv[0] << "  inputImageFile outputImageFile" << endl;
     return EXIT_FAILURE;
   }
 	
