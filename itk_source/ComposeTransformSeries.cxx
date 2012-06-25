@@ -71,8 +71,8 @@ int main(int argc, char *argv[]) {
     // transformation consists of first applying self to the source, followed by other. This updates the Translation based on current center.
     AffineTransformType::Pointer adjustedTransform = AffineTransformType::New();
     adjustedTransform->SetIdentity();
-    adjustedTransform->Compose(pOriginalTransform);
     adjustedTransform->Compose(pDiffusionTransform);
+    adjustedTransform->Compose(pOriginalTransform);
     
     // save output transform
     writeTransform(adjustedTransform, adjustedPaths[i]);
