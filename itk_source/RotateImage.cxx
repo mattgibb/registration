@@ -2,10 +2,10 @@
 
 #include "itkImage.h"
 #include "itkRGBPixel.h"
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
 #include "itkFlipImageFilter.h"
 #include "itkPermuteAxesImageFilter.h"
+
+#include "IOHelpers.hpp"
 
 using namespace std;
 
@@ -13,20 +13,14 @@ int main( int argc, char * argv[] )
 {
   if( argc < 3 ) {
     cerr << "Usage: " << endl;
-    cerr << argv[0] << "  inputImageFile   outputImageFile" << endl;
+    cerr << argv[0] << "  inputImageFile outputImageFile" << endl;
     return EXIT_FAILURE;
   }
 	
   typedef  itk::RGBPixel< unsigned char > PixelType;
   typedef itk::Image< PixelType,  2 >   ImageType;
-  typedef itk::ImageFileReader< ImageType >  ReaderType;
-  typedef itk::ImageFileWriter< ImageType >  WriterType;
   
-  ReaderType::Pointer reader = ReaderType::New();
-  WriterType::Pointer writer = WriterType::New();
-  
-  reader->SetFileName( argv[1] );
-  writer->SetFileName( argv[2] );
+  ImageType::Pointer input = readImage< ImageType >( argv[1] );
 
   // Permute the x and y axes, i.e. flip the images through x = y
   typedef itk::PermuteAxesImageFilter< ImageType >  PermuteAxesType;
@@ -36,10 +30,10 @@ int main( int argc, char * argv[] )
 	
   permuteArray[0] = 1;
   permuteArray[1] = 0;
-
+  
   permuter->SetOrder( permuteArray );
 
-  permuter->SetInput( reader->GetOutput() );
+  permuter->SetInput( input );
   
   // Flip the images through vertical axis
   typedef itk::FlipImageFilter< ImageType >  FlipImageType;
@@ -53,9 +47,9 @@ int main( int argc, char * argv[] )
   flipper->SetFlipAxes( flipArray );
 
   flipper->SetInput( permuter->GetOutput() );
-
-  writer->SetInput( flipper->GetOutput() );
-  writer->Update();
+  
+  ImageType::Pointer output = flipper->GetOutput();
+  writeImage< ImageType >( output, argv[2] );
 
   return EXIT_SUCCESS;
 }
