@@ -63,7 +63,7 @@ class Bin < Thor
     run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}t -nt", :capture => false
     run "#{BUILD_DIR}/GenerateNoisyTransforms #{prefix}rt -nrt", :capture => false
     
-    run "for result in #{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_#{downsample_suffix}/CenteredAffineTransform/; done", capture: false
+    run "cd #{BUILD_DIR}; for result in #{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_#{downsample_suffix}/CenteredAffineTransform/; done", capture: false
   end
   
   private
