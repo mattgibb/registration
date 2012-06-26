@@ -24,16 +24,21 @@ int main( int argc, char * argv[] )
   ImageType::Pointer input = readImage< ImageType >( vm["inputFile"].as<string>() );
   
   // invert intensity
-  typedef itk::InvertIntensityImageFilter <ImageType> InverterType;
- 
-  InverterType::Pointer inverter = InverterType::New();
-  inverter->SetInput(input);
-  // inverter->SetMaximum(50); // default 255
+  if(!vm["no-invert"].as<bool>())
+  {
+    typedef itk::InvertIntensityImageFilter <ImageType> InverterType;
+    
+    InverterType::Pointer inverter = InverterType::New();
+    // inverter->SetMaximum(50); // default 255
+    inverter->SetInput(input);
+    inverter->Update();
+    input = inverter->GetOutput();
+  }
   
   // rescale intensity
   typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > IntensifierType;
   IntensifierType::Pointer intensifier = IntensifierType::New();
-  intensifier->SetInput( inverter->GetOutput() );
+  intensifier->SetInput( input );
   intensifier->SetOutputMinimum(vm["min"].as<unsigned int>());
   intensifier->SetOutputMaximum(vm["max"].as<unsigned int>());
   
@@ -53,6 +58,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("inputFile", po::value<string>(), "input image")
       ("outputFile", po::value<string>(), "output image")
+      ("no-invert", po::bool_switch(), "do not invert intensities")
       ("min", po::value<unsigned int>()->default_value(0), "minimum output intensity")
       ("max", po::value<unsigned int>()->default_value(255), "maximum output intensity")
   ;
