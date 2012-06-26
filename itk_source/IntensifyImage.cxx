@@ -34,8 +34,8 @@ int main( int argc, char * argv[] )
   typedef itk::RescaleIntensityImageFilter< ImageType, ImageType > IntensifierType;
   IntensifierType::Pointer intensifier = IntensifierType::New();
   intensifier->SetInput( inverter->GetOutput() );
-  intensifier->SetOutputMinimum(0);
-  intensifier->SetOutputMaximum(255);
+  intensifier->SetOutputMinimum(vm["min"].as<unsigned int>());
+  intensifier->SetOutputMaximum(vm["max"].as<unsigned int>());
   
   ImageType::Pointer output = intensifier->GetOutput();
   writeImage< ImageType >( output, vm["outputFile"].as<string>() );
@@ -53,8 +53,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("inputFile", po::value<string>(), "input image")
       ("outputFile", po::value<string>(), "output image")
-      ("shift,h", po::value<int>()->default_value(127), "constant to add to intensities")
-      ("scale,c", po::value<int>()->default_value(127), "coefficient to scale intensities")
+      ("min", po::value<unsigned int>()->default_value(0), "minimum output intensity")
+      ("max", po::value<unsigned int>()->default_value(255), "maximum output intensity")
   ;
   
   po::positional_options_description p;
