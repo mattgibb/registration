@@ -53,6 +53,9 @@ TARGET_LINK_LIBRARIES(FlipImage ${ITK_LIBRARIES})
 ADD_EXECUTABLE(RotateImage RotateImage.cxx )
 TARGET_LINK_LIBRARIES(RotateImage ${ITK_LIBRARIES} ${Boost_LIBRARIES})
 
+ADD_EXECUTABLE(IntensifyImage IntensifyImage.cxx )
+TARGET_LINK_LIBRARIES(IntensifyImage ${ITK_LIBRARIES} ${Boost_LIBRARIES})
+
 ADD_EXECUTABLE(RegisterVolumes RegisterVolumes.cxx )
 TARGET_LINK_LIBRARIES(RegisterVolumes ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                    Dirs Parameters)
