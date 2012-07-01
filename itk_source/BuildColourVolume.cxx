@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     scaleImages< StackType::SliceType >(HiResImages, getSpacings<2>("HiRes"));
     HiResStack = make_shared< StackType >(HiResImages, getSpacings<3>("LoRes"), getSize(roi));
     HiResStack->SetBasenames(basenames);
-    HiResStack->SetDefaultPixelValue( 255 );
+    HiResStack->SetDefaultPixelValue( vm["defaultPixelValue"].as<unsigned int>() );
     cout << "done." << endl;
   }
   
@@ -143,6 +143,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("loResTransformsDir", po::value<string>(), "directory containing LoRes transform files, relative to ResultsDir")
       ("hiResTransformsDir", po::value<string>(), "directory containing HiRes transform files, relative to ResultsDir")
       ("blockDir", po::value<string>(), "directory containing LoRes originals")
+      ("defaultPixelValue", po::value<unsigned int>()->default_value(255), "value applied to pixels outside the moving image")
 
       // three different ways of not specifying value for flag
       // implicit_value(true) allows syntax like -H0 and --no-HiRes=0,
