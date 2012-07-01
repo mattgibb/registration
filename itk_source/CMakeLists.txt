@@ -123,4 +123,8 @@ ADD_EXECUTABLE(RemoveLabelObjects RemoveLabelObjects.cxx )
 TARGET_LINK_LIBRARIES(RemoveLabelObjects ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(CropImage CropImage.cxx )
+TARGET_LINK_LIBRARIES(CropImage ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
