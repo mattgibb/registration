@@ -18,7 +18,7 @@ class Bin < Thor
   def register_volumes(dataset, output_dir, image="")
     invoke :make, []
     
-    images = image.empty? ? image_list(dataset) : [image]
+    images = image.empty? ? image_list(dataset).join(' ') : image
     block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
     transform_flags = case options[:transform]
     when "rigid"
@@ -29,10 +29,13 @@ class Bin < Thor
       "--loadSimilarity"
     end
     
-    images.each do |image|
-      run "#{BUILD_DIR}/RegisterVolumes #{dataset} #{output_dir} #{image} #{block_dir_flag} #{transform_flags}", :capture => false
-    end
+    command = %{
+      for image in #{images}
+        do #{BUILD_DIR}/RegisterVolumes #{dataset} #{output_dir} $image #{block_dir_flag} #{transform_flags}
+      done
+    }
     
+    run command, :capture => false
     run "say done"
     run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
