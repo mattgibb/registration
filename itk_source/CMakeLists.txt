@@ -91,10 +91,6 @@ ADD_EXECUTABLE(SplitVolumeIntoSlices SplitVolumeIntoSlices.cxx )
 TARGET_LINK_LIBRARIES(SplitVolumeIntoSlices ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs)
 
-ADD_EXECUTABLE(VolumeReadWrite VolumeReadWrite.cxx )
-TARGET_LINK_LIBRARIES(VolumeReadWrite ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
-                                  Dirs Parameters)
-
 ADD_EXECUTABLE(TestPrincipalAxes TestPrincipalAxes.cxx )
 TARGET_LINK_LIBRARIES(TestPrincipalAxes ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
