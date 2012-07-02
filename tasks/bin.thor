@@ -13,19 +13,37 @@ class Bin < Thor
   end
   
   desc "register_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
-  def register_volumes(dataset, output_dir, slice="")
+  method_option :blockDir, :type => :string
+  method_option :transform, :type => :string
+  def register_volumes(dataset, output_dir, image="")
     invoke :make, []
-    run "#{BUILD_DIR}/RegisterVolumes #{dataset} #{output_dir} #{slice}", :capture => false
+    
+    images = image.empty? ? image_list(dataset) : [image]
+    block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
+    transform_flags = case options[:transform]
+    when "rigid"
+      "--stopAfterRigid"
+    when "similarity"
+      "--loadRigid --stopAfterSimilarity"
+    when "affine"
+      "--loadSimilarity"
+    end
+    
+    images.each do |image|
+      run "#{BUILD_DIR}/RegisterVolumes #{dataset} #{output_dir} #{image} #{block_dir_flag} #{transform_flags}", :capture => false
+    end
+    
     run "say done"
+    run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'registration_parameters.yml'} #{File.join PROJECT_ROOT, 'results', dataset, output_dir}", :capture => false
   end
-
+  
   desc "deformable_registration DATASET OUTPUT_DIR", "perform deformable registration, starting from affine bulk transforms"
   def deformable_registration(dataset, output_dir)
     invoke :make, []
     run "#{BUILD_DIR}/DeformableRegistration #{dataset} #{output_dir}", :capture => false
     run "say done"
   end
-
+  
   desc "register_roi DATASET OUTPUT_DIR", "register region of interest"
   def register_roi(dataset, output_dir)
     invoke :make, []
@@ -75,5 +93,10 @@ class Bin < Thor
     ratios_file = File.join PROJECT_ROOT, 'config/dummy/downsample_ratios.yml'
     ratios = YAML::load( File.open ratios_file )
     "#{ratios["LoRes"]}_#{ratios["HiRes"]}"
+  end
+  
+  def image_list(dataset)
+    image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
+    File.read(image_list_file).split.uniq
   end
 end
