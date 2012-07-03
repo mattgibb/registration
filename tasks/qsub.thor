@@ -1,19 +1,10 @@
 # Binary command-line interface for the supercomputing cluster
 
-require File.expand_path("../init", __FILE__)
+require File.expand_path("../jobs", __FILE__)
 require 'fileutils'
 
-class Qsub < Thor
-  include Thor::Actions
-  include FileUtils::Verbose
-  
-  BUILD_DIR = File.join PROJECT_ROOT, 'itk_release_sal' 
+class Qsub < Jobs
   PBS_DIR = File.join PROJECT_ROOT, 'pbs_scripts', 'sal'
-
-  desc "make", "Build C++ source"
-  def make
-    run "cd #{BUILD_DIR} && make", :capture => false
-  end
 
   desc "register_volumes DATASET OUTPUT_DIR [SLICE]", "build registered rat volumes from 2D histology and block face images"
   method_option :blockDir, :type => :string
@@ -22,7 +13,7 @@ class Qsub < Thor
     invoke :make, []
     
     images = image.empty? ? image_list(dataset).join(' ') : image
-    job_output_dir = File.join PROJECT_ROOT, 'results', dataset, output_dir, 'job_output'
+    job_output_dir = File.join results_path(dataset, output_dir), 'job_output'
     block_dir_flag = options.blockDir? ? "--blockDir #{options[:blockDir]}" : ""
     transform_flags = case options[:transform]
     when "rigid"
@@ -49,10 +40,11 @@ class Qsub < Thor
     
     invoke :make, []
     
-    results_root = File.join PROJECT_ROOT, 'results', dataset, output_dir
-    hires_pairs_path = File.join results_root, "HiResPairs"
+    hires_pairs_path = File.join results_path(dataset, output_dir), "HiResPairs"
     
     unless fixed_basename
+      return unless yes?("Are you sure you want to clear the old results?")
+      
       # clear any old results
       %W(FinalTransforms IntermediateTransforms MetricValues OutputVolumes).each do |dir|
         rm_rf File.join(hires_pairs_path, dir, "CenteredAffineTransform_#{i}")
@@ -61,7 +53,7 @@ class Qsub < Thor
       # if necessary, copy original registration transforms to AdjustedTransforms dir
       if i == 1
         run "mkdir -p #{hires_pairs_path}/AdjustedTransforms"
-        run "cp -r #{results_root}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_0", :capture => false
+        run "cp -r #{results_path(dataset, output_dir)}/HiResTransforms_1_8/CenteredAffineTransform/ #{hires_pairs_path}/AdjustedTransforms/CenteredAffineTransform_0", :capture => false
       end
     end
     
@@ -120,8 +112,8 @@ class Qsub < Thor
   end
   
   private
-  def image_list(dataset)
-    image_list_file = File.join PROJECT_ROOT, 'config', dataset, 'image_lists', 'image_list.txt'
-    File.read(image_list_file).split.uniq
+  def build_dir
+    File.join PROJECT_ROOT, 'itk_release_sal' 
   end
+  
 end
