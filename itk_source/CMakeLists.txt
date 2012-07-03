@@ -111,8 +111,8 @@ ADD_EXECUTABLE(GenerateNoisyTransforms GenerateNoisyTransforms.cxx )
 TARGET_LINK_LIBRARIES(GenerateNoisyTransforms ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
-ADD_EXECUTABLE(ConvertVolume ConvertVolume.cxx )
-TARGET_LINK_LIBRARIES(ConvertVolume ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+ADD_EXECUTABLE(ConvertImage ConvertImage.cxx )
+TARGET_LINK_LIBRARIES(ConvertImage ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
 ADD_EXECUTABLE(RemoveLabelObjects RemoveLabelObjects.cxx )
