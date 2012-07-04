@@ -99,10 +99,6 @@ class Bin < Jobs
     end
   end
   
-  
-  
-  
-  
   desc "compute_adjusted_transforms DATASET OUTPUT_DIR ITERATION", "compute adjusted transforms from registration results"
   def compute_adjusted_transforms(dataset, output_dir, i)
     i = Integer(i)
