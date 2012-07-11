@@ -108,14 +108,25 @@ class Bin < Jobs
   end
   
   desc "generate_all_noisy_transforms RESULTS_PREFIX", "generate transforms for identity (plain noise), translation signal, rotation signal and both"
+  method_option :build_colour_volumes, type: :boolean
   def generate_all_noisy_transforms(prefix)
     invoke :make, ["GenerateNoisyTransforms"]
+    
+    # noisy transforms
     run "#{build_dir}/GenerateNoisyTransforms #{prefix} -n", :capture => false
     run "#{build_dir}/GenerateNoisyTransforms #{prefix}r -nr", :capture => false
     run "#{build_dir}/GenerateNoisyTransforms #{prefix}t -nt", :capture => false
     run "#{build_dir}/GenerateNoisyTransforms #{prefix}rt -nrt", :capture => false
     
-    run "cd #{BUILD_DIR}; for result in #{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_#{downsample_suffix}/CenteredAffineTransform/; done", capture: false
+    # perfect transforms
+    run "#{build_dir}/GenerateNoisyTransforms perfect_#{prefix}", :capture => false
+    run "#{build_dir}/GenerateNoisyTransforms perfect_#{prefix}r -r", :capture => false
+    run "#{build_dir}/GenerateNoisyTransforms perfect_#{prefix}t -t", :capture => false
+    run "#{build_dir}/GenerateNoisyTransforms perfect_#{prefix}rt -rt", :capture => false
+    
+    if options.build_colour_volumes?
+      run "cd #{BUILD_DIR}; for result in {,perfect_}#{prefix}{,r,t,rt}; do make BuildColourVolume && ./BuildColourVolume dummy $result -L --hiResTransformsDir HiResTransforms_#{downsample_suffix}/CenteredAffineTransform/; done", capture: false
+    end
   end
   
   private
