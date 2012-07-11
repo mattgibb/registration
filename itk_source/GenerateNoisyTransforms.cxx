@@ -80,9 +80,9 @@ int main(int argc, char *argv[]) {
     // scalings for different parameter types
     StackType::TransformType::ParametersType parameters = transform->GetParameters();
     StackType::TransformType::ParametersType scalings(8);
-    scalings[0] = scalings[1] = scalings[2] = scalings[3] = 0.02; // matrix params
+    scalings[0] = scalings[1] = scalings[2] = scalings[3] = 0.1; // matrix params
     scalings[4] = scalings[5] = 0;                                // centre of rotation params
-    scalings[6] = scalings[7] = 100;                              // translation params
+    scalings[6] = scalings[7] = 500;                              // translation params
     
     if(vm.count("noise"))
     {
@@ -103,8 +103,8 @@ int main(int argc, char *argv[]) {
     
     if(vm.count("translation"))
     {
-      parameters[6] += 20 * scalings[6] * sine[slice_number];
-      parameters[7] += 20 * scalings[7] * sine[slice_number];
+      parameters[6] += 2000 * sine[slice_number];
+      parameters[7] += 2000 * sine[slice_number];
     }
     
     transform->SetParameters(parameters);
