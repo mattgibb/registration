@@ -10,7 +10,7 @@ optimizer:
   regularStepGradientDescent:
     relaxationFactor: 0.8
     maxStepLength: 20
-    minStepLength: 0.2
+    minStepLength: 0.01
     gradientMagnitudeTolerance: 5000
   # gradientDescent:
   #   # gradually increase learning rate from low value until it becomes unstable
