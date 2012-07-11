@@ -75,6 +75,9 @@ TARGET_LINK_LIBRARIES(ConvertRGBAToRGB ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_
 ADD_EXECUTABLE(ComposeTransformSeries ComposeTransformSeries.cxx )
 TARGET_LINK_LIBRARIES(ComposeTransformSeries ${ITK_LIBRARIES} ${Boost_LIBRARIES} Dirs)
 
+ADD_EXECUTABLE(ComposeBananaTransformSeries ComposeBananaTransformSeries.cxx )
+TARGET_LINK_LIBRARIES(ComposeBananaTransformSeries ${ITK_LIBRARIES} ${Boost_LIBRARIES} Dirs)
+
 ADD_EXECUTABLE(RegisterROI RegisterROI.cxx )
 TARGET_LINK_LIBRARIES(RegisterROI ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
