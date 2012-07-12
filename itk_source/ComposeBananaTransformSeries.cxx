@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   const string transformsName = vm["transformsName"].as<string>();
   
   // set up transform paths
-  const string originalDir   = Dirs::ResultsDir() + "HiResTransforms_1_8/CenteredRigid2DTransform/";
+  const string originalDir   = Dirs::ResultsDir() + "HiResTransforms_" + Dirs::DownsampleSuffix() + "/CenteredRigid2DTransform/";
   const string adjustmentDir = Dirs::ResultsDir() + "HiResPairs/FinalTransforms/" + transformsName;
   const string bananaDir     = Dirs::ResultsDir() + "HiResPairs/BananaTransforms/"  + transformsName;
   
