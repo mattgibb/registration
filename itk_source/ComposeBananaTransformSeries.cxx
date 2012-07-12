@@ -10,6 +10,7 @@
 #include "itkTransformFileWriter.h"
 #include "itkTransformFactory.h"
 #include "itkCenteredRigid2DTransform.h"
+#include "itkCenteredAffineTransform.h"
 
 #include "IOHelpers.hpp"
 #include "Dirs.hpp" 
@@ -58,18 +59,20 @@ int main(int argc, char *argv[]) {
 	// Generate new transforms
 	// TranslationTransform also has a Compose() interface, but only with other TranslationTransforms
   typedef itk::MatrixOffsetTransformBase< double, 2, 2 > ComposableTransformType;
-  typedef itk::CenteredRigid2DTransform< double > CenteredRigid2DTransformType;
+  typedef itk::CenteredRigid2DTransform< double > OutputTransformType;
+  // typedef itk::CenteredAffineTransform< double, 2 > OutputTransformType;
   
-  for(int i=0; i < originalPaths.size(); ++i)
+  for(int i=originalPaths.size()-1; i >= 0; --i)
   {
     cerr << "unique_basenames[" << i << "]: " << unique_basenames[i] << endl;
     
     // create banana transform
-    CenteredRigid2DTransformType::Pointer bananaTransform = CenteredRigid2DTransformType::New();
+    OutputTransformType::Pointer bananaTransform = OutputTransformType::New();
     bananaTransform->SetIdentity();
     
     // apply all the transforms from i->(i-1) down to (1->0)
-    for(int j=i-1; j >= 0; j--)
+    // for(int j=i; j < originalPaths.size()-1; j++)
+    for(int j=originalPaths.size()-2; j >= i; --j)
     {
       // check that original transform is of the right dynamic type
       itk::TransformBase::Pointer bpAdjustmentTransform = readTransform(adjustmentPaths[j]);
@@ -80,7 +83,7 @@ int main(int argc, char *argv[]) {
       // If the argument pre is true (default false), then other is precomposed with self; that is, the resulting transformation consists of first
       // applying other to the source, followed by self. If pre is false or omitted, then other is post-composed with self; that is the resulting
       // transformation consists of first applying self to the source, followed by other. This updates the Translation based on current center.
-      bananaTransform->Compose(pAdjustmentTransform);
+      bananaTransform->Compose( pAdjustmentTransform );
     }
     
     // check that original transform is of the right dynamic type
@@ -90,9 +93,10 @@ int main(int argc, char *argv[]) {
     
   	// apply the original transforms
     bananaTransform->Compose(pOriginalTransform);
-    
+  
     // save output transform
     writeTransform(bananaTransform, bananaPaths[i]);
+    
   }
   
   return EXIT_SUCCESS;
@@ -150,4 +154,3 @@ po::variables_map parse_arguments(int argc, char *argv[])
     
   return vm;
 }
-
