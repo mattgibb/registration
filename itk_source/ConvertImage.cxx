@@ -79,7 +79,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("inputImage", po::value<string>(), "an image of the red channel intensities")
       ("outputImage", po::value<string>(), "the composed rgb image")
-      ("pixelType", po::value<string>(), "type of pixel")
+      ("pixelType", po::value<string>(), "either 'rgb' or 'float'")
       ("dimension", po::value<unsigned int>(), "number of dimensions in the image")
   ;
   
@@ -115,7 +115,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
     !vm.count("dimension")) {
     cerr << "Usage: "
       << argv[0] << " [--inputImage=]big.bmp [--outputImage=]small.bmp "
-      << "[--pixelType=]RGB [--dimension=]2 "
+      << "[--pixelType=]rgb [--dimension=]2 "
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);
@@ -129,5 +129,12 @@ po::variables_map parse_arguments(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
   
+  // check pixel type
+  string pixelType = vm["pixelType"].as<string>();
+  if(pixelType != "rgb" && pixelType != "float")
+  {
+    cerr << "pixelType must be 'rgb' or 'float'" << endl;
+    exit(EXIT_FAILURE);
+  }
   return vm;
 }
