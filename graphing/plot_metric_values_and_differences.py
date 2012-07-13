@@ -41,13 +41,16 @@ if len(argv) == 3:
 # plot all slices
 else:
     def plot_3d_lines(values, labels):
-        fig = plt.figure()
-        ax = fig.gca(projection='3d')
+        fig = plt.figure(frameon=False)
+        ax = fig.add_axes([0.0,0.0,1.0,1.0], projection='3d')
         for i, slice in enumerate(values):
             x = range(len(slice))
             y = [i] * len(slice)
             ax.plot(x, y, slice, label=labels[i])
-        ax.legend()
+        # ax.legend()
+        plt.xlabel('Iteration', fontsize='xx-large')
+        plt.ylabel('Slice Number', fontsize='xx-large')
+        ax.set_zlabel("Normalised Correlation", fontsize='xx-large')
         plt.show()
     
     basenames = listdir(metric_values_dir)
