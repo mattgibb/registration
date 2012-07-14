@@ -77,10 +77,10 @@ po::variables_map parse_arguments(int argc, char *argv[])
   po::options_description opts("Options");
   opts.add_options()
       ("help,h", "produce help message")
-      ("inputImage", po::value<string>(), "an image of the red channel intensities")
-      ("outputImage", po::value<string>(), "the composed rgb image")
-      ("pixelType", po::value<string>(), "either 'rgb' or 'float'")
-      ("dimension", po::value<unsigned int>(), "number of dimensions in the image")
+      ("inputImage", po::value<string>(), "image to be converted")
+      ("outputImage", po::value<string>(), "result")
+      ("pixelType", po::value<string>()->default_value("rgb"), "either 'rgb' or 'float'")
+      ("dimension", po::value<unsigned int>()->default_value(2), "number of dimensions in the image")
   ;
   
   po::positional_options_description p;
