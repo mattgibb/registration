@@ -11,7 +11,7 @@ plot_metric_values_and_differences values_dir --batch-size X
 from os.path import *
 from os import listdir
 from sys import argv
-from numpy import genfromtxt
+from numpy import arange, genfromtxt
 from metric_values import MetricValues
 
 metric_values_dir = argv[1]
@@ -26,18 +26,24 @@ mpl.rcParams['legend.fontsize'] = 10
 
 if len(argv) == 3:
     # plot particular slice
-    def plot_2d_line(values):
-        fig = plt.figure()
-        ax = fig.gca()
+    def plot_2d_line(values, ylabel):
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_axes([0.12,0.1,0.85,0.85])
         x = range(len(values))
         ax.plot(x, values)
+        plt.xlabel('Iteration', fontsize='xx-large')
+        plt.ylabel(ylabel, fontsize='xx-large')
+        plt.tick_params(axis='both', which='major', labelsize=16)
+        # plt.xlim([0,1500])
+        # plt.xticks( arange(0,1501,500) )
         plt.grid(axis="y")
         plt.show()
     
+    
     metric_values = genfromtxt(join(metric_values_dir, argv[2]))
-    plot_2d_line(metric_values)
-    plot_2d_line(metric_values[1:] - metric_values[:-1])
-        
+    plot_2d_line(metric_values, 'Normalised Correlation')
+    plot_2d_line(metric_values[1:] - metric_values[:-1], 'Delta Correlation')
+    
 # plot all slices
 else:
     def plot_3d_lines(values, labels):
@@ -47,7 +53,7 @@ else:
             x = range(len(slice))
             y = [i] * len(slice)
             ax.plot(x, y, slice, label=labels[i])
-        # ax.legend()
+        ax.legend()
         plt.xlabel('Iteration', fontsize='xx-large')
         plt.ylabel('Slice Number', fontsize='xx-large')
         ax.set_zlabel("Normalised Correlation", fontsize='xx-large')
