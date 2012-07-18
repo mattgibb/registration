@@ -11,6 +11,7 @@
 #include "itkTransformFactory.h"
 #include "itkAffineTransform.h"
 
+#include "StackTransforms.hpp"
 #include "IOHelpers.hpp"
 #include "Dirs.hpp" 
 
@@ -65,13 +66,18 @@ int main(int argc, char *argv[]) {
     ComposableTransformType *pDiffusionTransform = dynamic_cast<ComposableTransformType*>( bpDiffusionTransform.GetPointer() );
     assert( pOriginalTransform != 0 && pDiffusionTransform != 0 );
     
+    // calculate ROI transform
+    itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
+    
     // compose transforms
     // If the argument pre is true (default false), then other is precomposed with self; that is, the resulting transformation consists of first
     // applying other to the source, followed by self. If pre is false or omitted, then other is post-composed with self; that is the resulting
     // transformation consists of first applying self to the source, followed by other. This updates the Translation based on current center.
     AffineTransformType::Pointer adjustedTransform = AffineTransformType::New();
     adjustedTransform->SetIdentity();
+    adjustedTransform->Translate(-translation);
     adjustedTransform->Compose(pDiffusionTransform);
+    adjustedTransform->Translate(translation);
     adjustedTransform->Compose(pOriginalTransform);
     
     // save output transform
@@ -81,7 +87,6 @@ int main(int argc, char *argv[]) {
   // write out the unaltered first and last transforms
   copy_file( *(originalPaths.begin()), *(adjustedPaths.begin()) );
   copy_file( *(--originalPaths.end()), *(--adjustedPaths.end()) );
-  
   
   return EXIT_SUCCESS;
 }
