@@ -37,10 +37,12 @@ int main(int argc, char *argv[]) {
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   bool buildFixedVolume = !vm.count("skipFixedVolume");
-  bool HiResPairs = vm.count("HiResPairs");
+  bool HiResPairs = vm.count("HiResPairTransforms");
+  string HiResPairTransforms;
+  if(HiResPairs) HiResPairTransforms = vm["HiResPairTransforms"].as<string>();
   string transform = vm["transform"].as<string>();
   string transformDirectory = HiResPairs ?
-                              Dirs::ResultsDir() + "HiResPairs/IntermediateTransforms/" + transform + "/":
+                              Dirs::ResultsDir() + "HiResPairs/IntermediateTransforms/" + HiResPairTransforms + "/":
                               Dirs::ResultsDir() + "IntermediateTransforms/" + transform + "/";
   vector< string > slicePairs = vm.count("slicePair") ?
                                         vector< string >(1, vm["slicePair"].as<string>()) :
@@ -109,7 +111,6 @@ int main(int argc, char *argv[]) {
                                            buildLoResFixedStack(fixedImage, slicePairs[i]);
       
       // load comparison transforms
-      
       fixedStack->updateVolumes();
       writeImage< StackType::VolumeType >( fixedStack->GetVolume(), stepsDirectory + "fixed.mha");
       cout << "done." << endl;
@@ -129,7 +130,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("transform", po::value<string>(), "Type of ITK transform that was optimised")
       ("slicePair", po::value<string>(), "the slice pair identifier e.g. 0001 for LoRes/HiRes, 0001_0002 for adjacent pairs")
       ("skipFixedVolume,f", po::value<bool>()->zero_tokens(), "skip generating fixed image comparison volume")
-      ("HiResPairs", po::value<bool>()->zero_tokens(), "Generate volumes for adjacent pair registration")
+      ("HiResPairTransforms", po::value<string>(), "directory containing HiRes pair transforms")
   ;
   
   po::positional_options_description p;
@@ -202,8 +203,8 @@ shared_ptr< StackType > buildAdjacentStack(StackType::SliceVectorType image, con
   Load(originalStack, Dirs::HiResTransformsDir() + transform + "/");
   
   // move stack origins to ROI
-  // itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation(roi) - StackTransforms::GetLoResTranslation("whole_heart");
-  // StackTransforms::Translate(*originalStack, translation);
+  itk::Vector< double, 2 > translation = StackTransforms::GetLoResTranslation("ROI") - StackTransforms::GetLoResTranslation("whole_heart");
+  StackTransforms::Translate(originalStack, translation);
   
   // build stack of resampled slice
   originalStack.updateVolumes();
