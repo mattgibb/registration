@@ -130,4 +130,8 @@ ADD_EXECUTABLE(BuildRedBlueChannelComparison BuildRedBlueChannelComparison.cxx )
 TARGET_LINK_LIBRARIES(BuildRedBlueChannelComparison ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(BuildVolumeFromSlices BuildVolumeFromSlices.cxx )
+TARGET_LINK_LIBRARIES(BuildVolumeFromSlices ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
