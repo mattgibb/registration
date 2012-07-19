@@ -129,6 +129,30 @@ class Bin < Jobs
     end
   end
   
+  desc "build_hires_colour_volume", "build really big hires colour volume slice-by-slice and then reassemble it afterwards, to minimise peak memory usage"
+  def build_hires_colour_volume(dataset, output_dir, hires_transforms_dir)
+    list = image_list dataset
+    
+    command = lambda do |slice, i|
+      "#{build_dir}/BuildColourVolume #{dataset} #{output_dir} -L " +
+      "--hiResTransformsDir #{hires_transforms_dir} " +
+      "--slice #{slice} " +
+      "--hiResName HiRes_%03d.mha"%i
+    end
+    
+    # resample each slice separately
+    list.each_with_index do |slice, i|
+      run command.call(slice, i+1), :capture => false
+    end
+    
+    # reconstruct volume
+    output_path = File.join results_path(dataset, output_dir), hires_transforms_dir
+    run "BuildVolumeFromSlices #{list.length} #{output_path}/{HiRes_%03d.mha,HiRes.mha}"
+    
+    # remove temparary slices
+    list.length.times {|n| rm_rf File.join(output_path, "HiRes_%03d.mha" % (i+1) )}
+  end
+  
   private
   def downsample_suffix
     ratios_file = File.join PROJECT_ROOT, 'config/dummy/downsample_ratios.yml'
