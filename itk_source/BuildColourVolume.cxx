@@ -37,13 +37,10 @@ int main(int argc, char *argv[]) {
   bool LoRes = !vm.count("no-LoRes");
   bool HiRes = !vm["no-HiRes"].as<bool>();
   string roi = vm["roi"].as<string>();
-  
-  // info
-  if(LoRes) 
-  if(HiRes) cout << "Building HiRes Volume." << endl;
+  string hiResName = vm["hiResName"].as<string>();
   
   // get file names
-  vector< string > basenames = getBasenames(Dirs::ImageList());
+  vector< string > basenames = vm.count("slice") ? vector<string>( 1, vm["slice"].as<string>() ) : getBasenames(Dirs::ImageList());
   vector< string > LoResFilePaths, HiResFilePaths;
 	
   // initialise stacks with correct spacings, sizes, transforms etc
@@ -98,13 +95,13 @@ int main(int argc, char *argv[]) {
     if(vm.count("hiResTransformsDir")) // just process single directory from command line
     {
       cout << "Saving HiRes volume..." << flush;
-      string dir = Dirs::ResultsDir() + vm["hiResTransformsDir"].as<string>();
+      string dir = Dirs::ResultsDir() + vm["hiResTransformsDir"].as<string>() + "/";
       Load(*HiResStack, dir);
       // move stack origins to ROI
       StackTransforms::Translate(*HiResStack, translation);
       // generate and save images
       HiResStack->updateVolumes();
-      writeImage< StackType::VolumeType >( HiResStack->GetVolume(), dir + "/HiRes.mha");
+      writeImage< StackType::VolumeType >( HiResStack->GetVolume(), dir + hiResName);
       
     }
     else // process all three transform optimisations
@@ -139,10 +136,12 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("help,h", "produce help message")
       ("dataSet", po::value<string>(), "which rat to use")
       ("outputDir", po::value<string>(), "directory to source transforms and place results")
+      ("slice", po::value<string>(), "basename of single slice to build")
       ("roi", po::value<string>()->default_value("ROI"), "set region of interest")
       ("loResTransformsDir", po::value<string>(), "directory containing LoRes transform files, relative to ResultsDir")
       ("hiResTransformsDir", po::value<string>(), "directory containing HiRes transform files, relative to ResultsDir")
       ("blockDir", po::value<string>(), "directory containing LoRes originals")
+      ("hiResName", po::value<string>()->default_value("HiRes.mha"), "name of the HiRes output file")
       ("defaultPixelValue", po::value<unsigned int>()->default_value(255), "value applied to pixels outside the moving image")
 
       // three different ways of not specifying value for flag
@@ -155,7 +154,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
   
   po::positional_options_description p;
   p.add("dataSet", 1)
-   .add("outputDir", 1);
+   .add("outputDir", 1)
+   .add("slice", 1);
   
   // parse command line
   po::variables_map vm;
@@ -178,7 +178,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
   // if help is specified, or positional args aren't present
   if (vm.count("help") || !vm.count("dataSet") || !vm.count("outputDir")) {
     cerr << "Usage: "
-      << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [Options]"
+      << argv[0] << " [--dataSet=]RatX [--outputDir=]my_dir [[--slice=]0001] [Options]"
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);
