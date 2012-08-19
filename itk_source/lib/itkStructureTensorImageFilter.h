@@ -6,7 +6,6 @@
 
 namespace itk
 {
-
 /** \class StructureTensorImageFilter
  * \brief Constructs a structure tensor for each voxel.
  *
@@ -26,22 +25,22 @@ public:
 
 	/** Method for creation through the object factory. */
 	itkNewMacro(Self);
-
+  
 	/** Run-time type information (and related methods). */
 	itkTypeMacro(itkStructureTensorImageFilter, ImageToImageFilter);
   
-	itkSetMacro(Sigma, unsigned int);
-	itkGetConstMacro(Sigma, const unsigned int);
-
+	itkSetMacro(Sigma, double);
+	itkGetConstMacro(Sigma, const double);
+  
 protected:
 	itkStructureTensorImageFilter()
 	{
-		m_Sigma=2;
+		m_Sigma=1.0;
 	}
 	~itkStructureTensorImageFilter(){}
-
+  
 	virtual void GenerateData();
-
+  
 	class CovariantVectorToTensorFunctor
 	{
 	public:
@@ -59,7 +58,7 @@ private:
 	itkStructureTensorImageFilter(const Self &); //purposely not implemented
 	void operator=(const Self &);  //purposely not implemented
 
-	unsigned int m_Sigma;
+	double m_Sigma;
 };
 } //namespace ITK
 
