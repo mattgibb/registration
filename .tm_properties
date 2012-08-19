@@ -1,1 +1,2 @@
-exclude="{image_processing,images,itk_release,results,.tm_properties,LICENSE}"
+exclude="{$exclude,image_processing,images,itk_release,results,LICENSE}"
+include=""
