@@ -1,0 +1,1 @@
+exclude="{image_processing,images,itk_release,results,.tm_properties,LICENSE}"
