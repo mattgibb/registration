@@ -93,7 +93,7 @@ class Bin < Jobs
       # copy parameters file to results
       run "cp #{File.join PROJECT_ROOT, 'config', dataset, 'HiRes_pair_parameters.yml'} #{hires_pairs_path}", :capture => false
       
-      # build colour volume of new results
+      # build colour volume of new results
       invoke :compute_adjusted_transforms
       run "#{build_dir}/BuildColourVolume #{dataset} #{output_dir} -L --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i - 1}", :capture => false
     end
@@ -129,7 +129,7 @@ class Bin < Jobs
     end
   end
   
-  desc "build_hires_colour_volume", "build really big hires colour volume slice-by-slice and then reassemble it afterwards, to minimise peak memory usage"
+  desc "build_hires_colour_volume DATASET OUTPUT_DIR HIRES_TRANSFORMS_DIR", "build really big hires colour volume slice-by-slice and then reassemble it afterwards, to minimise peak memory usage"
   def build_hires_colour_volume(dataset, output_dir, hires_transforms_dir)
     list = image_list dataset
     
@@ -149,7 +149,7 @@ class Bin < Jobs
     output_path = File.join results_path(dataset, output_dir), hires_transforms_dir
     run "BuildVolumeFromSlices #{list.length} #{output_path}/{HiRes_%03d.mha,HiRes.mha}"
     
-    # remove temparary slices
+    # remove temporary slices
     list.length.times {|n| rm_rf File.join(output_path, "HiRes_%03d.mha" % (i+1) )}
   end
   
