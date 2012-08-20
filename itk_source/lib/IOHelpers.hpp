@@ -154,7 +154,7 @@ void writeImage(const typename ImageType::ConstPointer image, const string& file
   typename WriterType::Pointer writer = WriterType::New();
 	
 	writer->SetInput( image );
-  // writer->AddTransform( anotherTransform ); // only applies to writing transforms
+  writer->UseCompressionOn();
   
   writer->SetFileName( fileName.c_str() );
 	
