@@ -1,0 +1,36 @@
+#!/bin/bash
+#PBS -V
+#PBS -l walltime=3:00:00
+#PBS -l ncpus=8
+#PBS -N colour_volume
+
+cd $PBS_O_WORKDIR
+
+export PROJECT_ROOT='/home/comp-card/mattgibb/registration'
+export BIN_DIR="$PROJECT_ROOT/itk_release_sal"
+export OUTPUT_DIR="$PROJECT_ROOT/results/Rat28/bottom_vessels/HiResPairs/AdjustedTransforms/CenteredAffineTransform_20"
+
+# get unique list of slices
+function image_list() {
+  cat $PROJECT_ROOT/config/Rat28/image_lists/image_list.txt | uniq
+}
+
+# build each colour slice
+i=1
+for slice in `image_list`; do
+  $BIN_DIR/BuildColourVolume Rat28 bottom_vessels -L \
+    --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_20 \
+    --slice $slice \
+    --hiResName HiRes_`printf %03d $i`.mhz
+  ((i++))
+done
+
+# reconstruct volume
+$BIN_DIR/BuildVolumeFromSlices $i $OUTPUT_DIR/{HiRes_%03d.mhz,HiRes.mhz}
+    
+# remove temporary slices
+for(j=1; j<=i; j++); do
+  rm $OUTPUT_DIR/HiRes_`printf %03d $j`.mhz
+done
+
+echo "finished."
