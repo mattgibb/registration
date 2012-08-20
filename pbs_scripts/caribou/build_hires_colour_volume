@@ -26,10 +26,10 @@ for slice in `image_list`; do
 done
 
 # reconstruct volume
-$BIN_DIR/BuildVolumeFromSlices $i $OUTPUT_DIR/{HiRes_%03d.mha,HiRes.mha}
+$BIN_DIR/BuildVolumeFromSlices $((i-1)) $OUTPUT_DIR/{HiRes_%03d.mha,HiRes.mha}
     
 # remove temporary slices
-for(j=1; j<=i; j++); do
+for ((j=1; j<i; j++)); do
   rm $OUTPUT_DIR/HiRes_`printf %03d $j`.mha
 done
 
