@@ -14,9 +14,6 @@ po::variables_map parse_arguments(int argc, char *argv[]);
 
 int main( int argc, char ** argv )
 {
-  // set dataset, in order to use getSpacings
-  
-  
   // Parse command line arguments
   po::variables_map vm = parse_arguments(argc, argv);
   
@@ -47,7 +44,7 @@ int main( int argc, char ** argv )
   
   ImageType::Pointer output = zScaler->GetOutput();
   writeImage<ImageType>(output, vm["outputFile"].as<string>() );
-
+  
   return EXIT_SUCCESS;
 }
 
@@ -58,8 +55,8 @@ po::variables_map parse_arguments(int argc, char *argv[])
   opts.add_options()
       ("help,h", "produce help message")
       ("numberOfSlices,n", po::value<unsigned int>(), "number of input files")
-      ("inputSeriesFormat", po::value<string>()->default_value("HiRes_%03d.mha"), "format of image series file names")
-      ("outputFile", po::value<string>()->default_value("HiRes.mha"), "name of output volume")
+      ("inputSeriesFormat", po::value<string>()->default_value("HiRes_%03d.mhz"), "format of image series file names")
+      ("outputFile", po::value<string>()->default_value("HiRes.mhz"), "name of output volume")
       ("zSpacing", po::value<double>()->default_value(10.0), "spacing in microns between slices")
   ;
   
