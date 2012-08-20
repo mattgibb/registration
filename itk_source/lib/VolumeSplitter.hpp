@@ -113,7 +113,7 @@ void VolumeSplitter< PixelType >::Split()
 template <typename PixelType>
 void VolumeSplitter< PixelType >::ExtractAndSaveSlice(unsigned int n)
 {
-  cerr << "slice " << setw(3) << n << ": ";
+  cerr << "slice " << setw(4) << n << ": ";
 
   // set up extraction region
   typename VolumeType::SizeType size = m_volume->GetLargestPossibleRegion().GetSize();
@@ -149,7 +149,7 @@ void VolumeSplitter< PixelType >::ExtractAndSaveSlice(unsigned int n)
              // leading zeros
              << setfill('0')
              // 4 digits wide
-             << setw(3)
+             << setw(4)
              << n
              << "."
              << m_vm["outputExtension"].template as<string>();
