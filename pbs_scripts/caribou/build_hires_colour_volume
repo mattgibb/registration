@@ -21,16 +21,21 @@ for slice in `image_list`; do
   $BIN_DIR/BuildColourVolume Rat28 bottom_vessels -L \
     --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_20 \
     --slice $slice \
-    --hiResName HiRes_`printf %03d $i`.mhz
+    --hiResName HiRes_`printf %03d $i`.mha
   ((i++))
 done
 
 # reconstruct volume
-$BIN_DIR/BuildVolumeFromSlices $i $OUTPUT_DIR/{HiRes_%03d.mhz,HiRes.mhz}
+$BIN_DIR/BuildVolumeFromSlices $i $OUTPUT_DIR/{HiRes_%03d.mha,HiRes.mha}
     
 # remove temporary slices
 for(j=1; j<=i; j++); do
-  rm $OUTPUT_DIR/HiRes_`printf %03d $j`.mhz
+  rm $OUTPUT_DIR/HiRes_`printf %03d $j`.mha
+done
+
+# split volumes into slices
+for dim in 0 1; do
+  $BIN_DIR/SplitVolumeIntoSlices $OUTPUT_DIR/{HiRes.mha,HiRes_$dim} -d $dim -e tiff --latex
 done
 
 echo "finished."
