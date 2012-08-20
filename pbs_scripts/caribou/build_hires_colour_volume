@@ -16,23 +16,20 @@ function image_list() {
 }
 
 # build each colour slice
+mkdir HiRes_2
+
 i=1
 for slice in `image_list`; do
   $BIN_DIR/BuildColourVolume Rat28 bottom_vessels -L \
     --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_20 \
     --slice $slice \
-    --hiResName HiRes_`printf %03d $i`.mha
+    --hiResName HiRes_2/`printf %03d $i`.tiff
   ((i++))
 done
 
 # reconstruct volume
-$BIN_DIR/BuildVolumeFromSlices $((i-1)) $OUTPUT_DIR/{HiRes_%03d.mha,HiRes.mha}
+$BIN_DIR/BuildVolumeFromSlices $((i-1)) $OUTPUT_DIR/{HiRes_2/%03d.tiff,HiRes.mha}
     
-# remove temporary slices
-for ((j=1; j<i; j++)); do
-  rm $OUTPUT_DIR/HiRes_`printf %03d $j`.mha
-done
-
 # split volumes into slices
 for dim in 0 1; do
   $BIN_DIR/SplitVolumeIntoSlices $OUTPUT_DIR/{HiRes.mha,HiRes_$dim} -d $dim -e tiff --latex
