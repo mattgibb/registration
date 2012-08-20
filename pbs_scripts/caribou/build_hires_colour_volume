@@ -16,7 +16,7 @@ function image_list() {
 }
 
 # build each colour slice
-mkdir HiRes_2
+mkdir $OUTPUT_DIR/HiRes_2
 
 i=1
 for slice in `image_list`; do
