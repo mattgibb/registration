@@ -6,9 +6,13 @@
 
 cd $PBS_O_WORKDIR
 
+echo output dir: $1
+echo output subdir: $2
+export OUTPUT_DIR=$1
+export OUTPUT_SUBDIR=$2
 export PROJECT_ROOT='/home/comp-card/mattgibb/registration'
 export BIN_DIR="$PROJECT_ROOT/itk_release_sal"
-export OUTPUT_DIR="$PROJECT_ROOT/results/Rat28/bottom_vessels/HiResPairs/AdjustedTransforms/CenteredAffineTransform_20"
+export OUTPUT_PATH="$PROJECT_ROOT/results/Rat28/$OUTPUT_DIR/$OUTPUT_SUBDIR"
 
 # get unique list of slices
 function image_list() {
@@ -16,23 +20,23 @@ function image_list() {
 }
 
 # build each colour slice
-mkdir $OUTPUT_DIR/HiRes_2
+mkdir $OUTPUT_PATH/HiRes_2
 
 i=1
 for slice in `image_list`; do
-  $BIN_DIR/BuildColourVolume Rat28 bottom_vessels -L \
-    --hiResTransformsDir HiResPairs/AdjustedTransforms/CenteredAffineTransform_20 \
+  $BIN_DIR/BuildColourVolume Rat28 $OUTPUT_DIR -L \
+    --hiResTransformsDir $OUTPUT_SUBDIR \
     --slice $slice \
     --hiResName HiRes_2/`printf %03d $i`.tiff
   ((i++))
 done
 
 # reconstruct volume
-$BIN_DIR/BuildVolumeFromSlices $((i-1)) $OUTPUT_DIR/{HiRes_2/%03d.tiff,HiRes.mha}
+$BIN_DIR/BuildVolumeFromSlices $((i-1)) $OUTPUT_PATH/{HiRes_2/%03d.tiff,HiRes.mha}
     
 # split volumes into slices
 for dim in 0 1; do
-  $BIN_DIR/SplitVolumeIntoSlices $OUTPUT_DIR/{HiRes.mha,HiRes_$dim} -d $dim -e tiff --latex
+  $BIN_DIR/SplitVolumeIntoSlices $OUTPUT_PATH/{HiRes.mha,HiRes_$dim} -d $dim -e tiff --latex
 done
 
 echo "finished."
