@@ -30,8 +30,10 @@ int main( int argc, char ** argv )
   nameGenerator->SetIncrementIndex( 1 );
   nameGenerator->SetSeriesFormat( vm["inputSeriesFormat"].as<string>() );
   seriesReader->SetFileNames( nameGenerator->GetFileNames() );
+  cerr << "Reading images..." << flush;
   seriesReader->Update();
-  
+  cerr << "done." << endl;
+
   ImageType::Pointer input = seriesReader->GetOutput();
   ImageType::SpacingType spacing = input->GetSpacing();
   spacing[2] = vm["zSpacing"].as<double>();
@@ -43,7 +45,9 @@ int main( int argc, char ** argv )
   zScaler->SetInput(input);
   
   ImageType::Pointer output = zScaler->GetOutput();
+  cerr << "Writing volume..." << flush;
   writeImage<ImageType>(output, vm["outputFile"].as<string>() );
+  cerr << "done." << endl;
   
   return EXIT_SUCCESS;
 }
