@@ -12,11 +12,11 @@ namespace itk
  * \ingroup ImageFilters
  */
 template< class TInputImage >
-class itkStructureTensorImageFilter:public ImageToImageFilter< TInputImage, Image<SymmetricSecondRankTensor<float, TInputImage::ImageDimension>, TInputImage::ImageDimension> >
+class StructureTensorImageFilter:public ImageToImageFilter< TInputImage, Image<SymmetricSecondRankTensor<float, TInputImage::ImageDimension>, TInputImage::ImageDimension> >
 {
 public:
 	/** Standard class typedefs. */
-	typedef itkStructureTensorImageFilter             Self;
+	typedef StructureTensorImageFilter             Self;
 	typedef ImageToImageFilter< TInputImage, Image<SymmetricSecondRankTensor<float, TInputImage::ImageDimension>, TInputImage::ImageDimension> > Superclass;
 	typedef SmartPointer< Self >        Pointer;
 	typedef Image<SymmetricSecondRankTensor<float, TInputImage::ImageDimension>, TInputImage::ImageDimension>	OutputImageType;
@@ -27,17 +27,17 @@ public:
 	itkNewMacro(Self);
   
 	/** Run-time type information (and related methods). */
-	itkTypeMacro(itkStructureTensorImageFilter, ImageToImageFilter);
+	itkTypeMacro(StructureTensorImageFilter, ImageToImageFilter);
   
 	itkSetMacro(Sigma, double);
 	itkGetConstMacro(Sigma, const double);
   
 protected:
-	itkStructureTensorImageFilter()
+	StructureTensorImageFilter()
 	{
 		m_Sigma=1.0;
 	}
-	~itkStructureTensorImageFilter(){}
+	~StructureTensorImageFilter(){}
   
 	virtual void GenerateData();
   
@@ -55,7 +55,7 @@ protected:
 	};
 
 private:
-	itkStructureTensorImageFilter(const Self &); //purposely not implemented
+	StructureTensorImageFilter(const Self &); //purposely not implemented
 	void operator=(const Self &);  //purposely not implemented
 
 	double m_Sigma;

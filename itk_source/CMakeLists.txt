@@ -134,4 +134,8 @@ ADD_EXECUTABLE(BuildVolumeFromSlices BuildVolumeFromSlices.cxx )
 TARGET_LINK_LIBRARIES(BuildVolumeFromSlices ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(ApplyStructureTensor ApplyStructureTensor.cxx )
+TARGET_LINK_LIBRARIES(ApplyStructureTensor ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
