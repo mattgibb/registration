@@ -1,9 +1,11 @@
-﻿// extracts the largest eigenvector at each pixel from a tensor image
+﻿// extracts the absolute magnitude of each component
+// of the largest eigenvector at each pixel from a tensor image
 
 #ifndef __itkExtractLargestEigenvectorFilter_h
 #define __itkExtractLargestEigenvectorFilter_h
 
 #include <itkImageToImageFilter.h>
+#include <itkVectorImage.h>
 
 namespace itk
 {
@@ -46,8 +48,9 @@ protected:
       typename TensorType::EigenVectorsMatrixType vectors;
       in.ComputeEigenAnalysis(values, vectors);
       
+      // return the absolute magnitude of components of vector * eigenvalue
 			for (unsigned i=0; i<TensorImage::ImageDimension; i++)
-        result[i]=vectors(TensorImage::ImageDimension-1,i);
+        result[i]=abs(vectors(TensorImage::ImageDimension-1,i) * values[TensorImage::ImageDimension-1]);
 			return result;
 		}
 	};
