@@ -27,11 +27,12 @@ void apply_structure_tensor(const string& input, const string& output)
   cout << "Calculating structure tensor image..." << flush;
   filter->Update();
   cout << "done." << endl;
-  typedef typename FilterType::OutputImageType TensorType;
-  typename TensorType::Pointer tensorImage = filter->GetOutput();
+  
+  typedef typename FilterType::OutputImageType TensorImageType;
+  typename TensorImageType::Pointer tensorImage = filter->GetOutput();
   
   cout << "Writing image..." << flush;
-  writeImage< TensorType >(tensorImage, output);
+  writeImage< TensorImageType >(tensorImage, output);
   cout << "done." << endl;
 }
 
@@ -94,11 +95,10 @@ po::variables_map parse_arguments(int argc, char *argv[])
   // if help is specified, or positional args aren't present
   if(vm.count("help") ||
     !vm.count("inputImage") ||
-    !vm.count("outputImage") ||
-    !vm.count("dimension")) {
+    !vm.count("outputImage")) {
     cerr << "Usage: "
       << argv[0] << " [--inputImage=]big.bmp [--outputImage=]small.bmp "
-      << "[--dimension=]2 "
+      << "[[--dimension=]2] "
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);

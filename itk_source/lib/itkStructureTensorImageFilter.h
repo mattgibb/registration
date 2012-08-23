@@ -17,11 +17,11 @@ class StructureTensorImageFilter:public ImageToImageFilter< TInputImage, Image<S
 public:
 	/** Standard class typedefs. */
 	typedef StructureTensorImageFilter             Self;
-	typedef ImageToImageFilter< TInputImage, Image<SymmetricSecondRankTensor<float, TInputImage::ImageDimension>, TInputImage::ImageDimension> > Superclass;
-	typedef SmartPointer< Self >        Pointer;
-	typedef Image<SymmetricSecondRankTensor<float, TInputImage::ImageDimension>, TInputImage::ImageDimension>	OutputImageType;
-	typedef CovariantVector<float, TInputImage::ImageDimension> CVector;
 	typedef SymmetricSecondRankTensor<float, TInputImage::ImageDimension> TensorType;
+	typedef ImageToImageFilter< TInputImage, Image<TensorType, TInputImage::ImageDimension> > Superclass;
+	typedef SmartPointer< Self >        Pointer;
+	typedef Image<TensorType, TInputImage::ImageDimension> OutputImageType;
+	typedef CovariantVector<float, TInputImage::ImageDimension> CVector;
 
 	/** Method for creation through the object factory. */
 	itkNewMacro(Self);
