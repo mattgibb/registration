@@ -2,6 +2,7 @@
 #include "boost/program_options.hpp"
 
 #include "itkRGBPixel.h"
+#include "itkCovariantVector.h"
 
 // my files
 #include "VolumeSplitter.hpp"
@@ -22,6 +23,12 @@ int main( int argc, char *argv[] )
   if(vm["pixelType"].as<string>() == "rgb")
   {
     VolumeSplitter< itk::RGBPixel< unsigned char > > splitter(vm);
+    splitter.Split();
+  }
+  
+  if(vm["pixelType"].as<string>() == "covariantVector")
+  {
+    VolumeSplitter< itk::CovariantVector< float > > splitter(vm);
     splitter.Split();
   }
   
