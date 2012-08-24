@@ -3,9 +3,7 @@
 
 // itk
 #include "itkImage.h"
-#include "itkImageRegionConstIterator.h"
 #include "itkScalarToRGBColormapImageFilter.h"
-#include "itkRescaleIntensityImageFilter.h"
 #include "itkImageFileWriter.h"
 #include "itkRGBPixel.h"
 
@@ -24,20 +22,10 @@ int main( int argc, char *argv[])
   typedef itk::RGBPixel<unsigned char>    RGBPixelType;
   typedef itk::Image<RGBPixelType, 2>  RGBImageType;
   typedef itk::Image<float, 2>  FloatImageType;
-  typedef itk::Image<unsigned char, 2>  UnsignedCharImageType;
- 
+  
   // read in scalar image
   FloatImageType::Pointer image = readImage<FloatImageType>(vm["inputImage"].as<string>());
-  typedef itk::RescaleIntensityImageFilter< FloatImageType, UnsignedCharImageType > RescaleFilterType;
-  RescaleFilterType::Pointer rescaleFilter = RescaleFilterType::New();
-  rescaleFilter->SetInput(image);
-  rescaleFilter->SetOutputMinimum(0);
-  rescaleFilter->SetOutputMaximum(vm["maximumIntensity"].as<unsigned int>());
-  rescaleFilter->Update();
   
-  UnsignedCharImageType::Pointer intensity = rescaleFilter->GetOutput();
-  writeImage<UnsignedCharImageType>(intensity, vm["outputIntensity"].as<string>());
- 
   typedef itk::ScalarToRGBColormapImageFilter<FloatImageType, RGBImageType> RGBFilterType;
   RGBFilterType::Pointer rgbFilter = RGBFilterType::New();
   rgbFilter->SetInput(image);
@@ -56,16 +44,12 @@ po::variables_map parse_arguments(int argc, char *argv[])
   opts.add_options()
       ("help,h", "produce help message")
       ("inputImage", po::value<string>(), "input scalar image")
-      ("outputIntensity", po::value<string>(), "output intensity")
-      ("outputColormap", po::value<string>(), "output colormap")
-      ("maximumIntensity", po::value<unsigned int>()->default_value(255), "limit of intensity scaling")
+      ("outputImage", po::value<string>(), "output colormap")
   ;
   
   po::positional_options_description p;
   p.add("inputImage", 1)
-   .add("outputIntensity", 1)
-   .add("outputColormap", 1)
-   .add("maximumIntensity", 1)
+   .add("outputImage", 1)
      ;
   
   // parse command line
@@ -89,11 +73,9 @@ po::variables_map parse_arguments(int argc, char *argv[])
   // if help is specified, or positional args aren't present
   if(vm.count("help") ||
   !vm.count("inputImage") ||
-  !vm.count("outputIntensity") ||
-  !vm.count("outputColormap")) {
+  !vm.count("outputImage")) {
     cerr << "Usage: "
-      << argv[0] << " [--inputImage=]scalar.mha [--outputIntensity=]intensity.png "
-      << "[--outputColormap=]colormap.png [[--maximumIntensity=]100] "
+      << argv[0] << " [--inputImage=]scalar.mha [--outputIntensity=]colormap.png "
       << endl << endl;
     cerr << opts << "\n";
     exit(EXIT_FAILURE);

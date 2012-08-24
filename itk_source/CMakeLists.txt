@@ -146,4 +146,12 @@ ADD_EXECUTABLE(ConvertScalarToRGBColormap ConvertScalarToRGBColormap.cxx )
 TARGET_LINK_LIBRARIES(ConvertScalarToRGBColormap ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(BuildRGBImage BuildRGBImage.cxx )
+TARGET_LINK_LIBRARIES(BuildRGBImage ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
+ADD_EXECUTABLE(RescaleIntensity RescaleIntensity.cxx )
+TARGET_LINK_LIBRARIES(RescaleIntensity ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
