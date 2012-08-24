@@ -1,5 +1,5 @@
 // Extract absolute magnitudes of components of largest eigenvector
-// of a tensor image, then apply colormaps to each component
+// of a tensor image
 
 // boost
 #include "boost/program_options.hpp"
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     EigenFilterType::VectorImageType,
     ScalarImageType>
       ComponentExtractorType;
-
+  
   ComponentExtractorType::Pointer componentExtractor = ComponentExtractorType::New();
   componentExtractor->SetInput(eigenFilter->GetOutput());
   

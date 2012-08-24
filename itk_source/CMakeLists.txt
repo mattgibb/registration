@@ -142,4 +142,8 @@ ADD_EXECUTABLE(ExtractLargestEigenvectorComponentsFromTensor ExtractLargestEigen
 TARGET_LINK_LIBRARIES(ExtractLargestEigenvectorComponentsFromTensor ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(ConvertScalarToRGBColormap ConvertScalarToRGBColormap.cxx )
+TARGET_LINK_LIBRARIES(ConvertScalarToRGBColormap ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
