@@ -3,12 +3,12 @@ normalizeImages: false
 optimizer:
   maximize: off
   scale:
-    translation: 0.000005 # What is an appropriate 2D translation scale?
+    translation: 0.00005 # What is an appropriate 2D translation scale?
     rotation: 300
     size: 300
   maxIterations: 300
   regularStepGradientDescent:
-    relaxationFactor: 0.7
+    relaxationFactor: 0.85
     maxStepLength: 3
     minStepLength: 0.05
     gradientMagnitudeTolerance: 5000
