@@ -1,2 +1,2 @@
 exclude = "*"
-include = "Rat28{,/**}"
+include = "{dummy,Rat28}{,/**}"
