@@ -1,1 +1,1 @@
-full_curated_list.txt
+bottom_vessels.txt
