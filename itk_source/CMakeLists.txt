@@ -154,4 +154,8 @@ ADD_EXECUTABLE(RescaleIntensity RescaleIntensity.cxx )
 TARGET_LINK_LIBRARIES(RescaleIntensity ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(CalculateGroundTruthError CalculateGroundTruthError.cxx )
+TARGET_LINK_LIBRARIES(CalculateGroundTruthError ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
