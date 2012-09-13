@@ -91,13 +91,18 @@ int main( int argc, char ** argv )
     calculator->SetImage(images[i]);
     calculator->Compute();
     
-    cerr << "calculator->GetTotalMass():\n" << calculator->GetTotalMass() << endl;
+    CalculatorType::VectorType principalMoments = calculator->GetPrincipalMoments();
+    CalculatorType::ScalarType mass = calculator->GetTotalMass();
+    double eigenMean = sqrt(principalMoments[0] * principalMoments[1] / mass / mass);
+    
+    cerr << "calculator->GetTotalMass():\n" << mass << endl;
     cerr << "calculator->GetFirstMoments():\n" << calculator->GetFirstMoments() << endl;
     cerr << "calculator->GetSecondMoments():\n" << calculator->GetSecondMoments() << endl;
     cerr << "calculator->GetCenterOfGravity():\n" << calculator->GetCenterOfGravity() << endl;
     cerr << "calculator->GetCentralMoments():\n" << calculator->GetCentralMoments() << endl;
-    cerr << "calculator->GetPrincipalMoments():\n" << calculator->GetPrincipalMoments() << endl;
+    cerr << "calculator->GetPrincipalMoments():\n" << principalMoments << endl;
     cerr << "calculator->GetPrincipalAxes():\n" << calculator->GetPrincipalAxes() << endl;
+    cerr << "geometric mean of principal eigenvalues: " << eigenMean << endl;
     cerr << endl << endl;
   }
   
