@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     StackType::TransformType::ParametersType scalings(8);
     scalings[0] = scalings[1] = scalings[2] = scalings[3] = 0.1; // matrix params
     scalings[4] = scalings[5] = 0;                                // centre of rotation params
-    scalings[6] = scalings[7] = 500;                              // translation params
+    scalings[6] = scalings[7] = 1000;                              // translation params
     
     if(vm.count("noise"))
     {
