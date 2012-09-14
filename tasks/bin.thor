@@ -54,7 +54,7 @@ class Bin < Jobs
     hires_pairs_path = File.join results_path(dataset, output_dir), "HiResPairs"
     
     unless fixed_basename
-      return unless yes?("Are you sure you want to clear the old results?")
+      # return unless yes?("Are you sure you want to clear the old results?")
       
       # clear any old results
       %W(FinalTransforms IntermediateTransforms MetricValues OutputVolumes).each do |dir|
@@ -153,15 +153,25 @@ class Bin < Jobs
     list.length.times {|n| rm_rf File.join(output_path, "HiRes_%03d.mha" % (i+1) )}
   end
   
-  desc "calculate_ground_truth_errors DIR1 DIR2 OUTPUT", "calculate mean mask pixel distances between pairs of transforms in 2 directories"
-  def calculate_ground_truth_errors(dir1, dir2, output)
+  desc "calculate_ground_truth_errors OUTPUT_DIR ITERATION", "calculate mean mask pixel distances between pairs of transforms in 2 directories"
+  def calculate_ground_truth_errors(output_dir, i)
+    # set up variables
     mask = File.join results_path('dummy', 'moments'), "HiResTransforms_1_8/CenteredRigid2DTransform/HiRes.mha"
-    File.open output, 'w' do |f|
+    perfect_dir = File.join results_path('dummy', "perfect_#{output_dir}"), "HiResTransforms_1_8/CenteredAffineTransform"
+    noisy_dir   = File.join results_path('dummy', output_dir),              "HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i}"
+    errors_dir  = File.join results_path('dummy', output_dir), "HiResPairs/GroundTruthErrors/"
+    errors_file = File.join errors_dir, i
+    
+    # create output directory if it doesn't already exist
+    mkdir_p errors_dir
+    
+    # 
+    File.open errors_file, 'w' do |f|
       image_list('dummy').each do |transform|
         puts "transform: #{transform}"
-        transform1 = File.join dir1, transform
-        transform2 = File.join dir2, transform
-        f.write `CalculateGroundTruthError #{mask} #{transform1} #{transform2}`
+        perfect_transform = File.join perfect_dir, transform
+        noisy_transform   = File.join noisy_dir,   transform
+        f.write `CalculateGroundTruthError #{mask} #{perfect_transform} #{noisy_transform}`
       end
     end
   end
