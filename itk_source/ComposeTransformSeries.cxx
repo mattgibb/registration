@@ -55,9 +55,8 @@ int main(int argc, char *argv[]) {
   typedef itk::MatrixOffsetTransformBase< double, 2, 2 > ComposableTransformType;
   typedef itk::AffineTransform< double, 2 > AffineTransformType;
   
-  // the first and last slices should not have adjustments
-  // apply adjustments for every other slice
-  for(unsigned int i=1; i < originalPaths.size() - 1; ++i)
+  // apply adjustments for every slice
+  for(unsigned int i=0; i < originalPaths.size(); ++i)
   {
     // check that transforms are of the right dynamic type
     itk::TransformBase::Pointer bpOriginalTransform = readTransform(originalPaths[i]);
@@ -83,10 +82,6 @@ int main(int argc, char *argv[]) {
     // save output transform
     writeTransform(adjustedTransform, adjustedPaths[i]);
   }
-  
-  // write out the unaltered first and last transforms
-  copy_file( *(originalPaths.begin()), *(adjustedPaths.begin()) );
-  copy_file( *(--originalPaths.end()), *(--adjustedPaths.end()) );
   
   return EXIT_SUCCESS;
 }

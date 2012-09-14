@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
   const string transformsName = vm["transformsName"].as<string>();
+  const double alpha = vm["alpha"].as<double>();
   
   // set up pair transforms paths
   const string pairTransformsDir = Dirs::ResultsDir() + "HiResPairs/FinalTransforms/" + transformsName;
@@ -52,6 +53,7 @@ int main(int argc, char *argv[]) {
   remove_all(diffusionTransformsDir);
   create_directories(diffusionTransformsDir);
   
+  // first for middle transforms...
   for(unsigned int i=0; i<pairTransformPaths.size()-1; ++i)
   {
     // make sure two transforms share the same slice
@@ -65,12 +67,29 @@ int main(int argc, char *argv[]) {
     TransformType::Pointer meanTransform      = interpolateTransforms(belowTransform, aboveTransform, 0.5);
     // interpolate by alpha from identity transform to meanTransform
     TransformType::Pointer diffusionTransform = TransformType::New();
-    diffusionTransform = interpolateTransforms(diffusionTransform, meanTransform, 2 * vm["alpha"].as<double>());
+    diffusionTransform = interpolateTransforms(diffusionTransform, meanTransform, 2 * alpha);
     
     // write transform
     string diffusionTransformPath = diffusionTransformsDir + pairTransformBasenames[i].substr(5,4);
     writeTransform(diffusionTransform, diffusionTransformPath);
   }
+  
+  // ...then for boundary transforms. Since the boundary slices
+  // are just as likely to contain transformational noise, they are not fixed,
+  // but instead diffuse toward their single neighbour, analagously to
+  // zero-Neumann boundary conditions
+  TransformType::Pointer bottomDiffusionTransform = TransformType::New();
+  TransformType::Pointer topDiffusionTransform    = TransformType::New();
+  TransformType::Pointer aboveBottomTransform     = pairTransforms[0];
+  TransformType::Pointer belowTopTransform        = TransformType::New();
+  pairTransforms[pairTransformPaths.size()-1]->GetInverse(belowTopTransform);
+  
+  bottomDiffusionTransform = interpolateTransforms(bottomDiffusionTransform, aboveBottomTransform, alpha);
+  topDiffusionTransform    = interpolateTransforms(topDiffusionTransform,    belowTopTransform,    alpha);
+  string bottomDiffusionTransformPath = diffusionTransformsDir + pairTransformBasenames[0].substr(0,4);
+  string topDiffusionTransformPath    = diffusionTransformsDir + pairTransformBasenames[pairTransformPaths.size()-1].substr(5,4);
+  writeTransform(bottomDiffusionTransform, bottomDiffusionTransformPath);
+  writeTransform(topDiffusionTransform,    topDiffusionTransformPath   );
   
   return EXIT_SUCCESS;
 }
