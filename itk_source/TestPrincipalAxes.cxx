@@ -93,7 +93,7 @@ int main( int argc, char ** argv )
     
     CalculatorType::VectorType principalMoments = calculator->GetPrincipalMoments();
     CalculatorType::ScalarType mass = calculator->GetTotalMass();
-    double eigenMean = sqrt(principalMoments[0] * principalMoments[1] / mass / mass);
+    double eigenMean = sqrt(sqrt(principalMoments[0] * principalMoments[1] / mass / mass));
     
     cerr << "calculator->GetTotalMass():\n" << mass << endl;
     cerr << "calculator->GetFirstMoments():\n" << calculator->GetFirstMoments() << endl;
@@ -102,7 +102,7 @@ int main( int argc, char ** argv )
     cerr << "calculator->GetCentralMoments():\n" << calculator->GetCentralMoments() << endl;
     cerr << "calculator->GetPrincipalMoments():\n" << principalMoments << endl;
     cerr << "calculator->GetPrincipalAxes():\n" << calculator->GetPrincipalAxes() << endl;
-    cerr << "geometric mean of principal eigenvalues: " << eigenMean << endl;
+    cerr << "square root of geometric mean of principal eigenvalues: " << eigenMean << endl;
     cerr << endl << endl;
   }
   
