@@ -153,6 +153,19 @@ class Bin < Jobs
     list.length.times {|n| rm_rf File.join(output_path, "HiRes_%03d.mha" % (i+1) )}
   end
   
+  desc "calculate_ground_truth_errors DIR1 DIR2 OUTPUT", "calculate mean mask pixel distances between pairs of transforms in 2 directories"
+  def calculate_ground_truth_errors(dir1, dir2, output)
+    mask = File.join results_path('dummy', 'moments'), "HiResTransforms_1_8/CenteredRigid2DTransform/HiRes.mha"
+    File.open output, 'w' do |f|
+      image_list('dummy').each do |transform|
+        puts "transform: #{transform}"
+        transform1 = File.join dir1, transform
+        transform2 = File.join dir2, transform
+        f.write `CalculateGroundTruthError #{mask} #{transform1} #{transform2}`
+      end
+    end
+  end
+  
   private
   def downsample_suffix
     ratios_file = File.join PROJECT_ROOT, 'config/dummy/downsample_ratios.yml'

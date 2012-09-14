@@ -93,11 +93,7 @@ int main( int argc, char * argv[] )
   
   meanDistance /= countedPixels;
   
-  cout << "mean distance: " << meanDistance << endl;
-  
-  cout << "countedPixels: "   << countedPixels   << endl;
-  cout << "uncountedPixels: " << uncountedPixels << endl;
-  
+  cout << meanDistance << endl;
   return EXIT_SUCCESS;
 }
 
