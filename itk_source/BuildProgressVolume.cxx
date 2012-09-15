@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
 	// Process command line arguments
   Dirs::SetDataSet( vm["dataSet"].as<string>() );
   Dirs::SetOutputDirName( vm["outputDir"].as<string>() );
-  bool buildFixedVolume = !vm.count("skipFixedVolume");
+  bool buildFixedVolume  = !vm.count("skipFixedVolume");
+  bool buildMovingVolume = !vm.count("skipMovingVolume");
   bool HiResPairs = vm.count("HiResPairTransforms");
   string HiResPairTransforms;
   if(HiResPairs) HiResPairTransforms = vm["HiResPairTransforms"].as<string>();
@@ -80,25 +81,28 @@ int main(int argc, char *argv[]) {
     vector< string > steps = directoryContents(stepsDirectory);
     
     // initialise stack with correct spacings, sizes, transforms etc
-    cout << "Building " << slicePairs[i] << " moving progress volume..." << flush;
-    StackType::SliceVectorType movingImage(steps.size(), readImage< StackType::SliceType >(movingPaths[i]));
+    if(buildMovingVolume)
+    {
+      cout << "Building " << slicePairs[i] << " moving progress volume..." << flush;
+      StackType::SliceVectorType movingImage(steps.size(), readImage< StackType::SliceType >(movingPaths[i]));
     
-    shared_ptr< StackType > movingStack = HiResPairs ?
-                                          buildAdjacentStack(movingImage, slicePairs[i].substr(0,4), transform) :
-                                          buildHiResMovingStack(movingImage);
+      shared_ptr< StackType > movingStack = HiResPairs ?
+                                            buildAdjacentStack(movingImage, slicePairs[i].substr(0,4), transform) :
+                                            buildHiResMovingStack(movingImage);
     
-    movingStack->SetBasenames(steps);
+      movingStack->SetBasenames(steps);
     
-    // load transform at each iteration
-    Load(*movingStack, stepsDirectory);
+      // load transform at each iteration
+      Load(*movingStack, stepsDirectory);
     
-    // generate images
-    movingStack->updateVolumes();
+      // generate images
+      movingStack->updateVolumes();
     
-    // Write bmps
-    writeImage< StackType::VolumeType >( movingStack->GetVolume(), stepsDirectory + "moving.mha");
+      // Write bmps
+      writeImage< StackType::VolumeType >( movingStack->GetVolume(), stepsDirectory + "moving.mha");
     
-    cout << "done." << endl;
+      cout << "done." << endl;
+    }
     
     // generate comparison volume
     if(buildFixedVolume)
@@ -130,6 +134,7 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("transform", po::value<string>(), "Type of ITK transform that was optimised")
       ("slicePair", po::value<string>(), "the slice pair identifier e.g. 0001 for LoRes/HiRes, 0001_0002 for adjacent pairs")
       ("skipFixedVolume,f", po::value<bool>()->zero_tokens(), "skip generating fixed image comparison volume")
+      ("skipMovingVolume,m", po::value<bool>()->zero_tokens(), "skip generating moving image volume")
       ("HiResPairTransforms", po::value<string>(), "directory containing HiRes pair transforms")
   ;
   
