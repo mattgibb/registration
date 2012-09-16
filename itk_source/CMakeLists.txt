@@ -158,4 +158,8 @@ ADD_EXECUTABLE(CalculateGroundTruthError CalculateGroundTruthError.cxx )
 TARGET_LINK_LIBRARIES(CalculateGroundTruthError ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
                                   Dirs Parameters)
 
+ADD_EXECUTABLE(PadImage PadImage.cxx )
+TARGET_LINK_LIBRARIES(PadImage ${ITK_LIBRARIES} ${YAML_LIBRARY} ${Boost_LIBRARIES}
+                                  Dirs Parameters)
+
 ADD_SUBDIRECTORY(test)
