@@ -27,6 +27,7 @@ void printImageStats(typename TImage::Pointer image)
   cerr << "Sigma:\n" << stats->GetSigma() << endl << endl;
   cerr << "Variance:\n" << stats->GetVariance() << endl << endl;
   cerr << "Sum:\n" << stats->GetSum() << endl << endl;
+  cerr << "Size:\n" << image->GetLargestPossibleRegion().GetSize() << endl << endl;
   cerr << "Image:\n" << stats->GetOutput() << endl << endl;
   
 }
