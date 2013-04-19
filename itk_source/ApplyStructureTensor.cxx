@@ -14,7 +14,7 @@ namespace po = boost::program_options;
 po::variables_map parse_arguments(int argc, char *argv[]);
 
 template<typename ImageType>
-void apply_structure_tensor(const string& input, const string& output)
+void apply_structure_tensor(const string& input, const string& output, const double sigma)
 {
   cout << "Reading image..." << flush;
   typename ImageType::Pointer image = readImage< ImageType >(input);
@@ -22,6 +22,7 @@ void apply_structure_tensor(const string& input, const string& output)
   
   typedef itk::StructureTensorImageFilter< ImageType > FilterType;
   typename FilterType::Pointer filter = FilterType::New();
+  filter->SetSigma(sigma);
   filter->SetInput(image);
   
   cout << "Calculating structure tensor image..." << flush;
@@ -46,13 +47,13 @@ int main(int argc, char *argv[]) {
   if(dim == 2)
   {
     typedef itk::Image< PixelType, 2 > ImageType;
-    apply_structure_tensor< ImageType >(vm["inputImage"].as<string>(), vm["outputImage"].as<string>());
+    apply_structure_tensor< ImageType >(vm["inputImage"].as<string>(), vm["outputImage"].as<string>(), vm["sigma"].as<double>() );
   }
   
   if(dim == 3)
   {
     typedef itk::Image< PixelType, 3 > ImageType;
-    apply_structure_tensor< ImageType >(vm["inputImage"].as<string>(), vm["outputImage"].as<string>());
+    apply_structure_tensor< ImageType >(vm["inputImage"].as<string>(), vm["outputImage"].as<string>(), vm["sigma"].as<double>() );
   }
   
   return EXIT_SUCCESS;
@@ -67,12 +68,15 @@ po::variables_map parse_arguments(int argc, char *argv[])
       ("inputImage", po::value<string>(), "image to be converted")
       ("outputImage", po::value<string>(), "result")
       ("dimension", po::value<unsigned int>()->default_value(3), "number of dimensions in the image")
+      ("sigma", po::value<double>()->default_value(1.0), "standard deviation of the Gaussian smoothing of the tensor image")
   ;
   
   po::positional_options_description p;
   p.add("inputImage", 1)
    .add("outputImage", 1)
-   .add("dimension", 1);
+   .add("dimension", 1)
+   .add("sigma", 1)
+  ;
   
   // parse command line
   po::variables_map vm;
