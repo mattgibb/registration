@@ -3,7 +3,7 @@
 plots the evolving ground truth errors of each slice
 
 Usage:
-plot_ground_truth_distances.py output_dir
+plot_ground_truth_distances.py [--relative]
 
 """
 
@@ -15,17 +15,16 @@ from numpy import *
 # plot 3d line
 import matplotlib as mpl
 from mpl_toolkits.mplot3d import Axes3D
-import numpy as np
 import matplotlib.pyplot as plt
 
 # construct error directory
-errors_dir = join(dirname(dirname(abspath(__file__))),
-                  "results/dummy",
-                  argv[1],
-                  "HiResPairs/GroundTruthErrors")
+errors_dir = "RelativeGroundTruthErrors" if argv[1] == "--relative" else "GroundTruthErrors"
+print argv[1]
+errors_path = "/Users/matt/Code/imaging/registration/results/dummy/200_alpha0.4rt/HiResPairs/" + errors_dir
 
 # read errors
-errors = np.transpose(np.array([genfromtxt(join(errors_dir, file)) for file in listdir(errors_dir)]))
+error_files = sorted(listdir(errors_path), key=int)
+errors = transpose(array([genfromtxt(join(errors_path, file)) for file in error_files]))
 
 # plot
 def plot_3d_lines(values):
