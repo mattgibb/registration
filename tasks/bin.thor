@@ -155,23 +155,79 @@ class Bin < Jobs
   
   desc "calculate_ground_truth_errors OUTPUT_DIR ITERATION", "calculate mean mask pixel distances between pairs of transforms in 2 directories"
   def calculate_ground_truth_errors(output_dir, i)
+    puts "calculating iteration #{i}..."
     # set up variables
     mask = File.join results_path('dummy', 'moments'), "HiResTransforms_1_8/CenteredRigid2DTransform/HiRes.mha"
     perfect_dir = File.join results_path('dummy', "perfect_#{output_dir}"), "HiResTransforms_1_8/CenteredAffineTransform"
     noisy_dir   = File.join results_path('dummy', output_dir),              "HiResPairs/AdjustedTransforms/CenteredAffineTransform_#{i}"
     errors_dir  = File.join results_path('dummy', output_dir), "HiResPairs/GroundTruthErrors/"
+    relative_errors_dir  = File.join results_path('dummy', output_dir), "HiResPairs/RelativeGroundTruthErrors/"
     errors_file = File.join errors_dir, i
+    relative_errors_file = File.join relative_errors_dir, i
     
     # create output directory if it doesn't already exist
     mkdir_p errors_dir
+    mkdir_p relative_errors_dir
     
-    # 
+    # write ground truth errors
+#    File.open errors_file, 'w' do |f|
+#      image_list('dummy').each do |transform|
+#        puts "transform: #{transform}"
+#        perfect_transform = File.join perfect_dir, transform
+#        noisy_transform   = File.join noisy_dir,   transform
+#        f.write `CalculateGroundTruthError #{mask} #{perfect_transform} #{noisy_transform}`
+#      end
+#    end
+
+    # write relative ground truth errors
+    File.open relative_errors_file, 'w' do |f|
+      adjacent_pairs = image_list('dummy')[0..-2].zip(image_list('dummy')[1..-1])
+      adjacent_pairs.each do |pair|
+        puts "transform pair: #{pair}"
+        perfect_transform_1 = File.join perfect_dir, pair[0]
+        perfect_transform_2 = File.join perfect_dir, pair[1]
+        noisy_transform_1 = File.join noisy_dir, pair[0]
+        noisy_transform_2 = File.join noisy_dir, pair[1]
+        f.write `CalculateRelativeGroundTruthError #{mask} #{perfect_transform_1} #{perfect_transform_2} #{noisy_transform_1} #{noisy_transform_2}`
+      end
+    end
+  end
+  
+  desc "calculate_banana_ground_truth_errors", "calculate mean mask pixel distances between perfect and banana transform pairs"
+  def calculate_banana_ground_truth_errors
+    # set up variables
+    mask = File.join results_path('dummy', 'moments'), "HiResTransforms_1_8/CenteredRigid2DTransform/HiRes.mha"
+    perfect_dir = File.join results_path('dummy', "perfect_200_alpha0.4rt"), "HiResTransforms_1_8/CenteredAffineTransform"
+    banana_dir  = File.join results_path('dummy', "200_alpha0.4rt"), "HiResPairs/BananaTransforms/CenteredAffineTransform_1"
+    errors_dir  = File.join results_path('dummy', "200_alpha0.4rt"), "HiResPairs/BananaGroundTruthErrors/"
+    relative_errors_dir  = File.join results_path('dummy', "200_alpha0.4rt"), "HiResPairs/BananaRelativeGroundTruthErrors/"
+    errors_file = File.join errors_dir, "1"
+    relative_errors_file = File.join relative_errors_dir, "1"
+    
+    # create output directory if it doesn't already exist
+    mkdir_p errors_dir
+    mkdir_p relative_errors_dir
+    
+    # write ground truth errors
     File.open errors_file, 'w' do |f|
       image_list('dummy').each do |transform|
         puts "transform: #{transform}"
         perfect_transform = File.join perfect_dir, transform
-        noisy_transform   = File.join noisy_dir,   transform
-        f.write `CalculateGroundTruthError #{mask} #{perfect_transform} #{noisy_transform}`
+        banana_transform = File.join banana_dir, transform
+        f.write `CalculateGroundTruthError #{mask} #{perfect_transform} #{banana_transform}`
+      end
+    end
+
+    # write relative ground truth errors
+    File.open relative_errors_file, 'w' do |f|
+      adjacent_pairs = image_list('dummy')[0..-2].zip(image_list('dummy')[1..-1])
+      adjacent_pairs.each do |pair|
+        puts "transform pair: #{pair}"
+        perfect_transform_1 = File.join perfect_dir, pair[0]
+        perfect_transform_2 = File.join perfect_dir, pair[1]
+        banana_transform_1 = File.join banana_dir, pair[0]
+        banana_transform_2 = File.join banana_dir, pair[1]
+        f.write `CalculateRelativeGroundTruthError #{mask} #{perfect_transform_1} #{perfect_transform_2} #{banana_transform_1} #{banana_transform_2}`
       end
     end
   end

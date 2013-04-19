@@ -59,8 +59,8 @@ int main(int argc, char *argv[]) {
 	// Generate new transforms
 	// TranslationTransform also has a Compose() interface, but only with other TranslationTransforms
   typedef itk::MatrixOffsetTransformBase< double, 2, 2 > ComposableTransformType;
-  typedef itk::CenteredRigid2DTransform< double > OutputTransformType;
-  // typedef itk::CenteredAffineTransform< double, 2 > OutputTransformType;
+  // typedef itk::CenteredRigid2DTransform< double > OutputTransformType;
+  typedef itk::AffineTransform< double, 2 > OutputTransformType;
   
   for(int i=originalPaths.size()-1; i >= 0; --i)
   {
